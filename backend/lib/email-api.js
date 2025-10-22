@@ -10,17 +10,8 @@ class EmailApi {
       pass: process.env.APP_PASSWORD,
     },
   });
-  static baseURL = "https://matted-lumpily-kaysen.ngrok-free.dev/";
-  async send(email, verifyToken) {
-    const transporter = nodemailer.createTransport({
-      host: "smtp-relay.brevo.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.APP_EMAIL,
-        pass: process.env.APP_PASSWORD,
-      },
-    });
+  static baseURL = "https://matted-lumpily-kaysen.ngrok-free.dev/email/";
+  async verifyEmail(email, verifyToken) {
     const mailOptions = {
       from: `<artgrigoryan771@gmail.com>`,
       to: email,
@@ -32,7 +23,7 @@ class EmailApi {
         <p style="font-size: 16px; color: #333;">
           Շնորհակալություն, որ գրանցվել եք: Սեղմեք ստորև, որպեսզի վավերացնեք ձեր էլ․ հասցեն:
         </p>
-        <a href="${Email.baseURL}verify-email?token=${verifyToken}" 
+        <a href="${EmailApi.baseURL}verify-email?token=${verifyToken}" 
           style="
             display: inline-block;
             padding: 12px 25px;
@@ -51,14 +42,7 @@ class EmailApi {
       </div>
     `,
     };
-
-    try {
-      const info = await transporter.sendMail(mailOptions);
-      return info;
-    } catch (err) {
-      console.error(err);
-      return null;
-    }
+    return await this.send(mailOptions);
   }
   async forgotPassword(email, forgotToken) {
     const mailOptions = {
@@ -72,7 +56,7 @@ class EmailApi {
         <p style="font-size: 16px; color: #333;">
           Սեղմեք ստորև, որպեսզի ընթացք տաք գախտնաբառի փոխելու գործընթացին:
         </p>
-        <a href="${Email.baseURL}forgot-password?token=${forgotToken}" 
+        <a href="${EmailApi.baseURL}forgot-password?token=${forgotToken}" 
           style="
             display: inline-block;
             padding: 12px 25px;
@@ -91,8 +75,11 @@ class EmailApi {
       </div>
     `,
     };
+    return await this.send(mailOptions);
+  }
+  async send(mailOptions) {
     try {
-      const info = await Email.transporter.sendMail(mailOptions);
+      const info = await EmailApi.transporter.sendMail(mailOptions);
       return info;
     } catch (err) {
       console.error(err);

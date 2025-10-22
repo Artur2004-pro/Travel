@@ -32,7 +32,7 @@ class AuthController {
         emailVerifyToken,
       });
 
-      const emailResult = await emailApi.send(email, emailVerifyToken);
+      const emailResult = await emailApi.verifyEmail(email, emailVerifyToken);
       return res
         .status(201)
         .send({ message: "veryfication email send", userId: user._id });
@@ -60,7 +60,7 @@ class AuthController {
     found.emailVerifyToken = verifyToken;
     found.username = username;
     await found.save();
-    await emailApi.send(email, verifyToken);
+    await emailApi.verifyEmail(email, verifyToken);
     return res.status(200).send({ message: "verification email send" });
   }
   async login(req, res) {
