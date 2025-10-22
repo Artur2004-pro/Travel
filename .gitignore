@@ -1,0 +1,7 @@
+# Ignore all node_modules in the entire repo
+node_modules/
+**/node_modules/
+
+# Environment & config files
+.env
+config/
