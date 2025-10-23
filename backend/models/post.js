@@ -25,6 +25,16 @@ const postSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    country: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Country",
+      required: true,
+    },
   },
   { timestamps: true }
 );

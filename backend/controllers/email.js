@@ -1,4 +1,5 @@
 const { User } = require("../models/");
+const jwt = require("jsonwebtoken");
 
 class EmailController {
   async verifyEmail(req, res) {
@@ -15,7 +16,7 @@ class EmailController {
     if (expires.getTime() < Date.now()) {
       return res.status(400).send({ message: "Email verify time expired" });
     }
-    found.emailVerifyed = true;
+    found.emailVerified = true;
     found.emailVerifyToken = "";
     await found.save();
     const jwtToken = jwt.sign({ id: found._id }, process.env.JWT_SECRET, {
@@ -23,7 +24,7 @@ class EmailController {
     });
     return res
       .status(200)
-      .send({ message: "Veryfication success", token: jwtToken });
+      .send({ message: "Verification success", payload: { token: jwtToken } });
   }
   async forgotPassword(req, res) {
     const { token } = req.query;
@@ -35,14 +36,22 @@ class EmailController {
     if (!found) {
       return res.status(404).send({ message: "User not found" });
     }
+    found.forgotPasswordToken = "";
     if (Date.now() > found.forgotPasswordExpires.getTime()) {
-      return res.status(400).send({ message: "password time required" });
+      return res.status(400).send({ message: "Password reset link expired" });
     }
 
-    const jwtToken = jwt.sing({ id: found._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
-    return res.status(200).send({ message: "success", token: jwtToken });
+    const jwtToken = jwt.sign(
+      { id: found._id, forgotPassword: true },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
+    await found.save();
+    return res
+      .status(200)
+      .send({ message: "success token for forgot-password", token: jwtToken });
   }
 }
 

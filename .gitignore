@@ -5,3 +5,6 @@ node_modules/
 # Environment & config files
 .env
 config/
+
+
+.git_broken

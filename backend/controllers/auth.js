@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const env = require("../helpers/env.js");
 const emailApi = require("../lib/email-api.js");
 const { User } = require("../models/");
@@ -7,14 +8,10 @@ const { User } = require("../models/");
 class AuthController {
   async signup(req, res) {
     const { username, password, email } = req.body;
-    if (!this.isEmailSyntax(email)) {
-      res.status(400).send({ message: "Invalid email syntax" });
-    }
-    if (!password.trim() || password.trim().length < 6) {
-      return res.status(400).send({ message: "please enter longest password" });
-    }
-    if (!this.isEmailSyntax(email)) {
-      return res.status(400).send({ message: "Invalid email syntax" });
+    if (!password || password?.length < 6) {
+      return res
+        .status(400)
+        .send({ message: "Password must be at least 6 characters long" });
     }
     try {
       const hash = await bcrypt.hash(password, 10);
@@ -33,15 +30,21 @@ class AuthController {
       });
 
       const emailResult = await emailApi.verifyEmail(email, emailVerifyToken);
+      if (!emailResult) {
+        return res.status(500).send({ message: "Verification email failed" });
+      }
+      if (!emailResult.accepted.length) {
+        return res.status(500).send({ message: "Verification email failed" });
+      }
       return res
         .status(201)
-        .send({ message: "veryfication email send", userId: user._id });
+        .send({ message: "Verification email send", userId: user._id });
     } catch (error) {
       res.status(400).send({ message: error.message });
     }
   }
   async resendVerification(req, res) {
-    const { username, email, password } = req.body;
+    const { email, password } = req.body;
     const found = await User.findOne({ email: email });
     if (!found) {
       return res.status(404).send({ message: "Invalid email or password" });
@@ -50,15 +53,14 @@ class AuthController {
     if (!verify) {
       res.status(404).send({ message: "Invalid email or password" });
     }
-    if (found.emailVerifyed) {
-      return res.status(409).send({ message: "Email is already taken" });
+    if (found.emailVerified) {
+      return res.status(409).send({ message: "Email is already verified" });
     }
     const expires = new Date(Date.now() + 15 * 60 * 1000);
     const verifyToken = crypto.randomUUID();
 
     found.emailVerifyExpires = expires;
     found.emailVerifyToken = verifyToken;
-    found.username = username;
     await found.save();
     await emailApi.verifyEmail(email, verifyToken);
     return res.status(200).send({ message: "verification email send" });
@@ -66,25 +68,40 @@ class AuthController {
   async login(req, res) {
     const { username, password } = req.body;
 
-    const user = await User.findOne({ username: username });
+    const isEmail = this.isEmailSytnax(username);
+    const user = isEmail
+      ? await User.findOne({ email: username })
+      : await User.findOne({ username });
+
     if (!user) {
-      return res.status(404).send({ message: "Invalid username or password" });
+      return res.status(404).send({
+        message: `Invalid ${isEmail ? "email" : "username"} or password`,
+      });
     }
-    if (!user.emailVerifyed) {
-      return res.status(409).send({ message: "please verify your email" });
+
+    if (!user.emailVerified) {
+      return res.status(409).send({ message: "Please verify your email" });
     }
-    const verify = bcrypt.compare(password, user.password);
+
+    const verify = await bcrypt.compare(password, user.password);
     if (!verify) {
-      return res.status(404).send({ message: "Invalid username or password" });
+      return res.status(400).send({
+        message: `Invalid ${isEmail ? "email" : "username"} or password`,
+      });
     }
-    const token = jwt.sign({ id: user.id }, env.JWT_SECRET, {
+
+    const token = jwt.sign({ id: user._id, role: user.role }, env.JWT_SECRET, {
       expiresIn: "1h",
     });
-    return res.status(200).send({ message: "login success", token });
+
+    res.status(200).send({
+      message: "Login successful",
+      token: `Bearer ${token}`,
+    });
   }
   async forgotPassword(req, res) {
     const { username } = req.body;
-    if (!username.trim()) {
+    if (!username || !username.trim()) {
       return res.status(400).send({ message: "Invalid username" });
     }
     const user = await User.findOne({ username: username });
@@ -93,12 +110,11 @@ class AuthController {
     }
 
     const token = crypto.randomUUID();
-    user.forgotToken = token;
     user.forgotPasswordToken = token;
     user.forgotPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 min
     await user.save();
     await emailApi.forgotPassword(user.email, token);
-    return res.status(200).send({ message: "forgot password email sned" });
+    return res.status(200).send({ message: "Forgot password email sent" });
   }
   async ForgotPasswordUpdate(req, res) {
     const { password } = req.body;
@@ -110,18 +126,18 @@ class AuthController {
       return res.status(404).send({ message: "Missing fields..." });
     }
     if (password.trim().length < 6) {
-      return res.status(400).send({ message: "please enter longest password" });
+      return res
+        .status(400)
+        .send({ message: "Password must be at least 6 characters long" });
     }
     const hash = await bcrypt.hash(password, 10);
     user.password = hash;
     await user.save();
 
-    return res.status(200).send({ message: "password upadted successfuly" });
+    return res.status(200).send({ message: "Password updated successfully" });
   }
-  isEmailSyntax(email) {
-    this.isEmailSyntax.regExp ??=
-      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return this.isEmailSyntax.regExp.test(email);
+  isEmailSytnax(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 }
 

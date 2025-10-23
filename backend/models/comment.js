@@ -2,18 +2,26 @@ const mongoose = require("mongoose");
 
 const commentSchema = new mongoose.Schema(
   {
-    userId: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    postId: {
+    post: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Post",
       required: true,
     },
-    context: { type: String, trim: true },
-    likes: { type: Number, default: 0 },
+    content: {
+      type: String,
+      required: [true, "Comment content is required"],
+      trim: true,
+    },
+    likes: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
   { timestamps: true }
 );
