@@ -1,9 +1,8 @@
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const env = require("../helpers/env.js");
 const emailApi = require("../lib/email-api.js");
 const { User } = require("../models/");
+const { createToken } = require("../helpers/jwt.js");
 
 class AuthController {
   async signup(req, res) {
@@ -68,7 +67,7 @@ class AuthController {
   async login(req, res) {
     const { username, password } = req.body;
 
-    const isEmail = this.isEmailSytnax(username);
+    const isEmail = this.isEmail(username);
     const user = isEmail
       ? await User.findOne({ email: username })
       : await User.findOne({ username });
@@ -89,10 +88,7 @@ class AuthController {
         message: `Invalid ${isEmail ? "email" : "username"} or password`,
       });
     }
-
-    const token = jwt.sign({ id: user._id, role: user.role }, env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = createToken({ id: user._id, role: user.role });
 
     res.status(200).send({
       message: "Login successful",
@@ -136,7 +132,7 @@ class AuthController {
 
     return res.status(200).send({ message: "Password updated successfully" });
   }
-  isEmailSytnax(value) {
+  isEmail(value) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 }

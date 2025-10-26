@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema(
       select: false,
     },
     role: { type: String, enum: ["user", "admin"], default: "user" },
+    isBlocked: { type: Boolean, default: false },
     avatar: { type: String },
     emailVerified: { type: Boolean, default: false },
     emailVerifyExpires: { type: Date },
@@ -37,8 +38,5 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-userSchema.index({ email: 1 }, { unique: true });
-userSchema.index({ username: 1 }, { unique: true });
 
 module.exports = mongoose.model("User", userSchema);

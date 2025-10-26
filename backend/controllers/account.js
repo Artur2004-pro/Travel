@@ -1,6 +1,25 @@
 const bcrypt = require("bcrypt");
 const { User } = require("../models/");
+
 class AccountController {
+  // admin
+  async configureAccount(req, res) {
+    const { id } = req.body;
+    if (!id) {
+      return res.status(404).send({ message: "ID not found" });
+    }
+    try {
+      const user = await User.findById(id);
+      user.isBlocked = !user.isBlocked;
+      await user.save();
+      const message = user.isBlocked ? "blocked" : "unblocked";
+      return res.status(200).send({ message: `User ${message}` });
+    } catch (error) {
+      return res.status(400).send({ message: error.message });
+    }
+  }
+
+  // user
   async updatePassword(req, res) {
     const { oldPassword, newPassword } = req.body;
     if (!oldPassword?.trim() || !newPassword?.trim()) {

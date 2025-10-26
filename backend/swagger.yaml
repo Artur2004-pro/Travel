@@ -1,0 +1,337 @@
+openapi: 3.0.0
+info:
+  title: Bardiner Travel API
+  version: 1.0.0
+  description: API documentation for Bardiner Travel backend
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: 66d41a33ce9f4714a0a2c4b1
+        username:
+          type: string
+          example: artur
+        email:
+          type: string
+          example: artur@gmail.com
+        role:
+          type: string
+          enum: [user, admin]
+        emailVerified:
+          type: boolean
+          example: false
+        avatar:
+          type: string
+          example: /public/avatars/123.png
+
+    Country:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+          example: Armenia
+        description:
+          type: string
+          example: A mountainous country in the South Caucasus.
+        images:
+          type: array
+          items:
+            type: string
+          example: [/public/country/armenia.jpg]
+        top:
+          type: number
+          example: 0
+
+    City:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+          example: Yerevan
+        description:
+          type: string
+          example: Capital city of Armenia.
+        images:
+          type: array
+          items:
+            type: string
+        countryId:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Login successful
+        token:
+          type: string
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+security:
+  - BearerAuth: []
+
+paths:
+  /auth/signup:
+    post:
+      summary: Register a new user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, email, password]
+              properties:
+                username:
+                  type: string
+                  example: artur
+                email:
+                  type: string
+                  example: artur@gmail.com
+                password:
+                  type: string
+                  example: 123456
+      responses:
+        201:
+          description: Verification email sent
+        400:
+          description: Bad request or email taken
+
+  /auth/login:
+    post:
+      summary: Login with username or email
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        400:
+          description: Invalid credentials
+
+  /auth/forgot/password:
+    post:
+      summary: Send forgot password email
+      tags: [Auth]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username]
+              properties:
+                username:
+                  type: string
+      responses:
+        200:
+          description: Email sent
+        404:
+          description: User not found
+
+  /auth/forgot-password/update:
+    post:
+      summary: Update forgotten password (requires forgot-password JWT)
+      security:
+        - BearerAuth: []
+      tags: [Auth]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password:
+                  type: string
+      responses:
+        200:
+          description: Password updated
+
+  /email/verify-email:
+    get:
+      summary: Verify email token from registration
+      tags: [Email]
+      parameters:
+        - in: query
+          name: token
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Email verified successfully
+        400:
+          description: Token expired
+        401:
+          description: Invalid token
+
+  /email/forgot-password:
+    get:
+      summary: Verify forgot password link from email
+      tags: [Email]
+      parameters:
+        - in: query
+          name: token
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Forgot-password JWT issued
+        400:
+          description: Token expired or invalid
+
+  /account/update-password:
+    post:
+      summary: Update current password (authenticated user)
+      security:
+        - BearerAuth: []
+      tags: [Account]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [oldPassword, newPassword]
+              properties:
+                oldPassword:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        200:
+          description: Password updated
+
+  /account/update-username:
+    post:
+      summary: Update current username (authenticated user)
+      security:
+        - BearerAuth: []
+      tags: [Account]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Username updated
+
+  /country:
+    get:
+      summary: Get all countries
+      tags: [Country]
+      responses:
+        200:
+          description: List of countries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  countries:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Country'
+
+  /country/add:
+    post:
+      summary: Add new country
+      tags: [Country]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [name, description, country]
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                country:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        201:
+          description: Country created
+
+  /country/{id}:
+    delete:
+      summary: Delete country by id
+      tags: [Country]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Country deleted
+
+  /admin/be-admin:
+    post:
+      summary: Promote user to admin
+      tags: [Admin]
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [adminToken]
+              properties:
+                adminToken:
+                  type: string
+      responses:
+        200:
+          description: User promoted
+

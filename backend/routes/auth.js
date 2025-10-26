@@ -17,6 +17,6 @@ router.post(
   authForgotPassword,
   authController.ForgotPasswordUpdate.bind(authController)
 );
-router.post("/login", authController.login);
+router.post("/login", authController.login.bind(authController));
 
 module.exports = router;

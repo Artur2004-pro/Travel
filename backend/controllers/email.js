@@ -1,5 +1,5 @@
 const { User } = require("../models/");
-const jwt = require("jsonwebtoken");
+const { createToken } = require("../helpers/jwt.js");
 
 class EmailController {
   async verifyEmail(req, res) {
@@ -19,12 +19,11 @@ class EmailController {
     found.emailVerified = true;
     found.emailVerifyToken = "";
     await found.save();
-    const jwtToken = jwt.sign({ id: found._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+    const jwtToken = createToken({ id: found._id, role: found.role });
+    return res.status(200).send({
+      message: "Verification success",
+      payload: { token: `Bearer ${jwtToken}` },
     });
-    return res
-      .status(200)
-      .send({ message: "Verification success", payload: { token: jwtToken } });
   }
   async forgotPassword(req, res) {
     const { token } = req.query;
@@ -40,18 +39,12 @@ class EmailController {
     if (Date.now() > found.forgotPasswordExpires.getTime()) {
       return res.status(400).send({ message: "Password reset link expired" });
     }
-
-    const jwtToken = jwt.sign(
-      { id: found._id, forgotPassword: true },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1h",
-      }
-    );
+    const jwtToken = createToken({ id: found._id, forgotPassword: true });
     await found.save();
-    return res
-      .status(200)
-      .send({ message: "success token for forgot-password", token: jwtToken });
+    return res.status(200).send({
+      message: "success token for forgot-password",
+      payload: { token: `Bearer ${jwtToken}` },
+    });
   }
 }
 
