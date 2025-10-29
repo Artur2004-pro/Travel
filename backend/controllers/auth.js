@@ -44,6 +44,9 @@ class AuthController {
   }
   async resendVerification(req, res) {
     const { email, password } = req.body;
+    if (!password || !password?.trim()) {
+      return res.status(400).send({ message: "Missing fields..." });
+    }
     const found = await User.findOne({ email: email });
     if (!found) {
       return res.status(404).send({ message: "Invalid email or password" });

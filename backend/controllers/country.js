@@ -44,10 +44,15 @@ class CountryController {
     }
     try {
       const country = await Country.findById(id);
+      const cities = await City.find({ countryId: id });
       if (!country) {
         return res.status(404).send({ message: "Country not found" });
       }
-      deleteImage(country.images);
+      cities.forEach(async (city) => {
+        await deleteImage(city.images);
+        await city.deleteOne();
+      });
+      await deleteImage(country.images);
       await country.deleteOne();
       return res.status(200).send({ message: "Country deleted successfully" });
     } catch (error) {
@@ -104,7 +109,7 @@ class CountryController {
   }
   async deletePhoto(req, res) {
     const { id } = req.params;
-    const { filename } = req.body;
+    const { filename } = req.query;
     if (!id || !filename) {
       return res.status(400).send({ message: "Missing fields..." });
     }
@@ -127,16 +132,38 @@ class CountryController {
   // user
   async getAll(req, res) {
     const countries = await Country.find({});
-    return res.status(200).send({ countries });
+    return res.status(200).send({ message: "ok", payload: { countries } });
   }
   async getById(req, res) {
     const { id } = req.params;
     if (!id) {
       return res.status(400).send({ message: "Missing country ID" });
     }
-    const country = await Country.aggregate({});
-    if (!country) {
-      return res.status(404).send({ message: "Country not found" });
+    try {
+      const country = await Country.findById(id).populate("cities");
+      if (!country) {
+        return res.status(404).send({ message: "Country not found" });
+      }
+      return res.status(200).send({ message: "success", payload: { country } });
+    } catch (error) {
+      return res.status(400).send({ message: error.message });
+    }
+  }
+  async search(req, res) {
+    const { name } = req.query;
+    if (!name || !name.trim()) {
+      return res.status(400).send({ message: "Missing country name" });
+    }
+    try {
+      const countries = await Country.find({
+        name: { $regex: name, $options: "i" },
+      });
+      if (!countries) {
+        return res.status(404).send({ message: "Countries not found" });
+      }
+      return res.status(200).send({ message: "ok", payload: { countries } });
+    } catch (error) {
+      return res.status(400).send({ message: error.message });
     }
   }
 }

@@ -17,7 +17,7 @@ class AccountController {
     } catch (error) {
       return res.status(400).send({ message: error.message });
     }
-  }
+  } 
 
   // user
   async updatePassword(req, res) {
@@ -67,6 +67,11 @@ class AccountController {
     } catch (error) {
       return res.status(400).send({ message: error.message });
     }
+  }
+  async getAccount(req, res) {
+    const { user } = req;
+    user.password = "";
+    return res.status(200).send({ message: "ok", payload: { user } });
   }
 }
 

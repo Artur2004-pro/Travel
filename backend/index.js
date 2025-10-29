@@ -17,6 +17,8 @@ const emailRouter = require("./routes/email.js");
 const countryRouter = require("./routes/country.js");
 const accountRouter = require("./routes/account.js");
 const adminRouter = require("./routes/admin.js");
+const cityRouter = require("./routes/city.js");
+
 const app = express();
 
 app.use(cors());
@@ -33,6 +35,7 @@ app.use("/account", accountRouter);
 app.use("/email", emailRouter);
 app.use("/country", countryRouter);
 app.use("/admin", adminRouter);
+app.use("/city", cityRouter);
 app.listen(env.APP_PORT, listen.bind(null, env.APP_PORT));
 
 process.on("SIGINT", disConnect);
