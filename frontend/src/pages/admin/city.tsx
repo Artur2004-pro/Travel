@@ -9,6 +9,7 @@ import {
   BackButton,
 } from "../components/index.ts";
 import { CityItem } from "./city-item";
+import axios from "axios";
 
 export const City = () => {
   const { account } = useOutletContext<IOutletContext>();
@@ -33,10 +34,16 @@ export const City = () => {
   const fetchAllCities = async () => {
     try {
       setLoading(true);
-      const { data } = await Axios.get<IResponse<ICity[]>>(`city/${countryId}`);
+      const { data } = await Axios.get<IResponse<ICity[]>>(
+        `city/all/${countryId}`
+      );
       setCities(data.payload);
       setError(null);
-    } catch {
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        setError(`❌ ${error.response?.data?.message || ""}`);
+        return;
+      }
       setError("❌ Error fetching cities.");
     } finally {
       setLoading(false);

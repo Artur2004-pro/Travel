@@ -54,50 +54,40 @@ class CityController {
       return res.status(400).send({ message: error.message });
     }
   }
-  async updateText(req, res) {
+  async update(req, res) {
+    const { files } = req;
     const { id } = req.params;
     const { name, description } = req.body;
-    if (!id || (!name && !description)) {
-      return res.status(400).send({ message: "Missing fields..." });
+    if (!id) {
+      return res.status(400).send({ message: "Missing id" });
+    }
+    if (!files && !name && !description) {
+      return res.status(400).send({ message: "Missing fields" });
     }
     try {
       const city = await City.findById(id);
       if (!city) {
         return res.status(404).send({ message: "City not found" });
       }
-      if (name && name.trim()) {
+      if (files) {
+        const images = files.map((file) => file.path);
+        city.images.push(...images);
+      }
+      if (name) {
         city.name = name;
       }
-      if (description && description.trim()) {
+      if (description) {
         city.description = description;
       }
       await city.save();
-      return res
-        .status(200)
-        .send({ message: "City updated successfully", payload: { city } });
+      return res.status(200).send({
+        message: "City updated successfully",
+        payload: { city },
+      });
     } catch (error) {
-      return res.status(400).send({ message: error.message });
+      return res.status(500).send({ message: "Internal server problem" });
     }
   }
-
-  async addPhotos(req, res) {
-    const { files } = req;
-    const { id } = req.params;
-    if (!files || !id) {
-      return res.status(400).send({ message: "Missing fields" });
-    }
-    const images = files.map((file) => file.path);
-    const city = await City.findById(id);
-    if (!city) {
-      return res.status(404).send({ message: "City not found" });
-    }
-    city.images.push(...images);
-    await city.save();
-    return res
-      .status(200)
-      .send({ message: "City images updated successfully", payload: { city } });
-  }
-
   async deletePhoto(req, res) {
     const { id } = req.params;
     const { filename } = req.query;
@@ -121,6 +111,21 @@ class CityController {
   }
 
   // user
+  async search(req, res) {
+    const { search, country } = req.query;
+    if (!search || !country) {
+      return res.status(400).send({ message: "Missing fields..." });
+    }
+    try {
+      const cities = await City.find({ name: { $regexp: search } });
+      if (!cities) {
+        return res.status(404).send({ message: "Cities not found" });
+      }
+      return res.status(200).send({ message: "Success", payload: { cities } });
+    } catch (error) {
+      return res.status(500).send({ message: "Internal server problem" });
+    }
+  }
   async getCity(req, res) {
     const { id } = req.params;
     if (!id) {

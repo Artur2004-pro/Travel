@@ -34,12 +34,7 @@ export const CountryItem: React.FC<ICountryProps> = ({ country, onDelete }) => {
         </h3>
       </div>
 
-      {/* 📜 Description */}
       <div className="flex flex-col justify-between flex-1 p-6">
-        <p className="text-gray-700 text-sm leading-relaxed mb-6 line-clamp-3">
-          {country.description || "No description provided."}
-        </p>
-
         {/* ⚙️ Buttons */}
         <div
           className="

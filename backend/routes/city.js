@@ -13,19 +13,14 @@ router.post(
   upload.array("city", maxImageCount),
   cityController.add.bind(cityController)
 );
-router.post(
-  "/:id/photos",
+router.patch(
+  "/:id/update",
   isAuth,
   isAdmin,
   upload.array("city", maxImageCount),
-  cityController.addPhotos.bind(cityController)
+  cityController.update.bind(cityController)
 );
-router.patch(
-  "/:id/update-text",
-  isAuth,
-  isAdmin,
-  cityController.updateText.bind(cityController)
-);
+
 router.delete(
   "/:id",
   isAuth,
@@ -40,5 +35,6 @@ router.delete(
 );
 
 // user
-router.get("/:countryId", cityController.getCities.bind(cityController));
+router.get("/:id", cityController.getCity.bind(cityController));
+router.get("/all/:countryId", cityController.getCities.bind(cityController));
 module.exports = router;

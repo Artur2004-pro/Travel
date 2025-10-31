@@ -11,7 +11,7 @@ function ensureDirExistence(dir) {
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadPath = path.join("public", "country");
+    const uploadPath = path.join("public", req.baseUrl);
     ensureDirExistence(uploadPath);
     cb(null, uploadPath);
   },

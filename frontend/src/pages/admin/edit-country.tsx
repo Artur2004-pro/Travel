@@ -64,24 +64,15 @@ export const EditCountry = () => {
     setTimeout(() => setMessage(null), 3500);
   };
 
-  const handleTextUpdate = async (data: ICountry) => {
-    try {
-      await Axios.patch(`country/${id}/update-text`, {
-        name: data.name,
-        description: data.description,
-      });
-      showMessage("success", "✅ Country text updated successfully!");
-    } catch {
-      showMessage("error", "❌ Error updating text.");
-    }
-  };
-
   const handleAddImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
-    if (newImages.length + files.length > 5)
+    if (newImages.length + files.length > 5) {
       return showMessage("error", "⚠️ You can upload up to 5 images only.");
+    }
     setNewImages((prev) => [...prev, ...files]);
+    const urls = files.map((file) => URL.createObjectURL(file));
+    setPreviews([...previews, ...urls]);
   };
 
   const handleDeleteOldImage = async (img: string, index: number) => {
@@ -100,22 +91,26 @@ export const EditCountry = () => {
 
   const handleRemoveNewImage = (index: number) => {
     setNewImages((prev) => prev.filter((_, i) => i !== index));
+    setPreviews(previews.filter((_, i) => i != index));
   };
 
-  const handlePhotosUpdate = async () => {
+  const submit = async (data: ICountry) => {
     if (newImages.length === 0)
       return showMessage("error", "⚠️ Add at least one image before saving.");
 
     const formData = new FormData();
     newImages.forEach((file) => formData.append("country", file));
+    formData.append("name", data.name);
+    formData.append("description", data.description);
 
     try {
-      await Axios.patch(`country/${id}/add-photos`, formData, {
+      await Axios.patch(`country/${id}/update`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       showMessage("success", "✅ Photos updated successfully!");
       setNewImages([]);
       fetchCountry(id!);
+      setPreviews([]);
     } catch {
       showMessage("error", "❌ Error updating photos.");
     }
@@ -131,7 +126,7 @@ export const EditCountry = () => {
       <AdminCard title="✏️ Edit Country">
         {/* 🧩 Text Update Form */}
         <form
-          onSubmit={handleSubmit(handleTextUpdate)}
+          onSubmit={handleSubmit(submit)}
           className="flex flex-col gap-6 mb-10"
         >
           <div>
@@ -163,70 +158,70 @@ export const EditCountry = () => {
               } rounded-xl p-3 text-gray-800 resize-none focus:ring-2 focus:ring-indigo-200`}
             ></textarea>
           </div>
+          <div className="border-t border-gray-200 pt-8">
+            <h4 className="text-xl font-bold mb-5 text-gray-800 flex items-center gap-2">
+              🖼 Manage Photos
+            </h4>
+
+            <div className="flex flex-wrap gap-4 mb-5">
+              {country.images.map((img, index) => (
+                <div
+                  key={img}
+                  className="relative w-28 h-28 border rounded-xl overflow-hidden"
+                >
+                  <img
+                    src={`http://localhost:9999/${img}`}
+                    className="object-cover w-full h-full"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteOldImage(img, index)}
+                    className="absolute top-1 right-1 bg-black/60 text-white text-xs px-2 py-1 rounded hover:bg-red-600 transition"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <UploadImages
+              label="Add new photos"
+              images={newImages}
+              previews={previews}
+              onAdd={handleAddImage}
+              onDelete={handleRemoveNewImage}
+            />
+
+            {/* <button
+            type="button"
+            onClick={handlePhotosUpdate}
+            className="mt-6 bg-indigo-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-indigo-700 transition"
+          >
+            💾 Save Photo Changes
+          </button> */}
+          </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
             className="bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition disabled:opacity-60"
           >
-            {isSubmitting ? "Saving..." : "💾 Save Text Changes"}
+            {isSubmitting ? "Saving..." : "💾 Save Changes"}
           </button>
         </form>
 
         {/* 🖼 Manage Photos */}
-        <div className="border-t border-gray-200 pt-8">
-          <h4 className="text-xl font-bold mb-5 text-gray-800 flex items-center gap-2">
-            🖼 Manage Photos
-          </h4>
-
-          <div className="flex flex-wrap gap-4 mb-5">
-            {country.images.map((img, index) => (
-              <div
-                key={img}
-                className="relative w-28 h-28 border rounded-xl overflow-hidden"
-              >
-                <img
-                  src={`http://localhost:9999/${img}`}
-                  className="object-cover w-full h-full"
-                />
-                <button
-                  type="button"
-                  onClick={() => handleDeleteOldImage(img, index)}
-                  className="absolute top-1 right-1 bg-black/60 text-white text-xs px-2 py-1 rounded hover:bg-red-600 transition"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-
-          <UploadImages
-            label="Add new photos"
-            images={newImages}
-            previews={previews}
-            onAdd={handleAddImage}
-            onDelete={handleRemoveNewImage}
-          />
-
-          <button
-            type="button"
-            onClick={handlePhotosUpdate}
-            className="mt-6 bg-indigo-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-indigo-700 transition"
-          >
-            💾 Save Photo Changes
-          </button>
-        </div>
 
         {/* 🌆 Manage Cities */}
         <div className="border-t border-gray-200 mt-10 pt-8 flex flex-wrap gap-4 justify-center">
           <button
-            onClick={() => navigate(`/admin/add-city/${id}`)}
+            onClick={() => navigate(`/admin/country/${id}/city-add`)}
             className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:scale-[1.03] shadow-md transition"
           >
             ➕ Add City
           </button>
           <button
-            onClick={() => navigate(`/admin/city/${id}`)}
+            onClick={() => navigate(`/admin/country/${id}/city`)}
             className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-5 py-2.5 rounded-xl font-semibold hover:scale-[1.03] shadow-md transition"
           >
             🏙 View Cities

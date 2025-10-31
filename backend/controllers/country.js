@@ -1,4 +1,4 @@
-const { Country } = require("../models/");
+const { Country, City } = require("../models/");
 const deleteImage = require("../helpers/delete-image.js");
 
 class CountryController {
@@ -59,45 +59,31 @@ class CountryController {
       return res.status(400).send({ message: error.message });
     }
   }
-  async updateText(req, res) {
+  async update(req, res) {
+    const { files } = req;
     const { id } = req.params;
     const { name, description } = req.body;
     if (!id) {
-      return res.status(400).send({ message: "Missing Id" });
+      return res.status(400).send({ message: "Missing id" });
+    }
+    if (!files && !name && !description) {
+      return res.status(400).send({ message: "Missing fields" });
     }
     try {
       const country = await Country.findById(id);
       if (!country) {
         return res.status(404).send({ message: "Country not found" });
       }
-      if (name && name.trim()) {
+      if (files) {
+        const images = files.map((file) => file.path);
+        country.images.push(...images);
+      }
+      if (name) {
         country.name = name;
       }
-      if (description && description.trim()) {
-        country.description = description;
+      if (description) {
+        country.description;
       }
-      await country.save();
-      return res.status(200).send({
-        message: "Country fields updated successfully",
-        payload: { data: country },
-      });
-    } catch (error) {
-      return res.status(400).send({ message: error.message });
-    }
-  }
-  async addPhotos(req, res) {
-    const { files } = req;
-    const { id } = req.params;
-    if (!id || !files) {
-      return res.status(404).send({ message: "Missing id or images" });
-    }
-    try {
-      const country = await Country.findById(id);
-      if (!country) {
-        return res.status(404).send({ message: "Country not found" });
-      }
-      const images = files.map((file) => file.path);
-      country.images.push(...images);
       await country.save();
       return res.status(200).send({
         message: "Country updated successfully",

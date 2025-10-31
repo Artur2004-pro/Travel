@@ -53,6 +53,7 @@ export const UploadImages: React.FC<UploadImagesProps> = ({
           <span className="font-medium">Add Image</span>
           <input
             type="file"
+            multiple
             accept="image/*"
             onChange={onAdd}
             className="hidden"

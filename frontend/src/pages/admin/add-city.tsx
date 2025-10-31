@@ -43,8 +43,11 @@ export const AddCity = () => {
 
   const handleAddImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.length) {
-      if (images.length >= 5) return showMessage("error", "⚠️ Max 5 images");
-      setImages((prev) => [...prev, e.target.files![0]]);
+      const files = Array.from(e.target.files);
+      if (images.length + files.length > 5) {
+        return showMessage("error", "⚠️ Max 5 images");
+      }
+      setImages((prev) => [...prev, ...files]);
     }
   };
 
@@ -69,7 +72,7 @@ export const AddCity = () => {
       showMessage("success", "✅ City added successfully!");
       reset();
       setImages([]);
-      navigate(`/admin/city/${res.payload.city._id}`);
+      navigate(`/admin/country/${countryId}/city/${res.payload.city._id}`);
     } catch {
       showMessage("error", "❌ Failed to add city.");
     }

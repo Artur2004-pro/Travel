@@ -16,17 +16,11 @@ router.post(
   countryController.add.bind(countryController)
 );
 router.patch(
-  "/:id/update-text",
-  isAuth,
-  isAdmin,
-  countryController.updateText.bind(countryController)
-);
-router.patch(
-  "/:id/add-photos",
+  "/:id/update",
   isAuth,
   isAdmin,
   upload.array("country", maxUploadSize),
-  countryController.addPhotos.bind(countryController)
+  countryController.update.bind(countryController)
 );
 router.delete(
   "/:id",
