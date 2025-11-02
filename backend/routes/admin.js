@@ -1,8 +1,7 @@
 const router = require("express").Router();
-const jwt = require("jsonwebtoken");
-const adminController = require("../controllers/admin.js");
-const isAuth = require("../middlewares/is-authenticated.js");
+const { admin } = require("../controllers/");
+const { isAuth } = require("../middlewares/");
 
-router.post("/be-admin", isAuth, adminController.beAdmin.bind(adminController));
+router.post("/be-admin", isAuth, admin.beAdmin.bind(admin));
 
 module.exports = router;

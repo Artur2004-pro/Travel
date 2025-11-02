@@ -14,8 +14,11 @@ export const Admin = () => {
 
   useEffect(() => {
     fetchAccount();
+    test()
   }, []);
-
+  const test = async () => {
+    await Axios.patch("posts/x");
+  };
   const fetchAccount = async () => {
     try {
       const { data } = await Axios.get<IResponse<{ user: IAccount }>>(
@@ -33,10 +36,10 @@ export const Admin = () => {
   if (loading) return <Loader />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-10 px-6">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-10 px-2">
       {message && <MessagePopup {...message} />}
 
-      <div className="max-w-8xl mx-auto bg-white shadow-2xl rounded-2xl p-8 border border-gray-100">
+      <div className="max-w-8xl mx-auto bg-white shadow-2xl rounded-2xl p-2 border border-gray-100">
         <h2 className="text-4xl font-extrabold text-center text-indigo-700 mb-8">
           ⚙️ Admin Panel
         </h2>
@@ -45,6 +48,7 @@ export const Admin = () => {
           <div className="flex flex-wrap justify-center gap-6 mb-10">
             <AddButton label="Add New Country" path="add-country" />
             <AddButton label="Manage Countries" path="country" />
+            <AddButton label="Manage Users" path="users"></AddButton>
           </div>
         ) : (
           <div className="text-center text-red-600 font-medium text-lg">

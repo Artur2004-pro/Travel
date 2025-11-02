@@ -1,5 +1,5 @@
 const { User } = require("../models/");
-const env = require("../helpers/env.js");
+const { env } = require("../helpers/");
 
 class AdminController {
   async beAdmin(req, res) {

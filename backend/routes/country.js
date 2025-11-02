@@ -1,37 +1,30 @@
 const router = require("express").Router();
-const countryController = require("../controllers/country.js");
-const upload = require("../middlewares/image-upload.js");
-const isAuth = require("../middlewares/is-authenticated.js");
-const isAdmin = require("../middlewares/is-admin.js");
+const { country } = require("../controllers/");
+const { upload, isAuth, isAdmin } = require("../middlewares/");
 
 const maxUploadSize = 5;
-router.get("/", countryController.getAll);
-router.get("/search", countryController.search);
-router.get("/:id", countryController.getById);
+router.get("/", country.getAll);
+router.get("/search", country.search);
+router.get("/:id", country.getById);
 router.post(
   "/add",
   isAuth,
   isAdmin,
   upload.array("country", maxUploadSize),
-  countryController.add.bind(countryController)
+  country.add.bind(country)
 );
 router.patch(
   "/:id/update",
   isAuth,
   isAdmin,
   upload.array("country", maxUploadSize),
-  countryController.update.bind(countryController)
+  country.update.bind(country)
 );
-router.delete(
-  "/:id",
-  isAuth,
-  isAdmin,
-  countryController.delete.bind(countryController)
-);
+router.delete("/:id", isAuth, isAdmin, country.delete.bind(country));
 router.delete(
   "/:id/photos",
   isAuth,
   isAdmin,
-  countryController.deletePhoto.bind(countryController)
+  country.deletePhoto.bind(country)
 );
 module.exports = router;

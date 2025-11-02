@@ -1,6 +1,6 @@
 const { City } = require("../models/");
 const { Country } = require("../models/");
-const deleteImage = require("../helpers/delete-image.js");
+const { deleteImage } = require("../helpers/");
 
 class CityController {
   // admin
@@ -43,12 +43,11 @@ class CityController {
       return res.status(400).send({ message: "Missing ID" });
     }
     try {
-      const city = await City.findById(id);
-      if (!city) {
+      const deletedCity = await City.findByIdAndDelete(id);
+      if (!deletedCity) {
         return res.status(404).send({ message: "City not found" });
       }
-      deleteImage(city.images);
-      await city.deleteOne();
+      deleteImage(deletedCity.images);
       return res.status(200).send({ message: "City deleted successfully" });
     } catch (error) {
       return res.status(400).send({ message: error.message });
@@ -95,13 +94,17 @@ class CityController {
       return res.status(400).send({ message: "Missing fields..." });
     }
     try {
-      const city = await City.findById(id);
-      if (!city) {
+      const { matchedCount, modifiedCount } = await City.updateOne(
+        { _id: id },
+        { images: { $pull: filename } }
+      );
+      if (!matchedCount) {
         return res.status(404).send({ message: "City not found" });
       }
-      deleteImage(filename),
-        (city.images = city.images.filter((img) => img != filename));
-      await city.save();
+      if (!modifiedCount) {
+        return res.status(404).send({ message: "Image not found" });
+      }
+      await deleteImage(filename);
       return res
         .status(200)
         .send({ message: "Image deleted", payload: { city } });

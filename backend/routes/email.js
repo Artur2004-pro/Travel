@@ -1,7 +1,7 @@
 const router = require("express").Router();
-const emailController = require("../controllers/email.js")
+const { email } = require("../controllers/");
 
-router.get("/verify-email", emailController.verifyEmail)
-router.get("/forgot-password", emailController.forgotPassword);
+router.get("/verify-email", email.verifyEmail);
+router.get("/forgot-password", email.forgotPassword);
 
 module.exports = router;

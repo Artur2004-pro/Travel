@@ -120,7 +120,7 @@ export const EditCountry = () => {
   if (!country) return <EmptyState title="Country not found 😔" />;
 
   return (
-    <div className="relative min-h-screen bg-gray-50 py-12 px-6">
+    <div className="relative min-h-screen bg-gray-50 py-1 px-1">
       {message && <MessagePopup {...message} />}
 
       <AdminCard title="✏️ Edit Country">
@@ -170,7 +170,7 @@ export const EditCountry = () => {
                   className="relative w-28 h-28 border rounded-xl overflow-hidden"
                 >
                   <img
-                    src={`http://localhost:9999/${img}`}
+                    src={`${import.meta.env.VITE_APP_DOMAIN}/${img}`}
                     className="object-cover w-full h-full"
                   />
                   <button

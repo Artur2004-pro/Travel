@@ -1,13 +1,32 @@
 import React, { useState } from "react";
+import type { ImageCarouselProps } from "../../../types";
 
-interface ImageCarouselProps {
-  images: string[];
-  title?: string;
-}
-
-export const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, title }) => {
+export const ImageCarousel: React.FC<ImageCarouselProps> = ({
+  images,
+  title,
+}) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    setTouchStart({ x: touch.clientX, y: touch.clientY });
+  };
 
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - touchStart.x;
+
+    if (Math.abs(deltaX) < 50) return;
+
+    if (deltaX > 0) {
+      setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
+    } else {
+      setActiveIndex((prev) => (prev + 1) % images.length);
+    }
+  };
   if (!images || images.length === 0) {
     return (
       <div className="w-full h-56 flex items-center justify-center bg-gray-200 text-gray-500 text-sm rounded-2xl">
@@ -16,10 +35,15 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, title }) =
     );
   }
 
-  const activeImage = "http://localhost:9999/" + images[activeIndex];
+  const activeImage =
+    `${import.meta.env.VITE_APP_DOMAIN}/` + images[activeIndex];
 
   return (
-    <div className="relative group">
+    <div
+      className="relative group"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       <img
         src={activeImage}
         alt={title}

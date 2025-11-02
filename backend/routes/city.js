@@ -1,8 +1,6 @@
 const router = require("express").Router();
-const cityController = require("../controllers/city.js");
-const upload = require("../middlewares/image-upload.js");
-const isAuth = require("../middlewares/is-authenticated.js");
-const isAdmin = require("../middlewares/is-admin.js");
+const { city } = require("../controllers/");
+const { isAuth, isAdmin, upload } = require("../middlewares/");
 
 // admin
 const maxImageCount = 5;
@@ -11,30 +9,20 @@ router.post(
   isAuth,
   isAdmin,
   upload.array("city", maxImageCount),
-  cityController.add.bind(cityController)
+  city.add.bind(city)
 );
 router.patch(
   "/:id/update",
   isAuth,
   isAdmin,
   upload.array("city", maxImageCount),
-  cityController.update.bind(cityController)
+  city.update.bind(city)
 );
 
-router.delete(
-  "/:id",
-  isAuth,
-  isAdmin,
-  cityController.delete.bind(cityController)
-);
-router.delete(
-  "/:id/photos",
-  isAuth,
-  isAdmin,
-  cityController.deletePhoto.bind(cityController)
-);
+router.delete("/:id", isAuth, isAdmin, city.delete.bind(city));
+router.delete("/:id/photos", isAuth, isAdmin, city.deletePhoto.bind(city));
 
 // user
-router.get("/:id", cityController.getCity.bind(cityController));
-router.get("/all/:countryId", cityController.getCities.bind(cityController));
+router.get("/:id", city.getCity.bind(city));
+router.get("/all/:countryId", city.getCities.bind(city));
 module.exports = router;

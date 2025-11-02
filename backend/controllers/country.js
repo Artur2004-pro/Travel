@@ -1,5 +1,5 @@
 const { Country, City } = require("../models/");
-const deleteImage = require("../helpers/delete-image.js");
+const { deleteImage } = require("../helpers/");
 
 class CountryController {
   // admin
@@ -43,17 +43,16 @@ class CountryController {
       return res.status(404).send({ message: "ID not found" });
     }
     try {
-      const country = await Country.findById(id);
+      const deletedCountry = await Country.findByIdAndDelete(id);
       const cities = await City.find({ countryId: id });
-      if (!country) {
+      if (!deletedCountry) {
         return res.status(404).send({ message: "Country not found" });
       }
       cities.forEach(async (city) => {
         await deleteImage(city.images);
         await city.deleteOne();
       });
-      await deleteImage(country.images);
-      await country.deleteOne();
+      await deleteImage(deletedCountry.images);
       return res.status(200).send({ message: "Country deleted successfully" });
     } catch (error) {
       return res.status(400).send({ message: error.message });
@@ -100,16 +99,17 @@ class CountryController {
       return res.status(400).send({ message: "Missing fields..." });
     }
     try {
-      const country = await Country.findById(id);
-      if (!country) {
+      const { modifiedCount, matchedCount } = await Country.updateOne(
+        { _id: id },
+        { images: { $pull: filename } }
+      );
+      if (!matchedCount) {
         return res.status(404).send({ message: "Country not found" });
       }
-      const deleted = await deleteImage(filename);
-      if (!deleted) {
-        return res.status(500).send({ message: "Internal server problem..." });
+      if (!modifiedCount) {
+        return res.status(400).send({ message: "Image not found" });
       }
-      country.images = country.images.filter((img) => img != filename);
-      await country.save();
+      await deleteImage(filename);
       return res.status(200).send({ message: "Image deleted successfully" });
     } catch (error) {
       return res.status(400).send({ message: error.message });

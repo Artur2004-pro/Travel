@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const emailApi = require("../lib/email-api.js");
 const { User } = require("../models/");
-const { createToken } = require("../helpers/jwt.js");
+const { createToken } = require("../helpers/");
 
 class AuthController {
   async signup(req, res) {
@@ -115,7 +115,7 @@ class AuthController {
     await emailApi.forgotPassword(user.email, token);
     return res.status(200).send({ message: "Forgot password email sent" });
   }
-  async ForgotPasswordUpdate(req, res) {
+  async forgotPasswordUpdate(req, res) {
     const { password } = req.body;
     const { user } = req;
     if (!user) {

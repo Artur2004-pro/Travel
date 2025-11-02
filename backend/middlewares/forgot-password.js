@@ -1,5 +1,5 @@
 const { User } = require("../models");
-const { verifyToken } = require("../helpers/jwt.js");
+const { verifyToken } = require("../helpers/");
 
 async function forgotPassword(req, res, next) {
   const { authentication } = req.headers;

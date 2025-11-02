@@ -4,7 +4,7 @@ const { User } = require("../models/");
 class AccountController {
   // admin
   async configureAccount(req, res) {
-    const { id } = req.body;
+    const { id } = req.params;
     if (!id) {
       return res.status(404).send({ message: "ID not found" });
     }
@@ -13,12 +13,78 @@ class AccountController {
       user.isBlocked = !user.isBlocked;
       await user.save();
       const message = user.isBlocked ? "blocked" : "unblocked";
-      return res.status(200).send({ message: `User ${message}` });
+      return res
+        .status(200)
+        .send({ message: `User ${message}`, payload: user.isBlocked });
     } catch (error) {
-      return res.status(400).send({ message: error.message });
+      return res.status(500).send({ message: "Internal server problem" });
     }
-  } 
+  }
+  async search(req, res) {
+    const { search } = req.query;
+    if (!search || !search?.trim()) {
+      return res.status(400).send({ message: "Missing search params..." });
+    }
+    try {
+      const users = await User.find({
+        username: { $regex: search, $options: "i" },
+      }).select(["username", "email", "role", "isBlocked", "_id", "avatar"]);
+      if (!users) {
+        return res.status(404).send({ message: "Users not found" });
+      }
+      return res.status(200).send({ message: "Success", payload: users });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({ message: "Internal server problem" });
+    }
+  }
+  async getSpecAccount(req, res) {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).send({ message: "Missing id" });
+    }
+    try {
+      const account = await User.findById(id).select([
+        "-password",
+        "-emailVerifyExpires",
+        "-emailVerifyToken",
+        "-forgotPasswordToken",
+        "-forgotPasswordExpires",
+        "-forgotUsernameToken",
+        "-forgotUsernameExpires",
+      ]);
+      if (!account) {
+        return res.status(404).send({ message: "Account not found" });
+      }
+      return res.status(200).send({ message: "Success", payload: account });
+    } catch (error) {
+      return res.status(500).send({ message: error.message });
+    }
+  }
+  async role(req, res) {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).send({ message: "Missing user id" });
+    }
+    try {
+      const user = await User.findById(id);
+      if (!user) {
+        return res.status(404).send({ message: "User not found" });
+      }
+      if (!user.emailVerified) {
+        return res.status(409).send({ message: "User email not verified!" });
+      }
+      user.role = user.role == "admin" ? "user" : "admin";
+      await user.save();
 
+      return res.status(200).send({
+        message: "User role changed successfully",
+        payload: user.role,
+      });
+    } catch (error) {
+      return res.status(500).send({ message: "Internal server problem" });
+    }
+  }
   // user
   async updatePassword(req, res) {
     const { oldPassword, newPassword } = req.body;

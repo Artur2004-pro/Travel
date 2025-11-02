@@ -1,5 +1,10 @@
 import { useForm } from "react-hook-form";
-import type { ICity, IOutletContext, IResponse } from "../../types";
+import type {
+  ICity,
+  IOutletContext,
+  IResponse,
+  IShowMessage,
+} from "../../types";
 import { useEffect, useState } from "react";
 import {
   UploadImages,
@@ -21,10 +26,7 @@ export const EditCity = () => {
   const [loading, setLoading] = useState(true);
   const [newImages, setNewImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [message, setMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
+  const [message, setMessage] = useState<IShowMessage | null>(null);
 
   const {
     register,
@@ -118,7 +120,7 @@ export const EditCity = () => {
   if (!city) return <EmptyState title="City not found 😔" />;
 
   return (
-    <div className="relative min-h-screen bg-gray-50 py-12 px-6">
+    <div className="relative min-h-screen bg-gray-50 py-1 px-1">
       {message && <MessagePopup {...message} />}
 
       <AdminCard title="🏙️ Edit City">
@@ -169,7 +171,7 @@ export const EditCity = () => {
                   className="relative w-28 h-28 border rounded-xl overflow-hidden"
                 >
                   <img
-                    src={`http://localhost:9999/${img}`}
+                    src={`${import.meta.env.VITE_APP_DOMAIN}/${img}`}
                     className="object-cover w-full h-full"
                   />
                   <button

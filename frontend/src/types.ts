@@ -11,30 +11,37 @@ export interface IUser {
   role: string;
   avatar: string;
 }
+export interface IAccount {
+  _id: string;
+  email: string;
+  username: string;
+  avatar: string;
+  role: "user" | "admin";
+  isBlocked: boolean;
+  emailVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+export interface IShowMessage {
+  type: "success" | "error";
+  text: string;
+}
 
 // export interface IAccount {
 //   _id: string;
 //   email: string;
 //   username: string;
-//   role: string;
-//   updatedAt: string;
+//   password: string;
+//   role: "admin" | "user";
+//   isBlocked: boolean;
+//   emailVerified: boolean;
+//   emailVerifyExpires: string;
+//   emailVerifyToken: string;
 //   createdAt: string;
+//   updatedAt: string;
+//   __v: number;
 // }
-
-export interface IAccount {
-  _id: string;
-  email: string;
-  username: string;
-  password: string;
-  role: "admin" | "user";
-  isBlocked: boolean;
-  emailVerified: boolean;
-  emailVerifyExpires: string;
-  emailVerifyToken: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
 export interface ILoginUser {
   username: string;
   password: string;
@@ -112,4 +119,8 @@ export interface IDeleteButtonProps {
 
 export interface ImageSectionProps {
   images: string[];
+}
+export interface ImageCarouselProps {
+  images: string[];
+  title?: string;
 }

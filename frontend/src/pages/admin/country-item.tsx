@@ -16,30 +16,35 @@ export const CountryItem: React.FC<ICountryProps> = ({ country, onDelete }) => {
   return (
     <div
       className="
-        group relative flex flex-col
-        w-full max-w-[460px] min-h-[460px]
-        bg-white/30 backdrop-blur-2xl
-        border border-white/40 shadow-[0_8px_25px_rgba(0,0,0,0.05)]
-        rounded-3xl overflow-hidden
-        hover:-translate-y-1 hover:shadow-[0_12px_35px_rgba(79,70,229,0.15)]
-        transition-all duration-300
+        relative flex flex-col w-full max-w-sm
+        bg-gradient-to-br from-white via-indigo-50 to-indigo-100
+        rounded-3xl overflow-hidden border border-indigo-100/60
+        shadow-[0_8px_20px_rgba(79,70,229,0.1)]
+        transition-all duration-500 ease-out
+        hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(79,70,229,0.25)]
       "
     >
       {/* 🌄 Image */}
-      <div className="relative w-full h-56 overflow-hidden rounded-t-3xl">
+      <div className="relative group w-full h-56 overflow-hidden">
         <ImageSection images={country.images} />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent" />
-        <h3 className="absolute bottom-4 left-4 text-white font-semibold text-lg drop-shadow-lg tracking-wide">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent pointer-events-none" />
+        <h3 className="absolute bottom-3 left-4 text-white text-xl font-semibold tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
           {country.name}
         </h3>
       </div>
 
+      {/* 🧾 Info Section */}
       <div className="flex flex-col justify-between flex-1 p-6">
+        <p className="text-gray-600 text-sm mb-4">
+          Explore the beauty of{" "}
+          <span className="font-medium">{country.name}</span>.
+        </p>
+
         {/* ⚙️ Buttons */}
         <div
           className="
-            flex justify-between items-center
-            border-t border-white/30 pt-5 mt-auto
+            flex justify-between items-center gap-3
+            border-t border-indigo-100/70 pt-4
           "
         >
           <EditButton id={country._id} />
@@ -47,13 +52,13 @@ export const CountryItem: React.FC<ICountryProps> = ({ country, onDelete }) => {
         </div>
       </div>
 
-      {/* Accent Glow */}
+      {/* 💫 Accent Glow */}
       <div
         className="
           absolute inset-0 rounded-3xl pointer-events-none
           opacity-0 group-hover:opacity-100
-          transition-all duration-500
-          bg-gradient-to-br from-indigo-300/20 via-transparent to-purple-300/20
+          transition-opacity duration-500
+          bg-gradient-to-br from-indigo-300/30 via-purple-200/20 to-pink-300/30 blur-xl
         "
       />
     </div>

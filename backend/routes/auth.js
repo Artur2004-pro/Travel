@@ -1,22 +1,15 @@
 const router = require("express").Router();
-const authController = require("../controllers/auth.js");
-const isAuth = require("../middlewares/is-authenticated.js");
-const authForgotPassword = require("../middlewares/forgot-password.js");
+const { auth } = require("../controllers/");
+const { forgotPassword } = require("../middlewares/");
 
-router.post("/signup", authController.signup.bind(authController));
-router.post(
-  "/resend-verification",
-  authController.resendVerification.bind(authController)
-);
-router.post(
-  "/forgot/password",
-  authController.forgotPassword.bind(authController)
-);
+router.post("/signup", auth.signup.bind(auth));
+router.post("/resend-verification", auth.resendVerification.bind(auth));
+router.post("/forgot/password", auth.forgotPassword.bind(auth));
 router.post(
   "/forgot-password/update",
-  authForgotPassword,
-  authController.ForgotPasswordUpdate.bind(authController)
+  forgotPassword,
+  auth.forgotPasswordUpdate.bind(auth)
 );
-router.post("/login", authController.login.bind(authController));
+router.post("/login", auth.login.bind(auth));
 
 module.exports = router;

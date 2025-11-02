@@ -1,5 +1,5 @@
 const { User } = require("../models/");
-const { createToken } = require("../helpers/jwt.js");
+const { createToken } = require("../helpers/");
 
 class EmailController {
   async verifyEmail(req, res) {

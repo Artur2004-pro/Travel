@@ -3,6 +3,30 @@ import type { ImageSectionProps } from "../../../types";
 
 export const ImageSection: React.FC<ImageSectionProps> = ({ images }) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    setTouchStart({ x: touch.clientX, y: touch.clientY });
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - touchStart.x;
+
+    if (Math.abs(deltaX) < 50) return;
+
+    if (deltaX > 0) {
+      setActiveIndex((prev) => (prev - 1 + images.length) % images.length);
+    } else {
+      setActiveIndex((prev) => (prev + 1) % images.length);
+    }
+  };
+  const activeImage =
+    `${import.meta.env.VITE_APP_DOMAIN}/` + images[activeIndex];
 
   if (!images || images.length === 0) {
     return (
@@ -12,10 +36,18 @@ export const ImageSection: React.FC<ImageSectionProps> = ({ images }) => {
     );
   }
 
-  const activeImage = "http://localhost:9999/" + images[activeIndex];
-
   return (
-    <div className="relative group">
+    <div
+      className="relative group"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      style={{
+        touchAction: "pan-y",
+        WebkitUserSelect: "none",
+        userSelect: "none",
+        WebkitTouchCallout: "none",
+      }}
+    >
       <img
         src={activeImage}
         className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-105 rounded-2xl"

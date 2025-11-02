@@ -38,7 +38,6 @@ function setupSwagger(app) {
     swaggerUi.serve,
     swaggerUi.setup(specs, { explorer: true })
   );
-  console.log("📘 Swagger docs available at /api-docs");
 }
 
 module.exports = setupSwagger;

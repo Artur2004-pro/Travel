@@ -10,6 +10,8 @@ import { City } from "./pages/admin/city";
 import { EditCountry } from "./pages/admin/edit-country";
 import { AddCity } from "./pages/admin/add-city";
 import { EditCity } from "./pages/admin/edit-city";
+import { Users } from "./pages/admin/users";
+import { EditUser } from "./pages/admin/edit-user";
 
 export const router = createBrowserRouter([
   { path: "be-admin", element: <BeAdmin /> },
@@ -23,7 +25,8 @@ export const router = createBrowserRouter([
       { path: "country", element: <Country /> },
       { path: "add-country", element: <AddCountry /> },
       { path: "country/:id", element: <EditCountry /> },
-
+      { path: "users", element: <Users /> },
+      { path: "users/:id", element: <EditUser /> },
       { path: "country/:countryId/city", element: <City /> },
       { path: "country/:countryId/city-add", element: <AddCity /> },
       { path: "country/:countryId/city/:cityId", element: <EditCity /> },
