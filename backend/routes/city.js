@@ -4,6 +4,7 @@ const { isAuth, isAdmin, upload } = require("../middlewares/");
 
 // admin
 const maxImageCount = 5;
+router.get("/search", city.search.bind(city));
 router.post(
   "/:countryId",
   isAuth,
@@ -12,7 +13,7 @@ router.post(
   city.add.bind(city)
 );
 router.patch(
-  "/:id/update",
+  "/:id",
   isAuth,
   isAdmin,
   upload.array("city", maxImageCount),

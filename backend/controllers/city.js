@@ -1,6 +1,6 @@
 const { City } = require("../models/");
 const { Country } = require("../models/");
-const { deleteImage } = require("../helpers/");
+const { deleteImage, handleError } = require("../helpers/");
 
 class CityController {
   // admin
@@ -34,7 +34,7 @@ class CityController {
         payload: { city },
       });
     } catch (error) {
-      return res.status(400).send({ message: error.message });
+      return handleError(res, error);
     }
   }
   async delete(req, res) {
@@ -50,7 +50,7 @@ class CityController {
       deleteImage(deletedCity.images);
       return res.status(200).send({ message: "City deleted successfully" });
     } catch (error) {
-      return res.status(400).send({ message: error.message });
+      return handleError(res, error);
     }
   }
   async update(req, res) {
@@ -84,7 +84,7 @@ class CityController {
         payload: { city },
       });
     } catch (error) {
-      return res.status(500).send({ message: "Internal server problem" });
+      return handleError(res, error);
     }
   }
   async deletePhoto(req, res) {
@@ -109,24 +109,24 @@ class CityController {
         .status(200)
         .send({ message: "Image deleted", payload: { city } });
     } catch (error) {
-      return res.status(400).send({ message: error.message });
+      return handleError(res, error);
     }
   }
 
   // user
   async search(req, res) {
-    const { search, country } = req.query;
-    if (!search || !country) {
+    const { name, country } = req.query;
+    if (!name || !country) {
       return res.status(400).send({ message: "Missing fields..." });
     }
     try {
-      const cities = await City.find({ name: { $regexp: search } });
+      const cities = await City.find({ name: { $regex: name } });
       if (!cities) {
         return res.status(404).send({ message: "Cities not found" });
       }
       return res.status(200).send({ message: "Success", payload: { cities } });
     } catch (error) {
-      return res.status(500).send({ message: "Internal server problem" });
+      return handleError(res, error);
     }
   }
   async getCity(req, res) {
@@ -141,7 +141,7 @@ class CityController {
       }
       return res.status(200).send({ message: "success", payload: city });
     } catch (error) {
-      return res.status(500).send({ message: "Internal server problem" });
+      return handleError(res, error);
     }
   }
   async getCities(req, res) {
@@ -159,7 +159,7 @@ class CityController {
       }
       return res.status(200).send({ message: "success", payload: cities });
     } catch (error) {
-      return res.status(400).send({ message: error.message });
+      return handleError(res, error);
     }
   }
 }

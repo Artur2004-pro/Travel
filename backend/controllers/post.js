@@ -1,5 +1,5 @@
 const { Post } = require("../models/");
-const { deleteImage } = require("../helpers/");
+const { deleteImage, handleError } = require("../helpers/");
 
 class PostController {
   async add(req, res) {
@@ -21,7 +21,7 @@ class PostController {
         .status(201)
         .send({ message: "Post created successfully", payload: post });
     } catch (error) {
-      return res.status(500).send({ message: "Internal server problem" });
+      return handleError(res, error);
     }
   }
   async delete(req, res) {
@@ -45,7 +45,7 @@ class PostController {
       await found.deleteOne();
       return res.status(200).send({ message: "Post deleted successfully" });
     } catch (error) {
-      return res.status(500).send({ message: "Internal server problem" });
+      return handleError(res, error);
     }
   }
   async like(req, res) {
@@ -58,8 +58,7 @@ class PostController {
       const message = await Post.toggleLike(userId, id);
       return res.status(200).send({ message });
     } catch (error) {
-      console.log(error);
-      return res.status(500).send({ message: "Internal server problem" });
+      return handleError(res, error);
     }
   }
   async update(req, res) {
@@ -90,7 +89,7 @@ class PostController {
       await post.save();
       return res.status(200).send({ message: "Post Updated successfully" });
     } catch (error) {
-      return res.status(500).send({ message: "Internal server problem" });
+      return handleError(res, error);
     }
   }
   async deletePhoto(req, res) {
@@ -114,7 +113,7 @@ class PostController {
       await deleteImage(filename);
       return res.status(200).send({ message: "image deleted successfully" });
     } catch (error) {
-      return res.status(500).send({ message: "Internal server problem" });
+      return handleError(res, error);
     }
   }
 }

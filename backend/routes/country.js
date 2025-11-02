@@ -11,20 +11,15 @@ router.post(
   isAuth,
   isAdmin,
   upload.array("country", maxUploadSize),
-  country.add.bind(country)
+  country.add
 );
 router.patch(
-  "/:id/update",
+  "/:id",
   isAuth,
   isAdmin,
   upload.array("country", maxUploadSize),
-  country.update.bind(country)
+  country.update
 );
-router.delete("/:id", isAuth, isAdmin, country.delete.bind(country));
-router.delete(
-  "/:id/photos",
-  isAuth,
-  isAdmin,
-  country.deletePhoto.bind(country)
-);
+router.delete("/:id", isAuth, isAdmin, country.delete);
+router.delete("/:id/photos", isAuth, isAdmin, country.deletePhoto);
 module.exports = router;

@@ -4,6 +4,7 @@ const env = require("./env.js");
 const { createToken, verifyToken, refreshToken } = require("./jwt.js");
 const listen = require("./listen.js");
 const setupSwagger = require("./swagger.js");
+const handleError = require("./handle-error.js");
 
 module.exports = {
   connect,
@@ -15,4 +16,5 @@ module.exports = {
   refreshToken,
   listen,
   setupSwagger,
+  handleError,
 };

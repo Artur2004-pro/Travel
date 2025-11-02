@@ -1,4 +1,6 @@
 const { Comment, Post } = require("../models/");
+const { handleError } = require("../helpers/");
+
 class CommentController {
   async add(req, res) {
     const userId = req.user._id;
@@ -17,7 +19,7 @@ class CommentController {
         .status(200)
         .send({ message: "Comment added successfully", payload: comment });
     } catch (error) {
-      return res.status(500).send({ message: "Internal server problem" });
+      return handleError(res, error);
     }
   }
   async delete(req, res) {
@@ -45,7 +47,7 @@ class CommentController {
       await comment.deleteOne();
       return res.status(200).send({ message: "Comment deleted successfully" });
     } catch (error) {
-      return res.status(500).send({ message: "Internal server problem" });
+      return handleError(res, error);
     }
   }
   async like(req, res) {
@@ -58,7 +60,7 @@ class CommentController {
       const message = await Comment.toggleLike(userId, id);
       return res.status(200).send({ message });
     } catch (error) {
-      return res.status(500).send({ message: "Internal server problem" });
+      return handleError(res, error);
     }
   }
 }

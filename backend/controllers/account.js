@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const { handleError } = require("../helpers/");
 const { User } = require("../models/");
 
 class AccountController {
@@ -17,7 +18,7 @@ class AccountController {
         .status(200)
         .send({ message: `User ${message}`, payload: user.isBlocked });
     } catch (error) {
-      return res.status(500).send({ message: "Internal server problem" });
+      return handleError(res, error);
     }
   }
   async search(req, res) {
@@ -34,8 +35,7 @@ class AccountController {
       }
       return res.status(200).send({ message: "Success", payload: users });
     } catch (error) {
-      console.log(error);
-      return res.status(500).send({ message: "Internal server problem" });
+      return handleError(res, error);
     }
   }
   async getSpecAccount(req, res) {
@@ -58,7 +58,7 @@ class AccountController {
       }
       return res.status(200).send({ message: "Success", payload: account });
     } catch (error) {
-      return res.status(500).send({ message: error.message });
+      return handleError(res, error);
     }
   }
   async role(req, res) {
@@ -82,7 +82,7 @@ class AccountController {
         payload: user.role,
       });
     } catch (error) {
-      return res.status(500).send({ message: "Internal server problem" });
+      return handleError(res, error);
     }
   }
   // user
@@ -110,7 +110,7 @@ class AccountController {
       await found.save();
       return res.status(200).send({ message: "Password updated" });
     } catch (error) {
-      return res.status(400).send({ message: error.message });
+      return handleError(res, error);
     }
   }
   async updateUsername(req, res) {
@@ -131,7 +131,7 @@ class AccountController {
         .status(200)
         .send({ message: "Username updated", payload: username });
     } catch (error) {
-      return res.status(400).send({ message: error.message });
+      return handleError(res, error);
     }
   }
   async getAccount(req, res) {

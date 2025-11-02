@@ -1,5 +1,5 @@
 const { Country, City } = require("../models/");
-const { deleteImage } = require("../helpers/");
+const { deleteImage, handleError } = require("../helpers/");
 
 class CountryController {
   // admin
@@ -31,10 +31,7 @@ class CountryController {
         payload: { data: country },
       });
     } catch (error) {
-      console.error(error);
-      return res
-        .status(500)
-        .send({ message: "Server error", error: error.message });
+      return handleError(res, error);
     }
   }
   async delete(req, res) {
@@ -55,7 +52,7 @@ class CountryController {
       await deleteImage(deletedCountry.images);
       return res.status(200).send({ message: "Country deleted successfully" });
     } catch (error) {
-      return res.status(400).send({ message: error.message });
+      return handleError(res, error);
     }
   }
   async update(req, res) {
@@ -89,7 +86,7 @@ class CountryController {
         payload: { data: country },
       });
     } catch (error) {
-      return res.status(400).send({ message: error.message });
+      return handleError(res, error);
     }
   }
   async deletePhoto(req, res) {
@@ -112,7 +109,7 @@ class CountryController {
       await deleteImage(filename);
       return res.status(200).send({ message: "Image deleted successfully" });
     } catch (error) {
-      return res.status(400).send({ message: error.message });
+      return handleError(res, error);
     }
   }
   // user
@@ -132,7 +129,7 @@ class CountryController {
       }
       return res.status(200).send({ message: "success", payload: { country } });
     } catch (error) {
-      return res.status(400).send({ message: error.message });
+      return handleError(res, error);
     }
   }
   async search(req, res) {
@@ -149,7 +146,7 @@ class CountryController {
       }
       return res.status(200).send({ message: "ok", payload: { countries } });
     } catch (error) {
-      return res.status(400).send({ message: error.message });
+      return handleError(res, error);
     }
   }
 }
