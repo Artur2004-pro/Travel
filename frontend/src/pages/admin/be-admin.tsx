@@ -1,132 +1,91 @@
-import { useForm } from "react-hook-form";
-import { Axios } from "../../lib/axios-config";
 import { useState } from "react";
-import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { Axios } from "../../lib/axios-config";
+import { Loader, MessagePopup, BackButton } from "../components";
+import type { IShowMessage } from "../../types";
 
 export const BeAdmin = () => {
-  const {
-    reset,
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<{ adminToken: string }>();
-  const navigate = useNavigate();
-  const [message, setMessage] = useState<string>("");
-  const [isError, setIsError] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [email, setEmail] = useState("");
+  const [reason, setReason] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<IShowMessage | null>(null);
 
-  const showMessage = (msg: string, error = false) => {
-    setIsError(error);
-    setMessage(msg);
-    setTimeout(() => setMessage(""), 3000);
+  const showMessage = (type: "success" | "error", text: string) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage(null), 3000);
   };
-  const redirect = (path: string) => {
-    setTimeout(() => {
-      navigate("/" + path);
-    }, 2000);
-  };
-  const submit = async (data: { adminToken: string }) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await Axios.post("admin/be-admin", data);
-      showMessage(response.data.message || "You are now an admin!");
-      reset();
-      redirect("admin");
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        showMessage(
-          error.response?.data?.message || "Invalid or expired admin token",
-          true
-        );
-      } else {
-        showMessage("Something went wrong", true);
-      }
-      redirect("home");
+      const { data } = await Axios.post("/be-admin", { email, reason });
+      showMessage("success", data.message || "✅ Request sent successfully!");
+      setEmail("");
+      setReason("");
+    } catch (err: any) {
+      showMessage(
+        "error",
+        err?.response?.data?.message || "❌ Failed to send admin request."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700">
+    <div className="bg-app min-h-screen flex justify-center items-center py-10 px-4">
+      {loading && <Loader />}
+      {message && <MessagePopup {...message} />}
+
       <form
-        onSubmit={handleSubmit(submit)}
-        className="bg-slate-800/70 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700"
+        onSubmit={handleSubmit}
+        className="glass w-full max-w-md p-8 rounded-3xl shadow-xl space-y-6 animate-fade-in"
       >
-        <h2 className="text-2xl font-semibold text-center text-white mb-6">
-          🔒 Enter Admin Token
+        <h2 className="text-3xl font-extrabold text-center bg-clip-text text-transparent bg-gradient-to-r from-sky-500 via-teal-400 to-emerald-400">
+          Become an Admin ✨
         </h2>
 
-        {/* ✅ Animate message */}
-        <AnimatePresence>
-          {message && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className={`mb-4 p-3 rounded-lg text-sm text-center ${
-                isError
-                  ? "bg-red-500/20 border border-red-400 text-red-300"
-                  : "bg-green-500/20 border border-green-400 text-green-300"
-              }`}
-            >
-              {message}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <p className="text-sm text-center text-zinc-500 dark:text-zinc-400 mb-4">
+          Submit a request to get admin access for managing platform data.
+        </p>
 
-        {/* Token input */}
-        <div className="mb-6">
-          <label className="block text-slate-200 mb-1">Admin Token</label>
+        <div>
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            Your Email
+          </label>
           <input
-            {...register("adminToken", { required: "Please enter token" })}
-            type="password"
-            placeholder="••••••••••"
-            className={`w-full px-4 py-2 rounded-lg border focus:outline-none transition-all ${
-              errors.adminToken
-                ? "border-red-500 focus:ring-2 focus:ring-red-400"
-                : "border-slate-600 focus:border-blue-400 focus:ring-2 focus:ring-blue-400"
-            } bg-slate-900 text-slate-100`}
+            type="email"
+            className="input mt-1"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            required
           />
-          {errors.adminToken && (
-            <p className="text-red-400 text-sm mt-1">
-              {errors.adminToken.message}
-            </p>
-          )}
         </div>
 
-        {/* Submit */}
+        <div>
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+            Why do you need admin access?
+          </label>
+          <textarea
+            className="input h-28 mt-1"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="Explain briefly your reason..."
+            required
+          />
+        </div>
+
         <button
           type="submit"
-          disabled={loading}
-          className="w-full flex justify-center items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-lg transition-all shadow-md hover:shadow-blue-400/30 disabled:opacity-60 disabled:cursor-not-allowed"
+          className="btn-primary w-full justify-center mt-2"
         >
-          {loading && (
-            <svg
-              className="animate-spin h-4 w-4 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-              ></path>
-            </svg>
-          )}
-          {loading ? "Verifying..." : "Submit"}
+          Submit Request
         </button>
+
+        <div className="flex justify-center mt-4">
+          <BackButton />
+        </div>
       </form>
     </div>
   );

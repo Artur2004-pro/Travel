@@ -1,191 +1,129 @@
-import { useNavigate, useOutletContext, useParams } from "react-router-dom";
-import type {
-  IAccount,
-  IOutletContext,
-  IResponse,
-  IShowMessage,
-} from "../../types";
-import { EmptyState, Loader, MessagePopup } from "../components";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Axios } from "../../lib/axios-config";
-import axios from "axios";
+import { Loader, MessagePopup, BackButton } from "../components";
+import type { IAccount, IResponse, IShowMessage } from "../../types";
+import { useForm } from "react-hook-form";
 
 export const EditUser = () => {
   const { id } = useParams();
-  const { account } = useOutletContext<IOutletContext>();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [message, setMessage] = useState<IShowMessage | null>(null);
-  const [user, setUser] = useState<IAccount | null>(null);
   const navigate = useNavigate();
 
-  const showMessage = (type: "success" | "error", text: string) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage(null), 3500);
-  };
-  if (!account || account.role !== "admin") {
-    return (
-      <EmptyState
-        title="User"
-        subtitle="Access Denied — You are not an admin."
-        icon="❌"
-      />
-    );
-  }
-  if (!id) {
-    navigate(-1);
-    return null;
-  }
+  const [user, setUser] = useState<IAccount | null>(null);
+  const [message, setMessage] = useState<IShowMessage | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const { register, handleSubmit, reset, watch } = useForm<IAccount>();
 
   useEffect(() => {
-    fetchUser();
+    if (id) fetchUser();
   }, [id]);
 
   const fetchUser = async () => {
     try {
       setLoading(true);
       const { data } = await Axios.get<IResponse<IAccount>>(
-        `account/user/${id}`
+        `/account/user/${id}`
       );
       setUser(data.payload);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const { message } = error.request.data;
-        showMessage("error", message || "Error");
-      } else {
-        showMessage("error", "Error");
-      }
+      reset(data.payload);
+    } catch {
+      setMessage({ type: "error", text: "Failed to load user data." });
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleAdmin = async () => {
-    if (!user) return;
+  const onSubmit = async (data: IAccount) => {
+    if (!canSave) return;
     try {
-      const newRole = user.role === "admin" ? "user" : "admin";
-      const { data } = await Axios.patch<IResponse<"user" | "admin">>(
-        `account/role/${user._id}`,
-        { role: newRole }
-      );
-      setUser({ ...user, role: data.payload });
-      showMessage("success", data.message);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const { message } = error.response?.data;
-        showMessage("error", message);
-      } else {
-        showMessage("error", "Error");
-      }
+      await Axios.patch(`/user/${id}`, { role: data.role });
+      setMessage({ type: "success", text: "User role updated successfully!" });
+      setTimeout(() => navigate("/admin/users"), 1000);
+    } catch {
+      setMessage({ type: "error", text: "Failed to update user role." });
     }
   };
 
-  const toggleBlock = async () => {
-    if (!user) return;
-    try {
-      const { data } = await Axios.patch<IResponse<boolean>>(
-        `account/configure/${user._id}`,
-        { isBlocked: !user.isBlocked }
-      );
-      setUser({ ...user, isBlocked: data.payload });
-      showMessage("success", data.message);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const { message } = error.response?.data;
-        showMessage("error", message || "Error");
-      } else {
-        showMessage("error", "Error");
-      }
-    }
-  };
+  const roleValue = watch("role");
+  const canSave = useMemo(
+    () => user && roleValue !== user.role,
+    [roleValue, user]
+  );
 
-  if (!user) return null;
+  if (loading || !user) return <Loader />;
 
   return (
-    <div className="max-w-md mx-auto mt-10 bg-white dark:bg-zinc-100 rounded-2xl p-6 shadow-md border border-gray-200 text-gray-800">
-      {message && <MessagePopup type={message.type} text={message.text} />}
-      {loading && <Loader />}
-
-      <div className="flex flex-col items-center gap-4">
-        <img
-          src={user.avatar || "/default.jpg"}
-          alt={user.username}
-          className="w-24 h-24 rounded-full object-cover border border-gray-300 shadow-sm"
-        />
-        <h2 className="text-xl font-semibold">{user.username}</h2>
-        <p className="text-gray-500 text-sm">{user.email}</p>
-
-        <div className="flex flex-col gap-2 mt-4 w-full">
-          <div className="flex justify-between">
-            <span className="text-gray-500 text-sm">Email status:</span>
-            <span
-              className={`text-sm font-medium ${
-                user.emailVerified ? "text-emerald-600" : "text-rose-600"
-              }`}
-            >
-              {user.emailVerified ? "Verified" : "Not verified"}
-            </span>
-          </div>
-
-          <div className="flex justify-between">
-            <span className="text-gray-500 text-sm">Role:</span>
-            <span
-              className={`text-sm px-2 py-0.5 rounded-full ${
-                user.role === "admin"
-                  ? "bg-emerald-100 text-emerald-700"
-                  : "bg-sky-100 text-sky-700"
-              }`}
-            >
-              {user.role}
-            </span>
-          </div>
-
-          <div className="flex justify-between">
-            <span className="text-gray-500 text-sm">Status:</span>
-            <span
-              className={`text-sm ${
-                user.isBlocked ? "text-rose-600" : "text-emerald-600"
-              }`}
-            >
-              {user.isBlocked ? "Blocked" : "Active"}
-            </span>
-          </div>
-
-          <div className="flex justify-between">
-            <span className="text-gray-500 text-sm">Registered at:</span>
-            <span className="text-gray-700 text-sm">
-              {new Date(user.createdAt).toLocaleString()}
-            </span>
-          </div>
+    <div className="flex justify-center items-start py-16 px-4 min-h-[80vh] bg-gradient-to-br from-sky-50/80 via-white/90 to-teal-50/80 dark:from-[#050911] dark:via-[#070b14] dark:to-[#060a12] transition-colors">
+      <div className="w-full max-w-xl bg-gradient-to-br from-white/90 to-white/70 dark:from-[#0b0f1a]/95 dark:to-[#0c101a]/90 backdrop-blur-2xl border border-black/5 dark:border-white/10 rounded-[2rem] shadow-[0_0_40px_-10px_rgba(16,185,129,0.25)] p-10 relative">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 via-teal-400 to-emerald-400 drop-shadow-[0_0_10px_rgba(56,189,248,0.25)]">
+            Edit User ✏️
+          </h1>
+          <BackButton to="/admin/users" />
         </div>
 
-        <div className="flex gap-3 mt-6 w-full">
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Username */}
+          <div>
+            <label className="block text-sm text-zinc-700 dark:text-zinc-300 mb-1">
+              Username
+            </label>
+            <input
+              value={user.username}
+              readOnly
+              className="w-full p-3.5 rounded-xl bg-white/70 dark:bg-[#0f1624]/70 border border-black/10 dark:border-white/10 text-zinc-700 dark:text-zinc-300 cursor-not-allowed shadow-inner"
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-sm text-zinc-700 dark:text-zinc-300 mb-1">
+              Email
+            </label>
+            <input
+              value={user.email}
+              readOnly
+              className="w-full p-3.5 rounded-xl bg-white/70 dark:bg-[#0f1624]/70 border border-black/10 dark:border-white/10 text-zinc-700 dark:text-zinc-300 cursor-not-allowed shadow-inner"
+            />
+          </div>
+
+          {/* Role */}
+          <div>
+            <label className="block text-sm text-zinc-700 dark:text-zinc-300 mb-1">
+              Role
+            </label>
+            <select
+              {...register("role")}
+              defaultValue={user.role}
+              className="w-full p-3.5 rounded-xl bg-white/80 dark:bg-[#0f1624]/70 border border-black/10 dark:border-white/10 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-emerald-400 focus:border-transparent outline-none transition"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          {/* Save */}
           <button
-            onClick={toggleAdmin}
-            className={`flex-1 rounded-lg py-2 font-medium transition-colors ${
-              user.role === "admin"
-                ? "bg-emerald-100 hover:bg-emerald-200 text-emerald-700"
-                : "bg-sky-100 hover:bg-sky-200 text-sky-700"
+            disabled={!canSave}
+            className={`w-full py-3.5 rounded-xl font-semibold tracking-wide transition-all duration-300 ${
+              !canSave
+                ? "bg-zinc-300/70 dark:bg-zinc-800/60 text-zinc-500 cursor-not-allowed"
+                : "bg-gradient-to-r from-sky-500 via-teal-400 to-emerald-500 hover:shadow-[0_0_30px_rgba(45,212,191,0.35)] text-white"
             }`}
           >
-            {user.role === "admin" ? "Remove Admin" : "Make Admin"}
+            {canSave ? "Save Changes" : "No Changes"}
           </button>
+        </form>
 
-          <button
-            onClick={toggleBlock}
-            className={`flex-1 rounded-lg py-2 font-medium transition-colors ${
-              user.isBlocked
-                ? "bg-emerald-100 hover:bg-emerald-200 text-emerald-700"
-                : "bg-rose-100 hover:bg-rose-200 text-rose-700"
-            }`}
-          >
-            {user.isBlocked ? "Unblock" : "Block"}
-          </button>
-        </div>
-
-        <button
-          onClick={() => navigate(-1)}
-          className="mt-4 text-sm text-gray-500 hover:text-gray-700 transition"
-        ></button>
+        {/* Popup */}
+        {message && (
+          <div className="mt-6">
+            <MessagePopup type={message.type} text={message.text} />
+          </div>
+        )}
       </div>
     </div>
   );

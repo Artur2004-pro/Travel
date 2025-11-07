@@ -1,140 +1,137 @@
-import { useState, useEffect } from "react";
-import { useOutletContext } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Axios } from "../../lib/axios-config";
-import type { INewCountry, IOutletContext } from "../../types";
-import {
-  AdminCard,
-  UploadImages,
-  MessagePopup,
-  BackButton,
-  EmptyState,
-} from "../components";
+import { BackButton, UploadImages, MessagePopup } from "../components";
+import type { ICountry, IShowMessage } from "../../types";
 
 export const AddCountry = () => {
-  const { account } = useOutletContext<IOutletContext>();
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<INewCountry>();
-
-  const [images, setImages] = useState<File[]>([]);
+  const navigate = useNavigate();
+  const [form, setForm] = useState<Partial<ICountry>>({
+    name: "",
+    description: "",
+  });
+  const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [message, setMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<IShowMessage | null>(null);
 
-  useEffect(() => {
-    const urls = images.map((f) => URL.createObjectURL(f));
-    setPreviews(urls);
-    return () => urls.forEach((u) => URL.revokeObjectURL(u));
-  }, [images]);
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setForm((p) => ({ ...p, [name]: value }));
+  };
 
-  const handleAddImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      if (images.length >= 5) {
-        showMessage("error", "⚠️ You can upload up to 5 images only.");
-        return;
-      }
-      setImages((prev) => [...prev, e.target.files![0]]);
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || files.length > 5) {
+      showMessage("error", "Upload images count has been 5!");
+      return;
     }
+    const imgs = Array.from(e.target.files);
+    if (imgs.length + files.length > 5) {
+      showMessage("error", "Upload images count has been 5!");
+      return;
+    }
+    setFiles((prev) => [...prev, ...imgs]);
+    setPreviews((prev) => [
+      ...prev,
+      ...imgs.map((i) => URL.createObjectURL(i)),
+    ]);
   };
-
-  const handleRemove = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const showMessage = (type: "success" | "error", text: string) => {
+  const showMessage = (type: "error" | "success", text: string) => {
     setMessage({ type, text });
-    setTimeout(() => setMessage(null), 3500);
+    setTimeout(() => setMessage(null), 2000);
+  };
+  const handleDelete = (i: number) => {
+    setFiles(files.filter((_, x) => x !== i));
+    setPreviews(previews.filter((_, x) => x !== i));
   };
 
-  const submit = async (data: INewCountry) => {
-    if (images.length === 0)
-      return showMessage("error", "Please add at least one image.");
-
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("description", data.description);
-    images.forEach((img) => formData.append("country", img));
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name?.trim()) {
+      showMessage("error", "Upload images count has been 5!");
+      return;
+    }
 
     try {
-      await Axios.post("country/add", formData, {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("name", form.name || "");
+      formData.append("description", form.description || "");
+      files.forEach((f) => formData.append("country", f));
+
+      await Axios.post("/country", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      showMessage("success", "✅ Country added successfully!");
-      reset();
-      setImages([]);
+
+      setMessage({ type: "success", text: "Country added successfully!" });
+      setTimeout(() => navigate("/admin/country"), 1000);
     } catch {
-      showMessage("error", "❌ Error adding country.");
+      setMessage({ type: "error", text: "Failed to add country." });
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (!account || account.role !== "admin")
-    return (
-      <EmptyState
-        title="⛔ Access Denied"
-        subtitle="Only admins can access this page"
-      />
-    );
-
   return (
-    <div className="relative min-h-screen bg-gray-50 py-12 px-6">
-      {message && <MessagePopup {...message} />}
+    <div className="max-w-3xl mx-auto p-8 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-lg">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-semibold text-white flex items-center gap-2">
+          Add New Country <span className="text-xl">🌍</span>
+        </h1>
+        <BackButton to="/admin/country" />
+      </div>
 
-      <AdminCard title="🌍 Add New Country">
-        <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
-          <UploadImages
-            label="Country Images"
-            images={images}
-            previews={previews}
-            onAdd={handleAddImage}
-            onDelete={handleRemove}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label className="block text-gray-300 text-sm mb-1">
+            Country Name
+          </label>
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            placeholder="Enter country name..."
+            className="w-full p-3 rounded-lg bg-white/10 text-white placeholder-gray-400 outline-none border border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
+            required
           />
+        </div>
 
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">
-              Country Name
-            </label>
-            <input
-              {...register("name", { required: "Please enter country name" })}
-              type="text"
-              placeholder="e.g. Armenia"
-              className={`w-full border ${
-                errors.name ? "border-red-400" : "border-gray-300"
-              } rounded-xl p-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-200`}
-            />
-          </div>
+        <div>
+          <label className="block text-gray-300 text-sm mb-1">
+            Description
+          </label>
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            placeholder="Write a short description..."
+            rows={4}
+            className="w-full p-3 rounded-lg bg-white/10 text-white placeholder-gray-400 outline-none border border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition resize-none"
+          />
+        </div>
 
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">
-              Description
-            </label>
-            <textarea
-              {...register("description", {
-                required: "Please enter description",
-              })}
-              rows={4}
-              placeholder="Describe the country..."
-              className={`w-full border ${
-                errors.description ? "border-red-400" : "border-gray-300"
-              } rounded-xl p-3 text-gray-800 resize-none focus:ring-2 focus:ring-indigo-200`}
-            />
-          </div>
+        <UploadImages
+          label="Country Images"
+          previews={previews}
+          onAdd={handleUpload}
+          onDelete={handleDelete}
+        />
 
-          <button
-            type="submit"
-            className="mt-4 bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg"
-          >
-            💾 Save Country
-          </button>
-        </form>
-      </AdminCard>
+        <button
+          disabled={loading}
+          className={`w-full py-3 rounded-lg font-medium transition-all shadow-md ${
+            loading
+              ? "bg-emerald-800/40 text-gray-300 cursor-not-allowed"
+              : "bg-gradient-to-r from-emerald-600 to-emerald-700 hover:brightness-110 text-white"
+          }`}
+        >
+          {loading ? "Saving..." : "Add Country"}
+        </button>
+      </form>
 
-      <BackButton />
+      {message && <MessagePopup {...message} />}
     </div>
   );
 };

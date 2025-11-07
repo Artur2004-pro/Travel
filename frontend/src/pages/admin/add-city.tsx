@@ -1,138 +1,181 @@
-import { useParams, useNavigate, useOutletContext } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { Axios } from "../../lib/axios-config";
-import type { INewCity, ICity, IOutletContext, IResponse } from "../../types";
-import {
-  AdminCard,
-  UploadImages,
-  MessagePopup,
-  BackButton,
-  EmptyState,
-} from "../components";
+import { BackButton, UploadImages, MessagePopup } from "../components";
+import type { INewCity, IShowMessage } from "../../types";
 
 export const AddCity = () => {
-  const { countryId } = useParams();
-  const { account } = useOutletContext<IOutletContext>();
   const navigate = useNavigate();
-
   const {
-    handleSubmit,
     register,
+    handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<INewCity>();
+  } = useForm<INewCity>({
+    defaultValues: {
+      name: "",
+      countryName: "",
+      description: "",
+    },
+  });
 
-  const [images, setImages] = useState<File[]>([]);
+  const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [message, setMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
+  const [message, setMessage] = useState<IShowMessage | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [limited, setLimited] = useState(false);
 
+  // ✅ helper popup
   const showMessage = (type: "success" | "error", text: string) => {
     setMessage({ type, text });
-    setTimeout(() => setMessage(null), 3500);
+    setTimeout(() => setMessage(null), 2000);
   };
 
-  useEffect(() => {
-    const urls = images.map((f) => URL.createObjectURL(f));
-    setPreviews(urls);
-    return () => urls.forEach((u) => URL.revokeObjectURL(u));
-  }, [images]);
-
-  const handleAddImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.length) {
-      const files = Array.from(e.target.files);
-      if (images.length + files.length > 5) {
-        return showMessage("error", "⚠️ Max 5 images");
-      }
-      setImages((prev) => [...prev, ...files]);
+  // ✅ handle file upload (max 5)
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (files.length >= 5) {
+      showMessage("error", "You can upload up to 5 images.");
     }
+    if (!e.target.files) return;
+    const imgs = Array.from(e.target.files);
+    if (files.length + imgs.length > 5) {
+      showMessage("error", "You can upload up to 5 images.");
+      return;
+    }
+    setFiles([...files, ...imgs]);
+    setPreviews([...previews, ...imgs.map((f) => URL.createObjectURL(f))]);
+    if (files.length + imgs.length == 5) setLimited(true);
   };
 
-  const handleRemove = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
+  const handleDelete = (index: number) => {
+    const newFiles = files.filter((_, i) => index !== i);
+    setFiles(newFiles);
+    setPreviews(previews.filter((_, i) => index !== i));
+    if (newFiles.length < 5) setLimited(false);
   };
 
-  const submit = async (data: INewCity) => {
-    if (!countryId) return showMessage("error", "Missing country ID");
-
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("description", data.description);
-    images.forEach((img) => formData.append("city", img));
+  // ✅ form submit
+  const onSubmit = async (data: INewCity) => {
+    if (files.length === 0) {
+      showMessage("error", "Please upload at least one image.");
+      return;
+    }
 
     try {
-      const { data: res } = await Axios.post<IResponse<{ city: ICity }>>(
-        `city/${countryId}`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-      showMessage("success", "✅ City added successfully!");
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("countryName", data.countryName);
+      if (data.description) formData.append("description", data.description);
+      files.forEach((file) => formData.append("city", file));
+
+      await Axios.post("/city", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      showMessage("success", "City added successfully!");
       reset();
-      setImages([]);
-      navigate(`/admin/country/${countryId}/city/${res.payload.city._id}`);
+      setFiles([]);
+      setPreviews([]);
+      setTimeout(() => navigate("/admin/city"), 1000);
     } catch {
-      showMessage("error", "❌ Failed to add city.");
+      showMessage("error", "Failed to add city.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (!account || account.role !== "admin")
-    return (
-      <EmptyState
-        title="⛔ Access Denied"
-        subtitle="Only admins can access this page"
-      />
-    );
-
   return (
-    <div className="relative min-h-screen bg-gray-50 py-12 px-6">
-      {message && <MessagePopup {...message} />}
-      <AdminCard title="🏙️ Add New City">
-        <form onSubmit={handleSubmit(submit)} className="flex flex-col gap-6">
-          <UploadImages
-            label="City Images"
-            images={images}
-            previews={previews}
-            onAdd={handleAddImage}
-            onDelete={handleRemove}
-          />
+    <div className="max-w-3xl mx-auto p-8 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-lg">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-2xl font-semibold text-white flex items-center gap-2">
+          Add New City <span className="text-xl">🏙️</span>
+        </h1>
+        <BackButton to="/admin/city" />
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          {/* City Name */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">
+            <label className="block text-gray-300 text-sm mb-1">
               City Name
             </label>
             <input
-              {...register("name", { required: "Please enter city name" })}
-              type="text"
-              className={`w-full border ${
-                errors.name ? "border-red-400" : "border-gray-300"
-              } rounded-xl p-3 text-gray-800 focus:ring-2 focus:ring-indigo-200`}
+              {...register("name", { required: "City name is required" })}
+              placeholder="Enter city name..."
+              className={`w-full p-3 rounded-lg bg-white/10 text-white placeholder-gray-400 outline-none border transition ${
+                errors.name
+                  ? "border-red-500 focus:ring-1 focus:ring-red-500"
+                  : "border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+              }`}
             />
+            {errors.name && (
+              <p className="text-red-400 text-xs mt-1">{errors.name.message}</p>
+            )}
           </div>
+
+          {/* Country Name */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-2">
-              Description
+            <label className="block text-gray-300 text-sm mb-1">
+              Country Name
             </label>
-            <textarea
-              {...register("description", {
-                required: "Please enter description",
+            <input
+              {...register("countryName", {
+                required: "Country name is required",
               })}
-              rows={4}
-              className={`w-full border ${
-                errors.description ? "border-red-400" : "border-gray-300"
-              } rounded-xl p-3 text-gray-800 resize-none focus:ring-2 focus:ring-indigo-200`}
+              placeholder="Enter country name..."
+              className={`w-full p-3 rounded-lg bg-white/10 text-white placeholder-gray-400 outline-none border transition ${
+                errors.countryName
+                  ? "border-red-500 focus:ring-1 focus:ring-red-500"
+                  : "border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+              }`}
             />
+            {errors.countryName && (
+              <p className="text-red-400 text-xs mt-1">
+                {errors.countryName.message}
+              </p>
+            )}
           </div>
-          <button
-            type="submit"
-            className="bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition shadow-md"
-          >
-            💾 Save City
-          </button>
-        </form>
-      </AdminCard>
-      <BackButton />
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="block text-gray-300 text-sm mb-1">
+            Description
+          </label>
+          <textarea
+            {...register("description")}
+            placeholder="Write a short description..."
+            rows={4}
+            className="w-full p-3 rounded-lg bg-white/10 text-white placeholder-gray-400 outline-none border border-white/10 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition resize-none"
+          />
+        </div>
+
+        {/* Upload */}
+        <UploadImages
+          disable={limited}
+          label="City Images"
+          previews={previews}
+          onAdd={handleUpload}
+          onDelete={handleDelete}
+        />
+
+        {/* Submit */}
+        <button
+          disabled={loading}
+          className={`w-full py-3 rounded-lg font-medium transition-all shadow-md ${
+            loading
+              ? "bg-emerald-800/40 text-gray-300 cursor-not-allowed"
+              : "bg-gradient-to-r from-emerald-600 to-emerald-700 hover:brightness-110 text-white"
+          }`}
+        >
+          {loading ? "Saving..." : "Add City"}
+        </button>
+      </form>
+
+      {message && <MessagePopup {...message} />}
     </div>
   );
 };

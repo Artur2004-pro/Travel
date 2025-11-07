@@ -1,111 +1,116 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { Axios } from "../../lib/axios-config";
-import type { ICity, IOutletContext, IResponse } from "../../types";
 import {
-  SearchInput,
-  Loader,
+  AdminCard,
   EmptyState,
+  Loader,
+  MessagePopup,
+  SearchInput,
+  AddButton,
   BackButton,
-} from "../components/index.ts";
+} from "../components";
+import type { IResponse, ICity, IShowMessage, IAccount } from "../../types";
+import { useDebounce } from "../../hooks/useDebounce";
 import { CityItem } from "./city-item";
-import axios from "axios";
 
 export const City = () => {
-  const { account } = useOutletContext<IOutletContext>();
-  const navigate = useNavigate();
-  if (!account || account.role != "admin") {
-    return navigate("/login"), null;
-  }
-  const { countryId } = useParams();
+  const account = useOutletContext<IAccount>();
   const [cities, setCities] = useState<ICity[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [searchText, setSearchText] = useState("");
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState<IShowMessage | null>(null);
+  const navigate = useNavigate();
+
+  const showMessage = (type: "success" | "error", text: string) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage(null), 3000);
+  };
 
   useEffect(() => {
-    const delay = setTimeout(() => {
-      if (searchText.trim()) handleSearch(searchText);
-      else fetchAllCities();
-    }, 500);
-    return () => clearTimeout(delay);
-  }, [searchText]);
-
-  const fetchAllCities = async () => {
+    if (debouncedSearch.trim()) {
+      handleSearch(debouncedSearch);
+    } else handleGetAllCities();
+  }, [debouncedSearch]);
+  const handleGetAllCities = async () => {
+    try {
+      setLoading(true);
+      const { data } = await Axios.get<IResponse<ICity[]>>("city/all");
+      setCities(data.payload);
+    } catch (error) {
+      showMessage("error", "Error");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleSearch = async (query: string) => {
     try {
       setLoading(true);
       const { data } = await Axios.get<IResponse<ICity[]>>(
-        `city/all/${countryId}`
+        `city/search?name=${query}`
       );
       setCities(data.payload);
-      setError(null);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        setError(`❌ ${error.response?.data?.message || ""}`);
-        return;
-      }
-      setError("❌ Error fetching cities.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSearch = async (name: string) => {
-    try {
-      setLoading(true);
-      const { data } = await Axios.get<IResponse<{ cities: ICity[] }>>(
-        `city/search?name=${name}&country=${countryId}`
-      );
-      setCities(data.payload.cities);
     } catch {
-      setError("❌ Error searching cities.");
+      showMessage("error", "❌ Failed to load cities");
     } finally {
       setLoading(false);
     }
   };
-  if (!account || account.role !== "admin")
+
+  const handleDelete = async (id: string) => {
+    try {
+      await Axios.delete(`city/${id}`);
+      setCities((prev) => prev.filter((c) => c._id !== id));
+      showMessage("success", "✅ City deleted");
+    } catch {
+      showMessage("error", "❌ Failed to delete");
+    }
+  };
+
+  const filtered = cities.filter((c) =>
+    c.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (loading) return <Loader />;
+  if (!account || account.role != "admin") {
     return (
-      <EmptyState
-        title="⛔ Access Denied"
-        subtitle="Only admins can access this page"
-      />
+      <EmptyState title="Not access" subtitle="You not a admin" icon="❌" />
     );
+  }
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-6 relative">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-          🏙️ Manage Cities
-        </h2>
+    <div className="space-y-10 animate-fade-in">
+      {message && <MessagePopup {...message} />}
 
-        <SearchInput
-          value={searchText}
-          onChange={setSearchText}
-          placeholder="Type a city name..."
-        />
+      <AdminCard title="Cities" icon="🏙️">
+        <div className="flex items-center justify-between mb-6">
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Search city..."
+          />
+          <div className="flex gap-3">
+            <AddButton
+              onClick={() => navigate(`/admin/city/add`)}
+              label="Add City"
+            />
+            <BackButton />
+          </div>
+        </div>
 
-        {loading && <Loader />}
-        {error && (
-          <p className="text-center text-red-500 font-medium mt-10">{error}</p>
-        )}
-
-        {!loading && !error && cities.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {cities.map((city) => (
-              <CityItem key={city._id} city={city} />
+        {filtered.length === 0 ? (
+          <EmptyState
+            title="No cities found"
+            subtitle="Add new cities to this country to get started."
+          />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map((city) => (
+              <CityItem key={city._id} city={city} onDelete={handleDelete} />
             ))}
           </div>
         )}
-
-        {!loading && !error && cities.length === 0 && (
-          <EmptyState
-            title="No cities found 😔"
-            subtitle="Try searching for a different name."
-            icon="🏙️"
-          />
-        )}
-      </div>
-
-      <BackButton />
+      </AdminCard>
     </div>
   );
 };

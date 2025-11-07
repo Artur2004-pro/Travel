@@ -28,20 +28,6 @@ export interface IShowMessage {
   text: string;
 }
 
-// export interface IAccount {
-//   _id: string;
-//   email: string;
-//   username: string;
-//   password: string;
-//   role: "admin" | "user";
-//   isBlocked: boolean;
-//   emailVerified: boolean;
-//   emailVerifyExpires: string;
-//   emailVerifyToken: string;
-//   createdAt: string;
-//   updatedAt: string;
-//   __v: number;
-// }
 export interface ILoginUser {
   username: string;
   password: string;
@@ -66,6 +52,7 @@ export interface INewCountry {
 
 export interface INewCity {
   name: string;
+  countryName: string;
   description: string;
   images: string[];
 }
@@ -89,6 +76,11 @@ export interface ICountry {
 export interface IOutletContext {
   account: IAccount;
 }
+export interface Item {
+  label: string;
+  to: string;
+  icon: React.ReactNode;
+}
 
 // props
 
@@ -103,8 +95,14 @@ export interface ICountryProps {
 
 export interface ICityProps {
   city: ICity;
+  onDelete: (id: string) => void;
 }
-
+export interface IStats {
+  cities: number;
+  countries: number;
+  admins: number;
+  users: number;
+}
 export interface ISearchInputProps {
   value: string;
   onChange: (value: string) => void;
@@ -123,4 +121,19 @@ export interface ImageSectionProps {
 export interface ImageCarouselProps {
   images: string[];
   title?: string;
+  isAdmin?: boolean;
+  onDeleteImage?: (filename: string) => void;
+}
+
+export interface ISidebarProps {
+  item: Item;
+  onClick?: () => void;
+}
+
+export interface Country {
+  _id: string;
+  name: string;
+  description: string;
+  images: string[];
+  cities: ICity[];
 }

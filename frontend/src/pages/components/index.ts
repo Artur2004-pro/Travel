@@ -10,6 +10,8 @@ export * from "./layout/admin-card";
 export * from "./layout/loader";
 export * from "./layout/empty-state";
 export * from "./layout/message-popup";
+export * from "./layout/sidebar-link";
+export * from "./layout/admin-nav-item";
 
 export * from "./image/image-section";
 export * from "./image/image-carusel";

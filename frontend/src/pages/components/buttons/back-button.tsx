@@ -1,26 +1,24 @@
-import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-export const BackButton = () => {
+export const BackButton = ({
+  to,
+  label = "Back",
+  className = "",
+}: {
+  to?: string;
+  label?: string;
+  className?: string;
+}) => {
   const navigate = useNavigate();
 
   return (
     <button
-      onClick={() => navigate(-1)}
-      className="
-        fixed bottom-4 left-4 sm:bottom-6 sm:left-6
-        flex items-center gap-2
-        bg-gradient-to-r from-indigo-600 to-purple-600
-        text-white font-semibold
-        px-5 py-3 rounded-xl shadow-lg
-        hover:shadow-xl hover:scale-[1.03]
-        transition-all duration-300
-        active:scale-95
-        z-50
-      "
+      onClick={() => (to ? navigate(to) : navigate(-1))}
+      className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium border border-zinc-300 dark:border-slate-700 hover:bg-zinc-100/60 dark:hover:bg-slate-800/60 transition ${className}`}
     >
-      <ArrowLeft className="w-5 h-5" />
-      <span>Back</span>
+      <ArrowLeft className="h-4 w-4" />
+      <span>{label}</span>
     </button>
   );
 };

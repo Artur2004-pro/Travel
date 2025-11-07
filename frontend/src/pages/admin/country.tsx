@@ -1,123 +1,139 @@
-import type { ICountry, IOutletContext, IResponse } from "../../types";
 import { useEffect, useState } from "react";
-import { Axios } from "../../lib/axios-config";
-import { CountryItem } from "./country-item";
-import { BackButton, EmptyState } from "../components/";
-import { SearchInput } from "../components/search";
 import { useNavigate, useOutletContext } from "react-router-dom";
+import { Axios } from "../../lib/axios-config";
+import {
+  AdminCard,
+  EmptyState,
+  Loader,
+  MessagePopup,
+  SearchInput,
+  AddButton,
+  EditButton,
+  DeleteButton,
+  ImageSection,
+} from "../components";
+import type { IResponse, ICountry, IShowMessage, IAccount } from "../../types";
 
-export const Country = () => {
-  const { account } = useOutletContext<IOutletContext>();
-  const navigate = useNavigate();
-  if (!account || account.role != "admin") {
-    return navigate("/login"), null;
-  }
+export default function Country() {
+  const account = useOutletContext<IAccount>();
   const [countries, setCountries] = useState<ICountry[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [searchText, setSearchText] = useState<string>("");
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState<IShowMessage | null>(null);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const delay = setTimeout(() => {
-      if (searchText.trim()) handleSearch(searchText);
-      else setCountries([]);
-    }, 500);
-    return () => clearTimeout(delay);
-  }, [searchText]);
-
-  const handleDelete = (id: string) => {
-    setCountries((prev) => prev.filter((c) => c._id !== id));
+  const showMessage = (type: "success" | "error", text: string) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage(null), 3000);
   };
 
-  const handleSearch = async (name: string) => {
+  // Fetch countries
+  useEffect(() => {
+    handleGetCountries();
+  }, []);
+
+  const handleGetCountries = async () => {
     try {
-      setLoading(true);
-      setError(null);
-      const { data } = await Axios.get<IResponse<{ countries: ICountry[] }>>(
-        `country/search?name=${name}`
-      );
-      setCountries(data.payload.countries || []);
-    } catch (error: any) {
-      console.error(error);
-      setError("❌ Error searching countries. Please try again.");
+      const { data } = await Axios.get<IResponse<ICountry[]>>("country");
+      setCountries(data.payload);
+    } catch {
+      showMessage("error", "❌ Failed to load countries");
     } finally {
       setLoading(false);
     }
   };
-  if (!account || account.role !== "admin")
-    return (
-      <EmptyState
-        title="⛔ Access Denied"
-        subtitle="Only admins can access this page"
-      />
-    );
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex flex-col items-center px-4 sm:px-6 md:px-12 py-12">
-      <div className="w-full max-w-7xl">
-        {/* 🏷️ Header */}
-        <div className="text-center mb-14">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-800 flex items-center justify-center gap-2">
-            🌍 <span className="text-indigo-700">Manage Countries</span>
-          </h1>
-          <p className="text-gray-500 text-base sm:text-lg mt-3">
-            Search, edit or delete countries below.
-          </p>
-        </div>
 
-        {/* 🔍 Search */}
-        <div className="max-w-md mx-auto mb-16">
+  const handleDelete = async (id: string) => {
+    try {
+      await Axios.delete(`country/${id}`);
+      setCountries((prev) => prev.filter((c) => c._id !== id));
+      showMessage("success", "✅ Country deleted");
+    } catch {
+      showMessage("error", "❌ Failed to delete");
+    }
+  };
+
+  const filtered = countries.filter((c) =>
+    c.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (loading) return <Loader />;
+  if (!account || account.role != "admin") {
+    return <EmptyState title="Not access" subtitle="You not admin" icon="❌" />;
+  }
+  return (
+    <div className="space-y-10 animate-fade-in">
+      {message && <MessagePopup {...message} />}
+
+      <AdminCard title="Countries" icon="🌍">
+        <div className="flex items-center justify-between mb-6">
           <SearchInput
-            value={searchText}
-            onChange={setSearchText}
+            value={search}
+            onChange={setSearch}
             placeholder="Search country..."
+          />
+          <AddButton
+            onClick={() => navigate("/admin/add-country")}
+            label="Add Country"
           />
         </div>
 
-        {/* 📦 Content */}
-        {loading ? (
-          <div className="flex justify-center items-center py-24">
-            <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        ) : error ? (
-          <p className="text-center text-red-500 font-semibold mt-10">
-            {error}
-          </p>
-        ) : countries.length > 0 ? (
-          <div
-            className="
-              grid gap-10
-              grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
-              justify-items-center
-              px-2 sm:px-0
-            "
-          >
-            {countries.map((country) => (
-              <CountryItem
+        {filtered.length === 0 ? (
+          <EmptyState
+            title="No countries found"
+            subtitle="Try adding a new one using the 'Add Country' button."
+          />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map((country) => (
+              <CountryCard
                 key={country._id}
                 country={country}
+                onEdit={() => navigate(`/admin/country/${country._id}`)}
                 onDelete={handleDelete}
               />
             ))}
           </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-24 text-gray-400 text-center">
-            {searchText.trim() ? (
-              <>
-                <p className="text-2xl font-semibold">No results 😔</p>
-                <p className="text-sm text-gray-400 mt-2">
-                  Try searching for a different name.
-                </p>
-              </>
-            ) : (
-              <p className="text-lg">
-                🔍 Start typing to search for a country...
-              </p>
-            )}
-          </div>
         )}
-      </div>
-
-      <BackButton />
+      </AdminCard>
     </div>
   );
-};
+}
+
+interface CountryCardProps {
+  country: ICountry;
+  onEdit: () => void;
+  onDelete: (id: string) => void;
+}
+
+function CountryCard({ country, onEdit, onDelete }: CountryCardProps) {
+  return (
+    <div className="group relative overflow-hidden rounded-3xl border border-zinc-200/60 dark:border-slate-800/50 bg-white/70 dark:bg-slate-900/60 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+      {/* Cover */}
+      <div className="relative">
+        {country.images?.length ? (
+          <ImageSection images={country.images} />
+        ) : (
+          <div className="h-40 bg-gradient-to-br from-sky-200/40 to-teal-200/30 dark:from-slate-800 dark:to-slate-900" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <h3 className="absolute bottom-3 left-4 text-xl font-semibold text-white drop-shadow-md">
+          {country.name}
+        </h3>
+      </div>
+
+      {/* Description */}
+      <div className="p-4 space-y-3">
+        <p className="text-sm line-clamp-2 text-zinc-600 dark:text-zinc-400">
+          {country.description || "No description provided."}
+        </p>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-2 mt-3">
+          <EditButton onClick={onEdit} />
+          <DeleteButton id={country._id} onClick={onDelete} />
+        </div>
+      </div>
+    </div>
+  );
+}

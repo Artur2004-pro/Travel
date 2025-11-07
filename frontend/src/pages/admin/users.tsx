@@ -1,84 +1,86 @@
-import { useOutletContext } from "react-router-dom";
-import type { IOutletContext, IResponse, IUser } from "../../types";
-import { EmptyState, Loader, MessagePopup } from "../components";
-import { SearchInput } from "../components/search";
 import { useEffect, useState } from "react";
 import { Axios } from "../../lib/axios-config";
+import {
+  AdminCard,
+  Loader,
+  MessagePopup,
+  EmptyState,
+  SearchInput,
+} from "../components";
+import type { IAccount, IResponse, IShowMessage } from "../../types";
 import { UserItem } from "./user-item";
+import { useOutletContext } from "react-router-dom";
 
 export const Users = () => {
-  const { account } = useOutletContext<IOutletContext>();
-  const [users, setUsers] = useState<IUser[]>([]);
+  const account = useOutletContext<IAccount>();
+  const [users, setUsers] = useState<IAccount[]>([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  const [searchText, setSearchText] = useState("");
+  const [message, setMessage] = useState<IShowMessage | null>(null);
 
-  if (!account || account.role !== "admin") {
-    return (
-      <MessagePopup
-        type="error"
-        text="❌ Access Denied — You are not an admin."
-      />
-    );
-  }
+  const showMessage = (type: "success" | "error", text: string) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage(null), 3000);
+  };
 
   useEffect(() => {
-    const handler = setTimeout(() => handleSearch(), 400);
-    return () => clearTimeout(handler);
-  }, [searchText]);
+    if (!search.trim()) return;
+    handleGetUsers();
+  }, [search]);
 
-  const handleSearch = async () => {
+  const handleGetUsers = async () => {
     try {
       setLoading(true);
-      const { data } = await Axios.get<IResponse<IUser[]>>(
-        `account/user?search=${searchText}`
+      const { data } = await Axios.get<IResponse<IAccount[]>>(
+        `account/user?search=${search}`
       );
-      setError(false);
       setUsers(data.payload);
     } catch {
-      setError(true);
-      setUsers([]);
+      showMessage("error", "❌ Failed to load users");
     } finally {
       setLoading(false);
     }
   };
 
+  const filtered = users.filter((u) =>
+    `${u.username} ${u.email}`.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (loading) return <Loader />;
+  if (!account || account.role != "admin") {
+    return (
+      <EmptyState title="Not access" subtitle="You not a admin" icon="X" />
+    );
+  }
   return (
-    <div className="max-w-7xl mx-auto mt-10 bg-white rounded-3xl shadow-xl border border-gray-100 p-6 sm:p-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
-        <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800 flex items-center gap-2">
-          👥 Users
-        </h1>
-        <div className="w-full sm:w-80">
-          <SearchInput value={searchText} onChange={setSearchText} />
-        </div>
-      </div>
+    <div>
+      {message && <MessagePopup {...message} />}
 
-      {/* Loader */}
-      {loading && (
-        <div className="flex justify-center py-12">
-          <Loader />
+      <AdminCard title="User Management" icon="👥">
+        {/* 🔍 Search bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Search users..."
+            className="w-full sm:max-w-sm"
+          />
         </div>
-      )}
 
-      {/* Error / Empty */}
-      {!loading && (error || users.length === 0) && (
-        <EmptyState
-          icon={error ? "😕" : "📭"}
-          subtitle={error ? "No users found." : "No registered users yet."}
-          title="Users"
-        />
-      )}
-
-      {/* Responsive Grid */}
-      {!loading && !error && users.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {users.map((user) => (
-            <UserItem key={user._id} user={user} />
-          ))}
-        </div>
-      )}
+        {/* 🚫 Empty or grid */}
+        {filtered.length === 0 ? (
+          <EmptyState
+            title="No users found"
+            subtitle="Try adjusting your search or add new users manually."
+          />
+        ) : (
+          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {filtered.map((user) => (
+              <UserItem key={user._id} account={user} />
+            ))}
+          </div>
+        )}
+      </AdminCard>
     </div>
   );
 };
