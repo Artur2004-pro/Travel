@@ -137,7 +137,7 @@ class AccountController {
   async getAccount(req, res) {
     const { user } = req;
     user.password = "";
-    return res.status(200).send({ message: "ok", payload: { user } });
+    return res.status(200).send({ message: "ok", payload: user });
   }
 }
 

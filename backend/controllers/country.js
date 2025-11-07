@@ -28,7 +28,7 @@ class CountryController {
 
       return res.status(201).send({
         message: "Country added successfully",
-        payload: { data: country },
+        payload: country,
       });
     } catch (error) {
       return handleError(res, error);
@@ -83,7 +83,7 @@ class CountryController {
       await country.save();
       return res.status(200).send({
         message: "Country updated successfully",
-        payload: { data: country },
+        payload: country,
       });
     } catch (error) {
       return handleError(res, error);
@@ -98,7 +98,7 @@ class CountryController {
     try {
       const { modifiedCount, matchedCount } = await Country.updateOne(
         { _id: id },
-        { images: { $pull: filename } }
+        { $pull: { images: filename } }
       );
       if (!matchedCount) {
         return res.status(404).send({ message: "Country not found" });
@@ -113,9 +113,16 @@ class CountryController {
     }
   }
   // user
-  async getAll(req, res) {
-    const countries = await Country.find({});
-    return res.status(200).send({ message: "ok", payload: { countries } });
+  async getTop(req, res) {
+    try {
+      const countries = await Country.find()
+        .sort({ top: -1 })
+        .limit(20)
+        .populate("cities");
+      return res.status(200).send({ message: "ok", payload: countries });
+    } catch (error) {
+      return handleError(res, error);
+    }
   }
   async getById(req, res) {
     const { id } = req.params;
@@ -127,7 +134,7 @@ class CountryController {
       if (!country) {
         return res.status(404).send({ message: "Country not found" });
       }
-      return res.status(200).send({ message: "success", payload: { country } });
+      return res.status(200).send({ message: "success", payload: country });
     } catch (error) {
       return handleError(res, error);
     }
@@ -144,7 +151,7 @@ class CountryController {
       if (!countries) {
         return res.status(404).send({ message: "Countries not found" });
       }
-      return res.status(200).send({ message: "ok", payload: { countries } });
+      return res.status(200).send({ message: "ok", payload: countries });
     } catch (error) {
       return handleError(res, error);
     }

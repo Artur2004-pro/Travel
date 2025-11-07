@@ -1,140 +1,138 @@
 openapi: 3.0.0
 info:
   title: Bardiner Travel API
-  description: Backend API documentation for Bardiner Travel platform.
   version: 1.0.0
+  description: >
+    RESTful API for Bardiner Travel platform.  
+    This documentation helps frontend developers understand the request/response structure.
 
 servers:
-  - url: http://localhost:9999
+  - url: http://localhost:5000
     description: Local development server
 
 tags:
   - name: Auth
-    description: User authentication and verification
-  - name: Account
-    description: User account management
-  - name: Admin
-    description: Admin role and permissions
-  - name: Country
-    description: Country management endpoints
-  - name: City
-    description: City management endpoints
   - name: Email
-    description: Email verification and password reset
+  - name: Account
+  - name: Admin
+  - name: Country
+  - name: City
+  - name: Post
+  - name: Comment
 
 paths:
   /auth/signup:
     post:
       tags: [Auth]
-      summary: Create a new user account
+      summary: Register new user and send verification email
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [username, email, password]
               properties:
-                username: { type: string }
-                email: { type: string, format: email }
-                password: { type: string, minLength: 6 }
+                username:
+                  type: string
+                  example: johndoe
+                email:
+                  type: string
+                  example: johndoe@gmail.com
+                password:
+                  type: string
+                  example: mysecret
       responses:
-        "201": { description: Verification email sent }
-        "400": { description: Invalid input }
+        201:
+          description: Verification email sent
+        400:
+          description: Invalid fields
 
   /auth/login:
     post:
       tags: [Auth]
-      summary: Log in with username or email
+      summary: Login user
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [username, password]
               properties:
-                username: { type: string }
-                password: { type: string }
+                username:
+                  type: string
+                  example: johndoe
+                password:
+                  type: string
+                  example: mysecret
       responses:
-        "200": { description: Successful login }
+        200:
+          description: Login successful (returns Bearer token)
+        404:
+          description: Invalid username or password
+        409:
+          description: Email not verified
 
   /auth/resend-verification:
     post:
       tags: [Auth]
-      summary: Resend verification email
+      summary: Resend email verification link
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [email, password]
               properties:
-                email: { type: string }
-                password: { type: string }
-
-  /auth/forgot/password:
-    post:
-      tags: [Auth]
-      summary: Send forgot password email
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [username]
-              properties:
-                username: { type: string }
-
-  /auth/forgot-password/update:
-    post:
-      tags: [Auth]
-      summary: Update password after forgot-password
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [password]
-              properties:
-                password: { type: string }
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Verification email sent again
 
   /email/verify-email:
     get:
       tags: [Email]
-      summary: Verify email by token
+      summary: Verify email using token
       parameters:
-        - in: query
-          name: token
+        - name: token
+          in: query
           required: true
-          schema: { type: string }
+          schema:
+            type: string
+      responses:
+        200:
+          description: Email verified successfully
 
   /email/forgot-password:
     get:
       tags: [Email]
-      summary: Verify forgot password token
+      summary: Verify forgot-password token and return JWT
       parameters:
-        - in: query
-          name: token
+        - name: token
+          in: query
           required: true
-          schema: { type: string }
+          schema:
+            type: string
+      responses:
+        200:
+          description: JWT token returned for password reset
 
   /account:
     get:
       tags: [Account]
-      summary: Get account info
+      summary: Get logged-in user's account info
       security:
         - bearerAuth: []
+      responses:
+        200:
+          description: Returns user info
 
   /account/update-password:
     post:
       tags: [Account]
-      summary: Update user password
+      summary: Change password
       security:
         - bearerAuth: []
       requestBody:
@@ -143,62 +141,19 @@ paths:
           application/json:
             schema:
               type: object
-              required: [oldPassword, newPassword]
               properties:
-                oldPassword: { type: string }
-                newPassword: { type: string }
-
-  /account/update-username:
-    post:
-      tags: [Account]
-      summary: Update username
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [username, password]
-              properties:
-                username: { type: string }
-                password: { type: string }
-
-  /admin/be-admin:
-    post:
-      tags: [Admin]
-      summary: Make user admin (requires admin token)
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [adminToken]
-              properties:
-                adminToken: { type: string }
+                oldPassword:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        200:
+          description: Password updated
 
   /country:
-    get:
-      tags: [Country]
-      summary: Get all countries
-
-  /country/search:
-    get:
-      tags: [Country]
-      summary: Search countries by name
-      parameters:
-        - in: query
-          name: name
-          schema: { type: string }
-
-  /country/add:
     post:
       tags: [Country]
-      summary: Add new country
+      summary: Add new country (Admin only)
       security:
         - bearerAuth: []
       requestBody:
@@ -207,144 +162,103 @@ paths:
           multipart/form-data:
             schema:
               type: object
-              required: [name, description, country]
               properties:
-                name: { type: string }
-                description: { type: string }
+                name:
+                  type: string
+                description:
+                  type: string
                 country:
                   type: array
-                  items: { type: string, format: binary }
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        201:
+          description: Country created successfully
 
-  /country/{id}:
-    get:
-      tags: [Country]
-      summary: Get country by ID
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema: { type: string }
-    delete:
-      tags: [Country]
-      summary: Delete a country
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema: { type: string }
-
-  /country/{id}/update:
-    patch:
-      tags: [Country]
-      summary: Update country data
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema: { type: string }
-
-  /country/{id}/photos:
-    delete:
-      tags: [Country]
-      summary: Delete a country photo
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema: { type: string }
-        - in: query
-          name: filename
-          required: true
-          schema: { type: string }
-
-  /city/{countryId}:
+  /city:
     post:
       tags: [City]
-      summary: Add city to country
+      summary: Add new city (Admin only)
       security:
         - bearerAuth: []
-      parameters:
-        - in: path
-          name: countryId
-          required: true
-          schema: { type: string }
       requestBody:
         required: true
         content:
           multipart/form-data:
             schema:
               type: object
-              required: [name, description, city]
               properties:
-                name: { type: string }
-                description: { type: string }
+                name:
+                  type: string
+                description:
+                  type: string
+                countryName:
+                  type: string
                 city:
                   type: array
-                  items: { type: string, format: binary }
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        201:
+          description: City created successfully
 
-  /city/{id}:
-    get:
-      tags: [City]
-      summary: Get city by ID
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema: { type: string }
-    delete:
-      tags: [City]
-      summary: Delete a city
+  /posts/{id}:
+    post:
+      tags: [Post]
+      summary: Create post for specific city
       security:
         - bearerAuth: []
       parameters:
-        - in: path
-          name: id
+        - name: id
+          in: path
           required: true
-          schema: { type: string }
+          schema:
+            type: string
+          description: City ID
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                post:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        201:
+          description: Post created successfully
 
-  /city/{id}/update:
-    patch:
-      tags: [City]
-      summary: Update city info
+  /comment:
+    post:
+      tags: [Comment]
+      summary: Add comment to post
       security:
         - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema: { type: string }
-
-  /city/{id}/photos:
-    delete:
-      tags: [City]
-      summary: Delete city photo
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema: { type: string }
-        - in: query
-          name: filename
-          required: true
-          schema: { type: string }
-
-  /city/all/{countryId}:
-    get:
-      tags: [City]
-      summary: Get all cities of a country
-      parameters:
-        - in: path
-          name: countryId
-          required: true
-          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 64f0b...
+                content:
+                  type: string
+                  example: Great photo!
+      responses:
+        200:
+          description: Comment added
 
 components:
   securitySchemes:

@@ -1,5 +1,4 @@
-const { City } = require("../models/");
-const { Country } = require("../models/");
+const { City, Country } = require("../models/");
 const { deleteImage, handleError } = require("../helpers/");
 
 class CityController {
@@ -7,9 +6,8 @@ class CityController {
   async add(req, res) {
     try {
       const { files } = req;
-      const { countryId } = req.params;
-      const { name, description } = req.body;
-      if (!name || !description || !countryId) {
+      const { name, description, countryName } = req.body;
+      if (!name || !description || !countryName) {
         return res
           .status(400)
           .send({ message: "Missing fields: name or description" });
@@ -19,19 +17,21 @@ class CityController {
         return res.status(400).send({ message: "No image files provided" });
       }
       const images = files.map((file) => file.path);
-
+      const country = await Country.findOne({ name: countryName });
+      if (!country) {
+        return res.status(404).send({ message: "Country not found" });
+      }
       const city = await City.create({
-        countryId,
+        countryId: country._id,
         name,
         description,
         images,
       });
-      await Country.findByIdAndUpdate(countryId, {
-        $push: { cities: city._id },
-      });
+      country.cities.push(city._id);
+      await country.save();
       return res.status(201).send({
         message: "City added successfully",
-        payload: { city },
+        payload: city,
       });
     } catch (error) {
       return handleError(res, error);
@@ -81,7 +81,7 @@ class CityController {
       await city.save();
       return res.status(200).send({
         message: "City updated successfully",
-        payload: { city },
+        payload: city,
       });
     } catch (error) {
       return handleError(res, error);
@@ -96,7 +96,7 @@ class CityController {
     try {
       const { matchedCount, modifiedCount } = await City.updateOne(
         { _id: id },
-        { images: { $pull: filename } }
+        { $pull: { images: filename } }
       );
       if (!matchedCount) {
         return res.status(404).send({ message: "City not found" });
@@ -105,14 +105,19 @@ class CityController {
         return res.status(404).send({ message: "Image not found" });
       }
       await deleteImage(filename);
-      return res
-        .status(200)
-        .send({ message: "Image deleted", payload: { city } });
+      return res.status(200).send({ message: "Image deleted" });
+    } catch (error) {console.log(error)
+      return handleError(res, error);
+    }
+  }
+  async all(req, res) {
+    try {
+      const cities = await City.find({}).limit(50);
+      return res.status(200).send({ message: "Success", payload: cities });
     } catch (error) {
       return handleError(res, error);
     }
   }
-
   // user
   async search(req, res) {
     const { name, country } = req.query;
@@ -124,7 +129,7 @@ class CityController {
       if (!cities) {
         return res.status(404).send({ message: "Cities not found" });
       }
-      return res.status(200).send({ message: "Success", payload: { cities } });
+      return res.status(200).send({ message: "Success", payload: cities });
     } catch (error) {
       return handleError(res, error);
     }

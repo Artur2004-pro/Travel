@@ -1,4 +1,4 @@
-const { User } = require("../models/");
+const { User, Country, City } = require("../models/");
 const { env } = require("../helpers/");
 const { handleError } = require("../helpers/");
 
@@ -21,6 +21,20 @@ class AdminController {
       return res
         .status(200)
         .send({ message: "User role changed successfully" });
+    } catch (error) {
+      return handleError(res, error);
+    }
+  }
+  async getStatistics(req, res) {
+    try {
+      const countries = await Country.countDocuments();
+      const cities = await City.countDocuments();
+      const admins = await User.countDocuments({ role: "admin" });
+      const users = await User.countDocuments({ role: "user" });
+      return res.status(200).send({
+        message: "Success",
+        payload: { countries, cities, admins, users },
+      });
     } catch (error) {
       return handleError(res, error);
     }

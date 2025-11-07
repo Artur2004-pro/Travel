@@ -98,7 +98,7 @@ class AuthController {
         message: "Login successful",
         token: `Bearer ${token}`,
       });
-    } catch (error) {
+    } catch (error) {console.log(error)
       return handleError(res, error);
     }
   }

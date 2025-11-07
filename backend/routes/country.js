@@ -3,11 +3,11 @@ const { country } = require("../controllers/");
 const { upload, isAuth, isAdmin } = require("../middlewares/");
 
 const maxUploadSize = 5;
-router.get("/", country.getAll);
+router.get("/", country.getTop);
 router.get("/search", country.search);
 router.get("/:id", country.getById);
 router.post(
-  "/add",
+  "/",
   isAuth,
   isAdmin,
   upload.array("country", maxUploadSize),
