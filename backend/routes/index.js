@@ -4,8 +4,10 @@ const auth = require("./auth.js");
 const city = require("./city.js");
 const comment = require("./comment.js");
 const country = require("./country.js");
-const email = require("./email.js");
 const post = require("./post.js");
+const metadata = require("./metadata.js");
+const trip = require("./trip.js");
+const tripDay = require("./trip-day.js");
 
 // Routers
 module.exports = {
@@ -15,6 +17,8 @@ module.exports = {
   city,
   comment,
   country,
-  email,
   post,
+  metadata,
+  trip,
+  tripDay,
 };

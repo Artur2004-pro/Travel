@@ -15,13 +15,12 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
   const prev = () => setIndex((index - 1 + images.length) % images.length);
 
   if (!images?.length) return null;
-
   return (
     <div className="relative w-full overflow-hidden rounded-3xl border border-zinc-200 dark:border-slate-800 shadow-md">
       <AnimatePresence mode="wait">
         <motion.img
           key={images[index]}
-          src={`${import.meta.env.VITE_APP_DOMAIN}/${images[index]}`}
+          src={`${import.meta.env.VITE_APP_DOMAIN}${images[index]}`}
           alt={`${title || "Image"} ${index + 1}`}
           className="h-64 sm:h-72 md:h-80 w-full object-cover rounded-3xl"
           initial={{ opacity: 0 }}

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const cityMiddleware = require("./middlewares/city");
 
 const citySchema = new mongoose.Schema({
   name: { type: String, required: [true, "City name is required"] },
@@ -10,6 +11,10 @@ const citySchema = new mongoose.Schema({
     required: [true, "Country id is required"],
   },
   top: { type: Number, default: 0 },
+  lat: Number,
+  lon: Number,
 });
+
+cityMiddleware(citySchema);
 
 module.exports = mongoose.model("City", citySchema);

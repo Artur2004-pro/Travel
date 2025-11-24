@@ -11,7 +11,7 @@ class EmailApi {
     },
   });
   static baseURL = "https://matted-lumpily-kaysen.ngrok-free.dev/email/";
-  async verifyEmail(email, verifyToken) {
+  async verifyEmail(email, code) {
     const mailOptions = {
       from: `<artgrigoryan771@gmail.com>`,
       to: email,
@@ -21,9 +21,9 @@ class EmailApi {
       <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f9f9f9;">
         <h1 style="color: #4a90e2;">Bardiner</h1>
         <p style="font-size: 16px; color: #333;">
-          Շնորհակալություն, որ գրանցվել եք: Սեղմեք ստորև, որպեսզի վավերացնեք ձեր էլ․ հասցեն:
+          Շնորհակալություն, որ գրանցվել եք: Մուտքագրեք այս թվերը կայքում:
         </p>
-        <a href="${EmailApi.baseURL}verify-email?token=${verifyToken}" 
+        <button " 
           style="
             display: inline-block;
             padding: 12px 25px;
@@ -34,8 +34,8 @@ class EmailApi {
             text-decoration: none;
             border-radius: 5px;
           ">
-          Վավերացնել էլ․ հասցեն
-        </a>
+          Վավերացրեք էլ․ հասցեն այս կոդով՝ ${code}
+        </button>
         <p style="font-size: 12px; color: #888;">
           Եթե դուք չեք ստեղծել այս հաշիվը, պարզապես անտեսեք այս նամակը:
         </p>
@@ -44,33 +44,32 @@ class EmailApi {
     };
     return await this.send(mailOptions);
   }
-  async forgotPassword(email, forgotToken) {
+  async forgotPassword(email, code) {
     const mailOptions = {
-      from: `<artgrigoryan771@gmail.com>`,
+      from: `<${process.env.APP_EMAIL}>`,
       to: email,
-      subject: "Bardiner-Travel",
-      text: "սա Bardiner-Travel֊ի էլեկտրոնային հաղորդագրություն է ձեր գախտնաբառը փոխելու համար",
+      subject: "Bardiner-Travel — Reset Password",
       html: `
       <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f9f9f9;">
         <h1 style="color: #4a90e2;">Bardiner</h1>
         <p style="font-size: 16px; color: #333;">
-          Սեղմեք ստորև, որպեսզի ընթացք տաք գախտնաբառի փոխելու գործընթացին:
+          Ձեր գաղտնաբառը վերականգնելու համար մուտքագրեք այս կոդը կայքում:
         </p>
-        <a href="${EmailApi.baseURL}forgot-password?token=${forgotToken}" 
-          style="
-            display: inline-block;
-            padding: 12px 25px;
-            margin: 20px 0;
-            font-size: 16px;
-            color: white;
-            background-color: #4a90e2;
-            text-decoration: none;
-            border-radius: 5px;
-          ">
-          մոռացել եք գախտնաբառը
-        </a>
+
+        <div style="
+          font-size: 30px;
+          font-weight: bold;
+          padding: 10px 20px;
+          background-color: #4a90e2;
+          color: #fff;
+          border-radius: 8px;
+          display: inline-block;
+          margin: 20px 0;">
+          ${code}
+        </div>
+
         <p style="font-size: 12px; color: #888;">
-          Եթե դուք չեք մոռացել ձեր գախտնաբառը կամ տեղյակ չեք ինչպես է նամակը հասել ձեզ, պարզապես անտեսեք այս նամակը:
+          Կոդը վավեր է 15 րոպե:
         </p>
       </div>
     `,
@@ -82,7 +81,6 @@ class EmailApi {
       const info = await EmailApi.transporter.sendMail(mailOptions);
       return info;
     } catch (err) {
-      console.error(err);
       return null;
     }
   }

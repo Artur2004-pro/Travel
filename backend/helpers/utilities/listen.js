@@ -1,4 +1,4 @@
-const { connect } = require("./db.js");
+const { connect } = require("../db/db.js");
 
 async function listen(port) {
   await connect();

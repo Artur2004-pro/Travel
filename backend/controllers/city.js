@@ -1,168 +1,74 @@
 const { City, Country } = require("../models/");
-const { deleteImage, handleError } = require("../helpers/");
+const { deleteImage, handleError, env } = require("../helpers/");
+const geolocationApi = require("../lib/geolocation-api.js");
+const { cityService } = require("../services/");
 
 class CityController {
+  constructor() {
+    this.service = cityService;
+  }
   // admin
   async add(req, res) {
     try {
-      const { files } = req;
-      const { name, description, countryName } = req.body;
-      if (!name || !description || !countryName) {
-        return res
-          .status(400)
-          .send({ message: "Missing fields: name or description" });
-      }
-
-      if (!files || files.length === 0) {
-        return res.status(400).send({ message: "No image files provided" });
-      }
-      const images = files.map((file) => file.path);
-      const country = await Country.findOne({ name: countryName });
-      if (!country) {
-        return res.status(404).send({ message: "Country not found" });
-      }
-      const city = await City.create({
-        countryId: country._id,
-        name,
-        description,
-        images,
-      });
-      country.cities.push(city._id);
-      await country.save();
+      const city = await this.service.add(req.body);
       return res.status(201).send({
         message: "City added successfully",
         payload: city,
       });
-    } catch (error) {
-      return handleError(res, error);
+    } catch (err) {
+      return res.status(err.statusCode).send({ message: err.message });
     }
   }
   async delete(req, res) {
-    const { id } = req.params;
-    if (!id) {
-      return res.status(400).send({ message: "Missing ID" });
-    }
     try {
-      const deletedCity = await City.findByIdAndDelete(id);
-      if (!deletedCity) {
-        return res.status(404).send({ message: "City not found" });
-      }
-      deleteImage(deletedCity.images);
-      return res.status(200).send({ message: "City deleted successfully" });
-    } catch (error) {
-      return handleError(res, error);
+      const deletedCity = this.service.delete(req.params);
+      return res
+        .status(200)
+        .send({ message: "City deleted successfully", payload: deletedCity });
+    } catch (err) {
+      return res.status(err.statusCode).send({ message: err.message });
     }
   }
   async update(req, res) {
-    const { files } = req;
-    const { id } = req.params;
-    const { name, description } = req.body;
-    if (!id) {
-      return res.status(400).send({ message: "Missing id" });
-    }
-    if (!files && !name && !description) {
-      return res.status(400).send({ message: "Missing fields" });
-    }
     try {
-      const city = await City.findById(id);
-      if (!city) {
-        return res.status(404).send({ message: "City not found" });
-      }
-      if (files) {
-        const images = files.map((file) => file.path);
-        city.images.push(...images);
-      }
-      if (name) {
-        city.name = name;
-      }
-      if (description) {
-        city.description = description;
-      }
-      await city.save();
+      const city = await this.service(req.body);
       return res.status(200).send({
         message: "City updated successfully",
         payload: city,
       });
-    } catch (error) {
-      return handleError(res, error);
+    } catch (err) {
+      return res.status(err.statusCode).send({ message: err.message });
     }
   }
   async deletePhoto(req, res) {
-    const { id } = req.params;
-    const { filename } = req.query;
-    if (!id || !filename) {
-      return res.status(400).send({ message: "Missing fields..." });
-    }
     try {
-      const { matchedCount, modifiedCount } = await City.updateOne(
-        { _id: id },
-        { $pull: { images: filename } }
-      );
-      if (!matchedCount) {
-        return res.status(404).send({ message: "City not found" });
-      }
-      if (!modifiedCount) {
-        return res.status(404).send({ message: "Image not found" });
-      }
-      await deleteImage(filename);
+      await this.service.deletePhoto(req.body);
       return res.status(200).send({ message: "Image deleted" });
-    } catch (error) {console.log(error)
-      return handleError(res, error);
+    } catch (err) {
+      return res.status(err.statusCode).send({ message: err.message });
     }
   }
-  async all(req, res) {
+  async getTop(_, res) {
     try {
-      const cities = await City.find({}).limit(50);
+      const cities = await this.service.getTop();
       return res.status(200).send({ message: "Success", payload: cities });
-    } catch (error) {
-      return handleError(res, error);
+    } catch (err) {
+      return res.status(err.statusCode).send({ message: err.message });
     }
   }
   // user
   async search(req, res) {
-    const { name, country } = req.query;
-    if (!name || !country) {
-      return res.status(400).send({ message: "Missing fields..." });
-    }
     try {
-      const cities = await City.find({ name: { $regex: name } });
-      if (!cities) {
-        return res.status(404).send({ message: "Cities not found" });
-      }
+      const cities = await this.service.search(req.query);
       return res.status(200).send({ message: "Success", payload: cities });
     } catch (error) {
       return handleError(res, error);
     }
   }
   async getCity(req, res) {
-    const { id } = req.params;
-    if (!id) {
-      return res.status(400).send({ message: "Missing city id" });
-    }
     try {
-      const city = await City.findById(id);
-      if (!city) {
-        return res.status(404).send({ message: "City not found" });
-      }
+      const city = await this.service.getCity(req.params);
       return res.status(200).send({ message: "success", payload: city });
-    } catch (error) {
-      return handleError(res, error);
-    }
-  }
-  async getCities(req, res) {
-    const { countryId } = req.params;
-    if (!countryId) {
-      return res.status(400).send({ message: "Missing country id" });
-    }
-    try {
-      const cities = await City.find({
-        countryId: countryId,
-      });
-
-      if (!cities || !cities?.length) {
-        return res.status(404).send({ message: "Cities not found" });
-      }
-      return res.status(200).send({ message: "success", payload: cities });
     } catch (error) {
       return handleError(res, error);
     }

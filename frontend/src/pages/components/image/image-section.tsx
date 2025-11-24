@@ -10,7 +10,7 @@ export const ImageSection: React.FC<ImageSectionProps> = ({ images }) => {
     );
   }
   const img = images.map(
-    (imgae) => import.meta.env.VITE_APP_DOMAIN.toString() + "/" + imgae
+    (imgae) => import.meta.env.VITE_APP_DOMAIN.toString() + imgae
   );
   return (
     <div className="relative w-full overflow-hidden rounded-2xl">

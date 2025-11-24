@@ -32,35 +32,24 @@ const postSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-postSchema.statics.toggleLike = async function (userId, id) {
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
+postSchema.statics.toggleLike = async function (userId, postId) {
+  if (!mongoose.Types.ObjectId.isValid(userId))
     throw new Error("Invalid user id");
-  }
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!mongoose.Types.ObjectId.isValid(postId))
     throw new Error("Invalid post id");
+
+  const post = await this.findById(postId);
+  if (!post) throw new Error("Post not found");
+
+  const index = post.likes.findIndex((id) => id.equals(userId));
+  if (index > -1) {
+    post.likes.splice(index, 1);
+  } else {
+    post.likes.push(userId);
   }
-  const res = await this.findOneAndUpdate(
-    { _id: id },
-    [
-      {
-        $set: {
-          $likes: {
-            $cond: [
-              { $in: [userId, "$likes"] },
-              { $setDifferent: [userId, "$likes"] },
-              { $concatArrays: "$likes" },
-            ],
-          },
-        },
-      },
-    ],
-    { new: true }
-  );
-  if (!res) {
-    throw new Error("Post not found");
-  }
-  const liked = res.likes.some((like) => like.equal(userId));
-  return liked ? "Liked" : "Unliked";
+
+  await post.save();
+  return post.likes.some((id) => id.equals(userId)) ? "Liked" : "Unliked";
 };
 
 module.exports = mongoose.model("Post", postSchema);

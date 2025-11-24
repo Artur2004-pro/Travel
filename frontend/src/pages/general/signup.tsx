@@ -18,7 +18,7 @@ export default function Signup() {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data } = await Axios.post("/signup", form);
+      const { data } = await Axios.post("auth/signup", form);
       setMessage({ type: "success", text: data.message || "Account created!" });
       setTimeout(() => navigate("/login"), 1000);
     } catch (err: any) {

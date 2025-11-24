@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const env = require("./env.js");
+const env = require("../utilities/env.js");
 
 async function connect() {
   try {
@@ -11,12 +11,14 @@ async function connect() {
   }
 }
 
-async function disConnect() {
+async function disConnect(server, redis) {
   try {
     await mongoose.disconnect();
     console.log("mongodb disconnected successfully");
+    server.close();
   } catch (error) {
     console.error("Dissconnect failed...", error.message);
+    server.close();
     process.kill(process.pid);
   }
 }

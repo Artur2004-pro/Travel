@@ -1,22 +1,29 @@
-const { User } = require("../models");
-const { verifyToken } = require("../helpers/");
+const { User } = require("../models/");
 
 async function forgotPassword(req, res, next) {
-  const { authentication } = req.headers;
-  if (!authentication) {
-    return res.status(401).send({ message: "Token not found" });
+  const { email, code } = req.body;
+
+  if (!email || !code) {
+    return res.status(400).send({ message: "Missing fields" });
   }
 
-  const token = authentication.split(" ")[1];
-  const payload = verifyToken(token);
-  if (!payload) {
-    return res.status(404).send({ message: "Invalid token" });
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(404).send({ message: "User not found" });
   }
-  const { id, forgotPassword } = payload;
-  const user = await User.findById(id);
-  if (!user || !forgotPassword) {
-    return res.status(404).send({ message: "Invalid token" });
+
+  if (!user.emailVerified) {
+    return res.status(409).send({ message: "Email not verified" });
   }
+
+  if (
+    user.forgotPasswordToken !== code ||
+    user.forgotPasswordExpires < Date.now()
+  ) {
+    return res.status(409).send({ message: "Invalid or expired code" });
+  }
+
   req.user = user;
   next();
 }

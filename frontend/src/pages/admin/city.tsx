@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { Axios } from "../../lib/axios-config";
 import {
   AdminCard,
@@ -36,7 +36,7 @@ export const City = () => {
   const handleGetAllCities = async () => {
     try {
       setLoading(true);
-      const { data } = await Axios.get<IResponse<ICity[]>>("city/all");
+      const { data } = await Axios.get<IResponse<ICity[]>>("city/top");
       setCities(data.payload);
     } catch (error) {
       showMessage("error", "Error");

@@ -1,66 +1,35 @@
-const { Comment, Post } = require("../models/");
-const { handleError } = require("../helpers/");
+const { commentService } = require("../services");
 
 class CommentController {
+  constructor() {
+    this.service = commentService;
+  }
   async add(req, res) {
-    const userId = req.user._id;
-    const { id } = req.params;
-    const { contnet } = req.body;
-    if (!id || !contnet?.trim()) {
-      return res.status(400).send({ message: "Missing fields..." });
-    }
     try {
-      const comment = await Comment.create({
-        user: userId,
-        post: id,
-        content: contnet,
-      });
+      const comment = await this.service.add(req.body);
       return res
         .status(200)
         .send({ message: "Comment added successfully", payload: comment });
-    } catch (error) {
-      return handleError(res, error);
+    } catch (err) {
+      return res.status(err.statusCode).send({ message: err.message });
     }
   }
   async delete(req, res) {
-    const { id } = req.params;
-    const userId = req.user._id.toString();
-    if (!id) {
-      return res.status(400).send({ message: "Missing id" });
-    }
     try {
-      const comment = await Comment.findById(id);
-      if (!comment) {
-        return res.status(404).send({ message: "Comment not found" });
-      }
-      const post = await Post.findById(comment.post);
-      if (!post) {
-        return res.status(404).send({ message: "Post not found" });
-      }
-      const access =
-        post.author == userId ||
-        userId == comment.user ||
-        req.user.role == "admin";
-      if (!access) {
-        return res.status(409).send({ message: "Cannot access!" });
-      }
-      await comment.deleteOne();
-      return res.status(200).send({ message: "Comment deleted successfully" });
-    } catch (error) {
-      return handleError(res, error);
+      const comment = await this.service.delete(req.body);
+      return res
+        .status(200)
+        .send({ message: "Comment deleted successfully", payload: comment });
+    } catch (err) {
+      return res.status(err.statusCode).send({ message: err.message });
     }
   }
   async like(req, res) {
-    const { id } = req.params;
-    const userId = req.user._id.toString();
-    if (!id) {
-      return res.status(400).send({ message: "Missing id" });
-    }
     try {
-      const message = await Comment.toggleLike(userId, id);
+      const message = await this.service.toggleLike(req.body);
       return res.status(200).send({ message });
-    } catch (error) {
-      return handleError(res, error);
+    } catch (err) {
+      return res.status(err.statusCode).send({ message: err.message });
     }
   }
 }

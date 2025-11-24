@@ -1,25 +1,33 @@
 const router = require("express").Router();
 const { country } = require("../controllers/");
 const { upload, isAuth, isAdmin } = require("../middlewares/");
+const { CountryValidator } = require("../validators/");
 
-const maxUploadSize = 5;
 router.get("/", country.getTop);
 router.get("/search", country.search);
-router.get("/:id", country.getById);
+router.get("/:id", CountryValidator.getById, country.getById);
 router.post(
   "/",
   isAuth,
   isAdmin,
-  upload.array("country", maxUploadSize),
+  upload.array("country"),
+  CountryValidator.add,
   country.add
 );
 router.patch(
   "/:id",
   isAuth,
   isAdmin,
-  upload.array("country", maxUploadSize),
+  upload.array("country"),
+  CountryValidator.update,
   country.update
 );
-router.delete("/:id", isAuth, isAdmin, country.delete);
-router.delete("/:id/photos", isAuth, isAdmin, country.deletePhoto);
+router.delete("/:id", isAuth, isAdmin, CountryValidator.delete, country.delete);
+router.delete(
+  "/:id/photos",
+  isAuth,
+  isAdmin,
+  CountryValidator.deletePhoto,
+  country.deletePhoto
+);
 module.exports = router;
