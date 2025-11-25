@@ -24,7 +24,7 @@ export const Login = () => {
     try {
       setLoading(true);
       const response = await Axios.post<ILoginResponse>("auth/login", data);
-      localStorage.setItem("Authorization", response.data.token);
+      localStorage.setItem("Authorization", response.data.payload);
       reset();
       setIsError(false);
       setMessage("✅ Login successful!");

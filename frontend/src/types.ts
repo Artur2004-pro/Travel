@@ -35,7 +35,7 @@ export interface ILoginUser {
 
 export interface ILoginResponse {
   message: string;
-  token: string;
+  payload: string;
 }
 
 export interface IResponse<T = unknown> {

@@ -7,21 +7,31 @@ router.get(
   "/all/:tripId",
   isAuth,
   TripDayValidator.tripDaysByTripId,
-  tripDay.tripDaysByTripId
+  tripDay.tripDaysByTripId.bind(tripDay)
 );
-router.get("/:id", isAuth, TripDayValidator.tripDayById, tripDay.tripDayById);
-router.post("/", isAuth, TripDayValidator.createTripDay, tripDay.createTripDay);
+router.get(
+  "/:id",
+  isAuth,
+  TripDayValidator.tripDayById,
+  tripDay.tripDayById.bind(tripDay)
+);
+router.post(
+  "/",
+  isAuth,
+  TripDayValidator.createTripDay,
+  tripDay.createTripDay.bind(tripDay)
+);
 router.patch(
   "/:id",
   isAuth,
   TripDayValidator.updateTripDay,
-  tripDay.updateTripDay
+  tripDay.updateTripDay.bind(tripDay)
 );
 router.delete(
   "/:id",
   isAuth,
   TripDayValidator.deleteTripDay,
-  tripDay.deleteTripDay
+  tripDay.deleteTripDay.bind(tripDay)
 );
 
 module.exports = router;

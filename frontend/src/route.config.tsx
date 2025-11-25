@@ -18,6 +18,7 @@ import { AddCity } from "./pages/admin/add-city";
 import { EditCity } from "./pages/admin/edit-city";
 import { Users } from "./pages/admin/users";
 import { EditUser } from "./pages/admin/edit-user";
+import { Settings } from "./pages/settings/setting";
 
 export const router = createBrowserRouter([
   {
@@ -29,7 +30,7 @@ export const router = createBrowserRouter([
       { path: "login", element: <Login /> },
       { path: "signup", element: <Signup /> },
       { path: "be-admin", element: <BeAdmin /> },
-
+      { path: "settings", element: <Settings /> },
       {
         path: "admin",
         element: <AdminLayout />,

@@ -2,6 +2,7 @@ const { Country } = require("../models");
 const { ServiceError, ErrorHandler } = require("./error-handler.js");
 const geolocationApi = require("../lib/geolocation-api.js");
 const { deleteImage } = require("../helpers/index.js");
+const { env } = require("../helpers/");
 
 class CountryService {
   async add(data) {
@@ -81,6 +82,7 @@ class CountryService {
         .populate("cities");
       return countries;
     } catch (err) {
+      console.log(err);
       throw ErrorHandler.normalize(err);
     }
   }
