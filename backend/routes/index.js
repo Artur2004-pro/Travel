@@ -8,7 +8,7 @@ const post = require("./post.js");
 const metadata = require("./metadata.js");
 const trip = require("./trip.js");
 const tripDay = require("./trip-day.js");
-
+const tripActivity = require("./trip-activity.js");
 // Routers
 module.exports = {
   account,
@@ -21,4 +21,5 @@ module.exports = {
   metadata,
   trip,
   tripDay,
+  tripActivity,
 };

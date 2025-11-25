@@ -1,4 +1,4 @@
-const { City } = require("../models");
+const City = require("../models/city.js");
 const {
   env,
   redis,

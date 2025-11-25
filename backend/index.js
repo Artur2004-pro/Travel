@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const { multerError } = require("./middlewares/");
+const { multerError, errorMiddleware } = require("./middlewares/");
 
 const { env, stopConnection, listen, setupSwagger } = require("./helpers/");
 
@@ -40,9 +40,12 @@ app.use("/posts", router.post);
 app.use("/commetns", router.comment);
 app.use("/metadata", router.metadata);
 app.use("/trip", router.trip);
+app.use("/trip-day", router.tripDay);
+app.use("/activity", router.tripActivity);
 const server = app.listen(env.APP_PORT, listen.bind(null, env.APP_PORT));
 
 app.use(multerError);
+app.use(errorMiddleware);
 
 process.on("SIGINT", stopConnection.bind(null, server));
 process.on("SIGTERM", stopConnection.bind(null, server));

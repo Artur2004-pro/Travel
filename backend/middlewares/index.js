@@ -3,6 +3,7 @@ const upload = require("./image-upload.js");
 const isAdmin = require("./is-admin.js");
 const isAuth = require("./is-authenticated.js");
 const multerError = require("./error-middleware.js");
+const errorMiddleware = require("./global-error-middleware.js");
 
 module.exports = {
   forgotPassword,
@@ -10,4 +11,5 @@ module.exports = {
   isAdmin,
   isAuth,
   multerError,
+  errorMiddleware,
 };

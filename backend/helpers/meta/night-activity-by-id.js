@@ -1,7 +1,6 @@
-const metaDataApi = require("../../lib/meta-data-api");
-const { getCachedDataById } = require("../utilities/getCachedData");
-
 async function nightActivityById(key, id) {
+  const metaDataApi = require("../../lib/meta-data-api");
+  const { getCachedDataById } = require("../utilities/getCachedData");
   const activity = await getCachedDataById(key, id);
   if (activity && activity.cache == "empty") {
     const cityName = key.split(":")[1];

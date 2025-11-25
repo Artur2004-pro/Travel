@@ -1,7 +1,6 @@
-const metaDataApi = require("../../lib/meta-data-api");
-const { getCachedDataById } = require("../utilities/getCachedData");
-
 async function hotelById(key, id) {
+  const { getCachedDataById } = require("../utilities/getCachedData");
+  const metaDataApi = require("../../lib/meta-data-api");
   const hotel = await getCachedDataById(key, id);
   if (!hotel) return null;
   if (hotel.cache == "empty") {
