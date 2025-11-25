@@ -38,8 +38,9 @@ class UserService {
       if (!emailResult) {
         throw new ServiceError("Verification email is failed", 500);
       }
-      user.select(UserService.ignoreFields);
-      return await user.exec();
+      const userObj = user.toObject();
+      UserService.ignoreFields.forEach((field) => delete userObj[field]);
+      return userObj;
     } catch (err) {
       throw ErrorHandler.normalize(err);
     }

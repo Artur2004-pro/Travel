@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronRight, ChevronLeft, LogOut } from "lucide-react";
+import {
+  Menu,
+  X,
+  ChevronRight,
+  ChevronLeft,
+  LogOut,
+  LayoutDashboard,
+} from "lucide-react";
 import type { IAccount, IResponse } from "../../types";
 import { Axios } from "../../lib/axios-config";
 import { EmptyState, SidebarLink } from "../components";
@@ -11,11 +18,22 @@ export function Settings() {
   const [account, setAccount] = useState<IAccount | null>(null);
   const navigate = useNavigate();
   useEffect(() => {
-      handleGetAccount();
-    }, []);
-    const toggleSidebar = () => setOpen((v) => !v);
-    
-    const navItems: any[] = [];
+    handleGetAccount();
+  }, []);
+  const toggleSidebar = () => setOpen((v) => !v);
+
+  const navItems: any[] = [
+    {
+      label: "update password",
+      to: "update-password",
+      icon: <LayoutDashboard className="h-4 w-4" />,
+    },
+    {
+      label: "update username",
+      to: "update-username",
+      icon: <LayoutDashboard className="h-4 w-4" />,
+    },
+  ];
   const signOut = () => {
     localStorage.removeItem("Authorization");
     navigate("/");
@@ -145,7 +163,7 @@ export function Settings() {
       )}
 
       {/* MAIN */}
-      <div className="flex-1 flex min-w-0">
+      <div className="flex-1 flex min-w-0 bg-inherit">
         <div className="flex-1 m-3 rounded-3xl glass overflow-hidden">
           {/* Top bar */}
           {/* Mobile toggle */}

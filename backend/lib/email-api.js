@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const { env } = require("../helpers/");
 
 class EmailApi {
   static transporter = nodemailer.createTransport({
@@ -6,11 +7,10 @@ class EmailApi {
     port: 587,
     secure: false,
     auth: {
-      user: process.env.APP_EMAIL,
-      pass: process.env.APP_PASSWORD,
+      user: env.APP_EMAIL,
+      pass: env.APP_PASSWORD,
     },
   });
-  static baseURL = "https://matted-lumpily-kaysen.ngrok-free.dev/email/";
   async verifyEmail(email, code) {
     const mailOptions = {
       from: `<artgrigoryan771@gmail.com>`,
@@ -46,7 +46,7 @@ class EmailApi {
   }
   async forgotPassword(email, code) {
     const mailOptions = {
-      from: `<${process.env.APP_EMAIL}>`,
+      from: `<${env.APP_EMAIL}>`,
       to: email,
       subject: "Bardiner-Travel — Reset Password",
       html: `
