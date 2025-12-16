@@ -68,6 +68,16 @@ class AccountController {
       return res.status(err.statusCode).send({ message: err.message });
     }
   }
+  async updateAvatar(req, res) {
+    try {
+      const updated = await this.service.updateAvatar(req.body);
+      return res
+        .status(200)
+        .send({ message: "Avatar updated", payload: updated });
+    } catch (err) {
+      return res.status(err.statusCode).send({ message: err.message });
+    }
+  }
 }
 
 module.exports = new AccountController();

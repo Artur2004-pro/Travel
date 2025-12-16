@@ -11,5 +11,5 @@ const countrySchema = new mongoose.Schema({
   lon: Number,
 });
 
-countryMiddleware(countrySchema);
+countrySchema.plugin(countryMiddleware);
 module.exports = mongoose.model("Country", countrySchema);

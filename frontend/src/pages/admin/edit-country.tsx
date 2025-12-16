@@ -171,3 +171,5 @@ export const EditCountry = () => {
     </div>
   );
 };
+
+export default EditCountry;

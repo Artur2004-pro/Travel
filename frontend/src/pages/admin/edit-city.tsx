@@ -172,3 +172,5 @@ export const EditCity = () => {
     </div>
   );
 };
+
+export default EditCity;

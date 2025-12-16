@@ -139,11 +139,13 @@ class TripService {
   }
   async add(data) {
     try {
-      const { startDate, endDate, countryId, userId } = data;
+      const { startDate, endDate, description, countryId, userId, title } =
+        data;
       const isValid = dateValidaton(startDate, endDate);
       if (isValid.message != "ok") {
         throw new ServiceError(isValid.message, 409);
       }
+      const dayCount = getTripDayCount(startDate, endDate);
       const countryExists = await Country.findById(countryId);
       if (!countryExists) {
         throw new ServiceError("Country not found", 404);
@@ -156,6 +158,7 @@ class TripService {
         title,
         description,
         days: [],
+        dayCount,
       });
       return trip;
     } catch (err) {

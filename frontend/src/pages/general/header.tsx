@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { useTheme } from "../../hooks/useThem";
 import { NavLink } from "react-router-dom";
-import { Menu, X, MapPin, Sun, Moon, Search } from "lucide-react";
+import { Menu, X, MapPin, Search, Settings } from "lucide-react";
 
 const navItems = [
   { label: "Explore", to: "/explore" },
@@ -10,19 +9,18 @@ const navItems = [
   { label: "About", to: "/about" },
   { label: "Sign In", to: "/login" },
   { label: "Get Started", to: "/signup" },
+  { label: <Settings />, to: "/settings" },
 ];
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const { dark, toggle } = useTheme();
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-500 backdrop-blur-xl border-b ${
-        dark
-          ? "bg-slate-950/60 border-slate-800/60 shadow-[0_0_20px_rgba(0,0,0,0.4)]"
-          : "bg-white/60 border-zinc-200/60 shadow-[0_0_10px_rgba(0,0,0,0.05)]"
-      }`}
+      className={`sticky top-0 z-50 transition-all duration-500 backdrop-blur-xl border-b 
+        "bg-white/60 border-zinc-200/60 shadow-[0_0_10px_rgba(0,0,0,0.05)]
+        dark:bg-slate-950/60 dark:border-slate-800/60 dard:shadow-[0_0_20px_rgba(0,0,0,0.4)]
+      `}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
@@ -41,7 +39,7 @@ export default function Header() {
           <nav className="hidden md:flex items-center gap-6">
             {navItems.map((n) => (
               <NavLink
-                key={n.label}
+                key={n.to}
                 to={n.to}
                 className={({ isActive }) =>
                   `text-sm font-medium transition relative after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-gradient-to-r from-sky-500 to-teal-400 after:transition-all ${
@@ -64,66 +62,30 @@ export default function Header() {
               <input
                 type="text"
                 placeholder="Search places"
-                className={`pl-9 pr-9 h-9 rounded-xl border transition focus:outline-none focus:ring-2 text-sm ${
-                  dark
-                    ? "border-slate-700 bg-slate-800/70 text-slate-100 focus:ring-teal-400/40"
-                    : "border-zinc-200 bg-white/70 text-zinc-900 focus:ring-sky-400/40"
-                }`}
+                className={`pl-9 pr-9 h-9 rounded-xl border transition focus:outline-none focus:ring-2 text-sm
+                  border-zinc-200 bg-white/70 text-zinc-900 focus:ring-sky-400/40
+                  dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-100 dark:focus:ring-teal-400/40
+                `}
               />
               <button
-                className={`absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex h-7 w-7 items-center justify-center rounded-lg transition ${
-                  dark
-                    ? "hover:bg-slate-700 text-slate-300"
-                    : "hover:bg-zinc-100 text-zinc-600"
-                }`}
+                className={`absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex h-7 w-7 items-center justify-center rounded-lg transition
+                  hover:bg-zinc-100 text-zinc-600
+                    dark:hover:bg-slate-700 dark:text-slate-300
+                `}
               >
                 <Search className="h-4 w-4" />
               </button>
             </div>
-
-            {/* Theme Toggle */}
-            <button
-              onClick={toggle}
-              className={`inline-flex h-9 items-center gap-2 rounded-xl border px-3 text-sm font-medium transition ${
-                dark
-                  ? "border-slate-700 text-slate-200 hover:bg-slate-800/60"
-                  : "border-zinc-200 text-zinc-700 hover:bg-zinc-100/70"
-              }`}
-            >
-              {dark ? (
-                <Sun className="h-4 w-4 text-yellow-400" />
-              ) : (
-                <Moon className="h-4 w-4 text-sky-500" />
-              )}
-              <span className="hidden lg:inline">
-                {dark ? "Light" : "Dark"}
-              </span>
-            </button>
           </div>
 
           {/* 📱 Mobile buttons */}
           <div className="flex md:hidden items-center gap-2">
             <button
-              onClick={toggle}
-              className={`inline-flex h-9 w-9 items-center justify-center rounded-xl border ${
-                dark
-                  ? "border-slate-700 hover:bg-slate-800"
-                  : "border-zinc-200 hover:bg-zinc-100"
-              }`}
-            >
-              {dark ? (
-                <Sun className="h-4 w-4 text-yellow-400" />
-              ) : (
-                <Moon className="h-4 w-4 text-sky-500" />
-              )}
-            </button>
-            <button
               onClick={() => setOpen((v) => !v)}
-              className={`inline-flex h-9 w-9 items-center justify-center rounded-xl border ${
-                dark
-                  ? "border-slate-700 hover:bg-slate-800"
-                  : "border-zinc-200 hover:bg-zinc-100"
-              }`}
+              className={`inline-flex h-9 w-9 items-center justify-center rounded-xl border 
+                border-zinc-200 hover:bg-zinc-100 
+                dark:border-slate-700 dark:hover:bg-slate-800
+              `}
             >
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -133,15 +95,14 @@ export default function Header() {
         {/* 📱 Mobile dropdown */}
         {open && (
           <div
-            className={`md:hidden mt-2 rounded-2xl border p-4 shadow-lg ${
-              dark
-                ? "border-slate-700 bg-slate-900/95 text-slate-100"
-                : "border-zinc-200 bg-white/95 text-zinc-900"
-            }`}
+            className={`md:hidden mt-2 rounded-2xl border p-4 shadow-lg
+              border-zinc-200 bg-white/95 text-zinc-900
+              dark:border-slate-700 dark:bg-slate-900/95 dark:text-slate-100  
+            `}
           >
             {navItems.map((n) => (
               <NavLink
-                key={n.label}
+                key={n.to}
                 to={n.to}
                 onClick={() => setOpen(false)}
                 className={({ isActive }) =>

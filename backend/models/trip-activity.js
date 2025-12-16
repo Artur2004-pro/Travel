@@ -22,7 +22,7 @@ const tripActivitySchema = new Schema(
     day: { type: Schema.Types.ObjectId, ref: "TripDay", required: true },
     type: {
       type: String,
-      enum: ["attraction", "restaurant", "cafe", "pub", "other"],
+      enum: ["attraction", "restaurant", "cafe", "pub", "bar", "other"],
       required: true,
     },
     notes: { type: String },

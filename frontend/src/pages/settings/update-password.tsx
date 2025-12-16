@@ -35,7 +35,7 @@ export const UpdatePassword = () => {
   async function onSubmit(values: FormValues) {
     try {
       setLoading(true);
-      const { data } = await Axios.patch<IResponse>(
+      const { data } = await Axios.post<IResponse>(
         "account/update-password",
         values
       );
@@ -64,6 +64,9 @@ export const UpdatePassword = () => {
               Old Password
             </label>
 
+            {errors.oldPassword && (
+              <p className="text-red-500">{errors.oldPassword.message}</p>
+            )}
             <div className="relative">
               <input
                 type={showOld ? "text" : "password"}
@@ -75,11 +78,6 @@ export const UpdatePassword = () => {
                     w-full bg-input border rounded-lg px-3 py-2 pr-11
                     text-foreground placeholder-muted-foreground bg-inherit
                     focus:outline-none focus:ring-2 focus:ring-primary
-                    ${
-                      errors.oldPassword
-                        ? "border-destructive text-destructive placeholder-destructive"
-                        : "border-border"
-                    }
                   `}
                 placeholder="Enter old password"
               />
@@ -100,12 +98,6 @@ export const UpdatePassword = () => {
                 )}
               </button>
             </div>
-
-            {errors.oldPassword && (
-              <p className="text-xs text-destructive">
-                {errors.oldPassword.message}
-              </p>
-            )}
           </div>
 
           {/* New Password */}
@@ -113,7 +105,9 @@ export const UpdatePassword = () => {
             <label className="text-sm font-medium text-foreground">
               New Password
             </label>
-
+            {errors.newPassword && (
+              <p className="text-red-500">{errors.newPassword.message}</p>
+            )}
             <div className="relative">
               <input
                 type={showNew ? "text" : "password"}
@@ -125,11 +119,6 @@ export const UpdatePassword = () => {
                     w-full bg-input border rounded-lg px-3 py-2 pr-11
                     text-foreground placeholder-muted-foreground bg-inherit
                     focus:outline-none focus:ring-2 focus:ring-primary
-                    ${
-                      errors.newPassword
-                        ? "border-destructive text-destructive placeholder-destructive"
-                        : "border-border"
-                    }
                   `}
                 placeholder="Enter new password"
               />
@@ -152,14 +141,8 @@ export const UpdatePassword = () => {
             </div>
 
             <p className="text-xs text-muted-foreground">
-              Minimum 8 characters
+              Minimum 6 characters
             </p>
-
-            {errors.newPassword && (
-              <p className="text-xs text-destructive">
-                {errors.newPassword.message}
-              </p>
-            )}
           </div>
 
           {/* Submit Button */}
@@ -171,7 +154,8 @@ export const UpdatePassword = () => {
                 bg-gradient-to-r from-primary/90 to-primary 
                 text-black dark:text-white
                 hover:from-primary/80 hover:to-primary/80
-                transition-all
+                transition-all bg-sky-500/10
+
                 ${loading ? "opacity-60 cursor-not-allowed" : ""}
               `}
           >
@@ -182,3 +166,5 @@ export const UpdatePassword = () => {
     </div>
   );
 };
+
+export default UpdatePassword;

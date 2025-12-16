@@ -37,6 +37,6 @@ const tripSchema = new Schema(
   { timestamps: true }
 );
 
-tripSchemaMiddleware(tripSchema);
+tripSchema.plugin(tripSchemaMiddleware);
 
 module.exports = model("Trip", tripSchema);

@@ -14,7 +14,7 @@ class TripController {
   }
   async addCoverImage(req, res) {
     try {
-      const trip = await this.addCoverImage(req.body);
+      const trip = await this.service.addCoverImage(req.body);
       return res.status(200).send({
         message: "Cover image added",
         payload: trip,

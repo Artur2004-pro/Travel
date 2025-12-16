@@ -90,3 +90,5 @@ export const BeAdmin = () => {
     </div>
   );
 };
+
+export default BeAdmin;

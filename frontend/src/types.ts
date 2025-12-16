@@ -137,3 +137,74 @@ export interface Country {
   images: string[];
   cities: ICity[];
 }
+
+export interface ITripItem {
+  country: boolean;
+  planning: boolean;
+  dayPlanning: boolean;
+  finish: boolean;
+}
+
+export interface TripItem {
+  to: string;
+  icon: React.ReactNode | string;
+  label: string;
+  key: string;
+}
+
+export interface ICountryCardProps {
+  country: Country;
+  next(id: string): void;
+}
+
+export interface IBudget {
+  planned: number;
+  spent: number;
+  currency: string;
+}
+
+export interface ITrip {
+  _id: string;
+  title: string;
+  description: string;
+  country: string; // կամ եթե ունես Country type, կարող ես այն էլ օգտագործել
+  startDate: string; // կամ Date, եթե ուզում ես ավտոմատ Date դարձնել
+  endDate: string;
+  days: any[]; // Կարող ես ավելի ճշգրիտ type սարքել, եթե գիտես day-ի կառուցվածքը
+  isPrivate: boolean;
+  budget: IBudget;
+  user: string; // կամ IUser, եթե ունես user type
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface ITripDayState {
+  day: number;
+  cityId: string;
+  hotelId?: string;
+  dayActivities: IActivity[];
+  nightActivities: IActivity[];
+}
+
+export interface IActivity {
+  id: string;
+  name: string;
+  address: string;
+
+  lat: number;
+  lon: number;
+
+  stars: number;
+
+  phone: string[];
+  email: string | null;
+  website: string;
+
+  image: string | null;
+  images: string[];
+
+  rooms: number | null;
+
+  wikidata: string;
+}

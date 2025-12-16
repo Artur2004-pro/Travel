@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { isAdmin, isAuth } = require("../middlewares/");
+const { isAdmin, isAuth, upload } = require("../middlewares/");
 const { account } = require("../controllers/");
 const { AccountValidator } = require("../validators/");
 
@@ -29,6 +29,13 @@ router.post(
   isAuth,
   AccountValidator.updateUsername,
   account.updateUsername.bind(account)
+);
+router.patch(
+  "/avatar",
+  isAuth,
+  upload.single("avatar"),
+  AccountValidator.updateAvatar,
+  account.updateAvatar.bind(account)
 );
 router.patch(
   "/configure/:id",

@@ -119,6 +119,9 @@ class TripDayService {
         order: order,
         date,
       });
+      await Trip.findByIdAndUpdate(tripId, {
+        $push: { days: tripDay._id },
+      });
       return tripDay;
     } catch (err) {
       throw ErrorHandler.normalize(err);

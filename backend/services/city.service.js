@@ -2,6 +2,7 @@ const { deleteImage } = require("../helpers/index.js");
 const geolocationApi = require("../lib/geolocation-api.js");
 const { City, Country } = require("../models");
 const { ServiceError, ErrorHandler } = require("./error-handler.js");
+const { env } = require("../helpers/");
 
 class CityService {
   async add(data) {
@@ -102,6 +103,17 @@ class CityService {
         throw new ServiceError("City not found", 404);
       }
       return city;
+    } catch (err) {
+      throw ErrorHandler.normalize(err);
+    }
+  }
+  async byCountryId(data) {
+    try {
+      const cities = await City.find({ countryId: data.id });
+      if (!cities || !cities.length) {
+        throw new ServiceError("Cities not found", 404);
+      }
+      return cities;
     } catch (err) {
       throw ErrorHandler.normalize(err);
     }

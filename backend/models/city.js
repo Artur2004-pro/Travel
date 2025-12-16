@@ -15,6 +15,6 @@ const citySchema = new mongoose.Schema({
   lon: Number,
 });
 
-cityMiddleware(citySchema);
+citySchema.plugin(cityMiddleware);
 
 module.exports = mongoose.model("City", citySchema);

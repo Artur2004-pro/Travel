@@ -7,7 +7,7 @@ class CityValidator {
         .status(400)
         .send({ message: "Missing fields: name or description" });
     }
-    if (files || files.length) {
+    if (!files || !files.length) {
       return res.status(400).send({ message: "No image files provided" });
     }
     const images = files.map((file) => file.path);
@@ -56,6 +56,13 @@ class CityValidator {
     const { id } = req.params;
     if (!id) {
       return res.status(400).send({ message: "Missing city id" });
+    }
+    next();
+  }
+  static byCountryId(req, res, next) {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).send({ message: "Missing country id id" });
     }
     next();
   }

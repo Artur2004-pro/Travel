@@ -29,6 +29,6 @@ const TripDaySchema = new Schema(
   { timestamps: true }
 );
 
-tripDayMiddleware(TripDaySchema);
+TripDaySchema.plugin(tripDayMiddleware);
 
 module.exports = model("TripDay", TripDaySchema);

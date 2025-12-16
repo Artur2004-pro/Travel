@@ -70,6 +70,14 @@ class CityController {
       return res.status(err.statusCode).send({ message: err.message });
     }
   }
+  async byCountryId(req, res) {
+    try {
+      const cities = await this.service.byCountryId(req.params);
+      return res.status(200).send({ message: "Success", payload: cities });
+    } catch (err) {
+      return res.status(err.statusCode).send({ message: err.message });
+    }
+  }
 }
 
 module.exports = new CityController();

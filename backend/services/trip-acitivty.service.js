@@ -71,6 +71,9 @@ class TripActivityService {
         notes: notes || "",
         cost: cost || 0,
       });
+      await TripDay.findByIdAndUpdate(tripDay._id, {
+        $push: { activities: newTripActivity._id },
+      });
       return newTripActivity;
     } catch (err) {
       throw ErrorHandler.normalize(err);
@@ -89,7 +92,7 @@ class TripActivityService {
           409
         );
       }
-      await TripDay.findByIdAndUpdate(activity.tripDayId, {
+      await TripDay.findByIdAndUpdate(activity.day, {
         $pull: { activities: activity._id },
       });
       await activity.deleteOne();
@@ -139,6 +142,9 @@ class TripActivityService {
         activity: activity,
         notes: notes || "",
         cost: cost || 0,
+      });
+      await TripDay.findByIdAndUpdate(tripDay._id, {
+        $push: { activities: newTripActivity._id },
       });
       return newTripActivity;
     } catch (err) {

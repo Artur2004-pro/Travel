@@ -1,36 +1,21 @@
-async function tripDayMiddleware(schema) {
-  const events = [
-    "deleteMany",
-    "findOneAndDelete",
-    "findOneAndRemove",
-    "deleteOne",
-    "remove",
-    "delete",
-    "findByIdAndDelete",
-    "findByIdAndRemove",
-  ];
+const hybridCascadeDelete = require("./hybrid-cascade");
+const TripActivity = require("../trip-activity");
 
-  for (const event of events) {
-    schema.pre(event, async function (next) {
-      try {
-        await cascadeDeleteTripDay(this);
-        next();
-      } catch (error) {
-        next(error);
-      }
-    });
-  }
-}
+module.exports = hybridCascadeDelete({
+  async onQuery(query) {
+    const tripDays = await query.model
+      .find(query.getFilter())
+      .select("_id")
+      .lean();
 
-async function cascadeDeleteTripDay(query) {
-  const TripActivity = require("../trip-activity.js");
-  const filter = query.getFilter();
-  const tripDays = await query.model.find(filter).select("_id").lean();
+    const ids = tripDays.map((td) => td._id);
+    if (!ids.length) return;
 
-  if (!tripDays.length) return;
+    await TripActivity.deleteMany({ day: { $in: ids } });
+  },
 
-  const ids = tripDays.map((td) => td._id);
-  await TripActivity.deleteMany({ day: { $in: ids } });
-}
-
-module.exports = tripDayMiddleware;
+  async onDocument(doc) {
+    if (!doc._id) return;
+    await TripActivity.deleteMany({ day: doc._id });
+  },
+});

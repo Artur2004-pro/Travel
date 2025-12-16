@@ -2,13 +2,7 @@ import { useEffect, useState } from "react";
 import { Globe2, MapPin, Users, ShieldCheck } from "lucide-react";
 import { Axios } from "../../lib/axios-config";
 import { AdminCard, EmptyState, Loader, MessagePopup } from "../components";
-import type {
-  IAccount,
-  IOutletContext,
-  IResponse,
-  IShowMessage,
-  IStats,
-} from "../../types";
+import type { IAccount, IResponse, IShowMessage, IStats } from "../../types";
 import { useOutletContext } from "react-router-dom";
 
 export const Admin = () => {
@@ -125,3 +119,5 @@ function StatCard({ title, value, icon, gradient }: StatCardProps) {
     </div>
   );
 }
+
+export default Admin;

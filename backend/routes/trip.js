@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const { trip } = require("../controllers/");
 const { TripValidator } = require("../validators/");
-const { isAuth } = require("../middlewares/");
+const { isAuth, upload } = require("../middlewares/");
 
 router.get("/", isAuth, trip.getMyTrips.bind(trip));
 router.get("/:id", isAuth, TripValidator.getTrip, trip.getTrip.bind(trip));
@@ -15,6 +15,7 @@ router.post("/", isAuth, TripValidator.add, trip.add.bind(trip));
 router.post(
   "/:id/cover",
   isAuth,
+  upload.single("cover"),
   TripValidator.addCoverImage,
   trip.addCoverImage.bind(trip)
 );

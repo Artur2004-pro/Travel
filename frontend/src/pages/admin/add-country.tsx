@@ -135,3 +135,5 @@ export const AddCountry = () => {
     </div>
   );
 };
+
+export default AddCountry;

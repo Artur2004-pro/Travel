@@ -1,40 +1,23 @@
+const hybridCascadeDelete = require("./hybrid-cascade");
 const { deleteImage } = require("../../helpers");
 
-async function cityMiddleware(schema) {
-  const events = [
-    "deleteMany",
-    "findOneAndDelete",
-    "findOneAndRemove",
-    "deleteOne",
-    "remove",
-    "delete",
-    "findByIdAndDelete",
-    "findByIdAndRemove",
-  ];
+module.exports = hybridCascadeDelete({
+  async onQuery(query) {
+    const cities = await query.model
+      .find(query.getFilter())
+      .select("images")
+      .lean();
 
-  for (const event of events) {
-    schema.pre(event, async function (next) {
-      try {
-        await cascadeCityImages(this);
-        next();
-      } catch (err) {
-        next(err);
+    for (const city of cities) {
+      if (Array.isArray(city.images) && city.images.length) {
+        await deleteImage(city.images);
       }
-    });
-  }
-}
-
-async function cascadeCityImages(query) {
-  const filter = query.getFilter();
-
-  const cities = await query.model.find(filter).lean();
-  if (!cities.length) return;
-
-  for (const city of cities) {
-    if (Array.isArray(city.images) && city.images.length) {
-      await deleteImage(city.images);
     }
-  }
-}
+  },
 
-module.exports = cityMiddleware;
+  async onDocument(doc) {
+    if (Array.isArray(doc.images) && doc.images.length) {
+      await deleteImage(doc.images);
+    }
+  },
+});

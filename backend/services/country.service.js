@@ -101,8 +101,8 @@ class CountryService {
     try {
       const { name } = data;
       const countries = await Country.find({
-        name: { $regex: name, $options: "i" },
-      });
+        name: { $regex: `^${name}`, $options: "i" },
+      }).limit(env.DATA_LIMIT);
       if (!countries || !countries.length) {
         throw new ServiceError("Countries not found", 404);
       }

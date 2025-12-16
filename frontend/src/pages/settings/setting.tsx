@@ -6,13 +6,21 @@ import {
   ChevronRight,
   ChevronLeft,
   LogOut,
-  LayoutDashboard,
+  Wrench,
+  ShieldCheck,
+  Sun,
+  Moon,
+  Loader,
 } from "lucide-react";
 import type { IAccount, IResponse } from "../../types";
 import { Axios } from "../../lib/axios-config";
-import { EmptyState, SidebarLink } from "../components";
+import { SidebarLink } from "../components";
+import { AccountCard } from "./setting-account";
+import { useTheme } from "../../hooks/useThem";
 
 export function Settings() {
+  const { dark, toggle } = useTheme();
+
   const [open, setOpen] = useState(true);
   const [mobile, setMobile] = useState(false);
   const [account, setAccount] = useState<IAccount | null>(null);
@@ -21,19 +29,19 @@ export function Settings() {
     handleGetAccount();
   }, []);
   const toggleSidebar = () => setOpen((v) => !v);
-
   const navItems: any[] = [
     {
       label: "update password",
       to: "update-password",
-      icon: <LayoutDashboard className="h-4 w-4" />,
+      icon: <Wrench className="h-4 w-4" />,
     },
     {
       label: "update username",
       to: "update-username",
-      icon: <LayoutDashboard className="h-4 w-4" />,
+      icon: <Wrench className="h-4 w-4" />,
     },
   ];
+
   const signOut = () => {
     localStorage.removeItem("Authorization");
     navigate("/");
@@ -46,13 +54,16 @@ export function Settings() {
       setAccount(null);
     }
   };
-  if (!account || account.role != "admin") {
-    return (
-      <EmptyState title="Cannot access" icon="❌" subtitle="You not admin" />
-    );
+  if (account && account.role == "admin") {
+    navItems.push({
+      label: "admin dashboard",
+      to: "/admin",
+      icon: <ShieldCheck className="h-4 w-4" />,
+    });
   }
   return (
     <div className="min-h-screen flex">
+      {!account && <Loader/>}
       {/* BACKGROUND */}
       <div className="pointer-events-none fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-sky-100 via-white to-teal-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950" />
@@ -97,11 +108,29 @@ export function Settings() {
 
         {/* Nav */}
         <nav className="mt-2 px-3 flex-1 space-y-1 overflow-y-auto">
+          <button
+            onClick={toggle}
+            className={`inline-flex h-9 w-full items-center gap-2 rounded-xl border px-3 text-sm font-medium transition ${
+              dark
+                ? "border-slate-700 text-slate-200 hover:bg-slate-800/60"
+                : "border-zinc-200 text-zinc-700 hover:bg-zinc-100/70"
+            }`}
+          >
+            {dark ? (
+              <Sun className="h-4 w-4 text-yellow-400" />
+            ) : (
+              <Moon className="h-4 w-4 text-sky-500" />
+            )}
+            {open && (
+              <span className="hidden lg:inline">
+                {dark ? "Light" : "Dark"}
+              </span>
+            )}
+          </button>
           {navItems.map((item) => (
             <SidebarLink key={item.label} item={item} />
           ))}
         </nav>
-
         {/* Footer actions */}
         <div className="p-3 border-t border-zinc-200/40 dark:border-slate-800/40">
           <button
@@ -109,7 +138,7 @@ export function Settings() {
             className="w-full btn-surface justify-center gap-2"
             title="Sign out"
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-4 w-4" color="red" />
             {open && <span>Sign out</span>}
           </button>
         </div>
@@ -128,7 +157,7 @@ export function Settings() {
                 <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-sky-500 to-teal-400 shadow-md">
                   <img src="/logo1.png" alt="Bardiner" className="h-6 w-6" />
                 </span>
-                <p className="text-base font-semibold">Bardiner Admin</p>
+                <p className="text-base font-semibold">Bardiner Settings</p>
               </div>
               <button
                 className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 dark:border-slate-700 hover:bg-zinc-100/70 dark:hover:bg-slate-800/60"
@@ -147,6 +176,23 @@ export function Settings() {
                   onClick={() => setMobile(false)}
                 />
               ))}
+              <button
+                onClick={toggle}
+                className={`inline-flex h-9 items-center gap-2 rounded-xl border px-3 text-sm font-medium transition ${
+                  dark
+                    ? "border-slate-700 text-slate-200 hover:bg-slate-800/60"
+                    : "border-zinc-200 text-zinc-700 hover:bg-zinc-100/70"
+                }`}
+              >
+                {dark ? (
+                  <Sun className="h-4 w-4 text-yellow-400" />
+                ) : (
+                  <Moon className="h-4 w-4 text-sky-500" />
+                )}
+                <span className="hidden lg:inline">
+                  {dark ? "Light" : "Dark"}
+                </span>
+              </button>
             </nav>
 
             <div className="mt-4 border-t border-zinc-200/40 dark:border-slate-800/40 pt-3">
@@ -154,7 +200,7 @@ export function Settings() {
                 onClick={signOut}
                 className="w-full btn-surface justify-center gap-2"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-4 w-4" color="red" />
                 <span>Sign out</span>
               </button>
             </div>
@@ -178,6 +224,7 @@ export function Settings() {
 
           {/* Content */}
           <div className="p-4 sm:p-6 lg:p-8">
+            {account && <AccountCard account={account} />}
             <Outlet context={account} />
           </div>
         </div>
@@ -185,3 +232,5 @@ export function Settings() {
     </div>
   );
 }
+
+export default Settings;

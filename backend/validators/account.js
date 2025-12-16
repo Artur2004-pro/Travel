@@ -61,6 +61,12 @@ class AccountValidator {
     req.body = { username, password, id: req.user._id };
     next();
   }
+  static updateAvatar(req, res, next) {
+    const userId = req.user._id.toString();
+    const { file } = req;
+    req.body = { userId, filePath: file.path };
+    next();
+  }
 }
 
 module.exports = AccountValidator;

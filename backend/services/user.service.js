@@ -3,6 +3,7 @@ const {
   createToken,
   createRefreshToken,
   handleError,
+  deleteImage,
 } = require("../helpers");
 const emailApi = require("../lib/email-api");
 const { User, Country, City } = require("../models");
@@ -288,7 +289,23 @@ class UserService {
       throw ErrorHandler.normalize(err);
     }
   }
-
+  async updateAvatar(data) {
+    try {
+      const { userId, filePath } = data;
+      const found = await User.findById(userId).select(
+        UserService.ignoreFields
+      );
+      if (!found) {
+        throw new ServiceError("User not found", 404);
+      }
+      await deleteImage(found.avatar || []);
+      found.avatar = filePath;
+      await found.save();
+      return found;
+    } catch (err) {
+      throw ErrorHandler.normalize(err);
+    }
+  }
   // admin controller
   async beAdmin(data) {
     try {

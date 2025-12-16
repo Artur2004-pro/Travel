@@ -179,3 +179,5 @@ export const AddCity = () => {
     </div>
   );
 };
+
+export default AddCity;
