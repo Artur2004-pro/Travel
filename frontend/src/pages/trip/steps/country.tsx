@@ -1,11 +1,10 @@
-// src/pages/trip/steps/country.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Axios } from "../../../lib/axios-config";
 import type { ICountry, IResponse, ITripItem } from "../../../types";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { ImageCarousel } from "../../components";
-import { Globe2 } from "lucide-react"; // Added icon for empty state
+import { Globe2, Search } from "lucide-react";
 
 export const Country: React.FC = () => {
   const navigate = useNavigate();
@@ -50,50 +49,68 @@ export const Country: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-14 px-4 space-y-10 flex flex-col min-h-[calc(100vh-200px)]">
-      {" "}
-      {/* Added flex and min-h to stretch content */}
-      <h1 className="text-4xl font-bold text-center bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
-        Choose Your Destination
-      </h1>
-      <input
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        placeholder="Search country..."
-        className="
-          w-full px-6 py-4 rounded-3xl
-          bg-white/[0.04] border border-white/10
-          text-white placeholder-zinc-500
-          focus:ring-2 focus:ring-indigo-500 focus:border-transparent
-          backdrop-blur-xl shadow-lg shadow-black/20
-          transition
-        "
-      />
+    <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+      {/* HEADER */}
+      <div className="text-center sm:text-left">
+        <h1 className="text-2xl sm:text-4xl font-bold text-white tracking-tight">
+          Choose destination
+        </h1>
+        <p className="text-zinc-500 mt-1 hidden sm:block">
+          Search and select a country to start your trip
+        </p>
+      </div>
+
+      {/* SEARCH */}
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" />
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search country"
+          className="
+            w-full pl-12 pr-4 py-3 rounded-full
+            bg-white/5 border border-white/10
+            text-white placeholder-zinc-500
+            focus:outline-none focus:ring-2 focus:ring-blue-600
+            transition
+          "
+        />
+      </div>
+
+      {/* LOADING */}
       {loading && (
-        <div className="text-center text-zinc-400 mt-4 animate-pulse">
-          Loading...
+        <div className="text-center text-zinc-400 animate-pulse">
+          Searching…
         </div>
       )}
-      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 mt-6 flex-grow">
-        {" "}
-        {/* Added flex-grow to expand grid */}
+
+      {/* RESULTS */}
+      <div className="space-y-6 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-6 sm:space-y-0">
         {countries.map((c) => (
           <div
             key={c._id}
             className="
-              group relative cursor-pointer overflow-hidden rounded-3xl
-              bg-white/[0.04] border border-white/10 shadow-lg shadow-black/30
-              hover:shadow-2xl hover:bg-white/[0.07]
-              backdrop-blur-xl transition duration-300
+              relative overflow-hidden rounded-3xl
+              bg-white/5 border border-white/10
+              shadow-sm hover:shadow-lg
+              cursor-pointer transition-all duration-300
             "
           >
-            {c.images.length > 0 && <ImageCarousel images={c.images} />}
+            {c.images.length > 0 && (
+              <div className="aspect-[4/5]">
+                <ImageCarousel images={c.images} />
+              </div>
+            )}
 
-            <div className="p-6 space-y-3">
-              <div className="text-xl font-semibold text-white">{c.name}</div>
+            {/* OVERLAY */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+            {/* CONTENT */}
+            <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
+              <div className="text-lg font-semibold text-white">{c.name}</div>
 
               {c.description && (
-                <div className="text-sm text-zinc-400 line-clamp-3">
+                <div className="text-sm text-zinc-300 line-clamp-2">
                   {c.description}
                 </div>
               )}
@@ -101,11 +118,11 @@ export const Country: React.FC = () => {
               <button
                 onClick={() => selectCountry(c._id)}
                 className="
-                  mt-4 w-full py-3 rounded-xl
-                  bg-gradient-to-r from-indigo-600 to-purple-600
-                  text-white font-semibold
-                  shadow-md shadow-indigo-900/40
-                  hover:opacity-90 transition
+                  mt-2 w-full py-2.5 rounded-full
+                  bg-gradient-to-r from-blue-500 to-blue-600
+                  text-white text-sm font-semibold
+                  active:scale-[0.98]
+                  transition
                 "
               >
                 Create Trip
@@ -114,23 +131,14 @@ export const Country: React.FC = () => {
           </div>
         ))}
       </div>
-      {/* Empty State - Added to fill space and look nice */}
+
+      {/* EMPTY STATE */}
       {!loading && countries.length === 0 && (
-        <div className="flex flex-col items-center justify-center flex-grow space-y-6">
-          {" "}
-          {/* Centered empty state */}
-          <Globe2 className="w-24 h-24 text-indigo-400 opacity-50" />
-          <p className="text-2xl text-zinc-400 text-center">
-            {q.trim()
-              ? "No countries found for your search."
-              : "Start typing a country name to search."}
+        <div className="flex flex-col items-center justify-center py-20 space-y-4">
+          <Globe2 className="w-20 h-20 text-zinc-600" />
+          <p className="text-zinc-400 text-center text-lg">
+            {q.trim() ? "No countries found" : "Search for a country to begin"}
           </p>
-          {!q.trim() && (
-            <p className="text-zinc-500 text-center max-w-md">
-              Explore the world! Enter a country like "France" or "Japan" to
-              begin your adventure.
-            </p>
-          )}
         </div>
       )}
     </div>

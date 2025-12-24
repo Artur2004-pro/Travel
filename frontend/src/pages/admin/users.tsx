@@ -47,23 +47,24 @@ export const Users = () => {
   );
 
   if (loading) return <Loader />;
-  if (!account || account.role != "admin") {
+  if (!account || account.role !== "admin") {
     return (
-      <EmptyState title="Not access" subtitle="You not a admin" icon="X" />
+      <EmptyState title="No access" subtitle="You are not an admin" icon="❌" />
     );
   }
+
   return (
-    <div>
+    <div className="px-4 py-6 sm:px-6 lg:px-8">
       {message && <MessagePopup {...message} />}
 
       <AdminCard title="User Management" icon="👥">
         {/* 🔍 Search bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <SearchInput
             value={search}
             onChange={setSearch}
             placeholder="Search users..."
-            className="w-full sm:max-w-sm"
+            className="w-full sm:max-w-sm rounded-xl shadow-inner border border-gray-300 dark:border-gray-700"
           />
         </div>
 

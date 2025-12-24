@@ -1,44 +1,29 @@
-import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import {
-  Menu,
-  X,
-  ChevronRight,
   ChevronLeft,
   LogOut,
   Wrench,
   ShieldCheck,
   Sun,
   Moon,
-  Loader,
 } from "lucide-react";
-import type { IAccount, IResponse } from "../../types";
-import { Axios } from "../../lib/axios-config";
-import { SidebarLink } from "../components";
-import { AccountCard } from "./setting-account";
 import { useTheme } from "../../hooks/useThem";
+import type { IAccount } from "../../types";
 
-export function Settings() {
+export default function Settings() {
   const { dark, toggle } = useTheme();
-
-  const [open, setOpen] = useState(true);
-  const [mobile, setMobile] = useState(false);
-  const [account, setAccount] = useState<IAccount | null>(null);
   const navigate = useNavigate();
-  useEffect(() => {
-    handleGetAccount();
-  }, []);
-  const toggleSidebar = () => setOpen((v) => !v);
-  const navItems: any[] = [
+
+  const navItems = [
     {
-      label: "update password",
+      label: "Update password",
       to: "update-password",
-      icon: <Wrench className="h-4 w-4" />,
+      icon: <Wrench className="w-5 h-5" />,
     },
     {
-      label: "update username",
+      label: "Update username",
       to: "update-username",
-      icon: <Wrench className="h-4 w-4" />,
+      icon: <Wrench className="w-5 h-5" />,
     },
   ];
 
@@ -46,191 +31,62 @@ export function Settings() {
     localStorage.removeItem("Authorization");
     navigate("/");
   };
-  const handleGetAccount = async () => {
-    try {
-      const { data } = await Axios.get<IResponse<IAccount>>("account/");
-      setAccount(data.payload);
-    } catch (error) {
-      setAccount(null);
-    }
-  };
-  if (account && account.role == "admin") {
-    navItems.push({
-      label: "admin dashboard",
-      to: "/admin",
-      icon: <ShieldCheck className="h-4 w-4" />,
-    });
-  }
+
   return (
-    <div className="min-h-screen flex">
-      {!account && <Loader/>}
-      {/* BACKGROUND */}
-      <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-sky-100 via-white to-teal-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950" />
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-[26rem] w-[46rem] rounded-full blur-3xl opacity-25 bg-gradient-to-r from-sky-400 to-teal-400 dark:from-sky-700/40 dark:to-teal-600/40 animate-pulse-slow" />
+    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white">
+      {/* Mobile Header */}
+      <div className="md:hidden sticky top-0 z-40 flex items-center h-14 border-b border-zinc-200 dark:border-zinc-800 px-4">
+        <button onClick={() => navigate(-1)}>
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+        <h1 className="flex-1 text-center font-semibold">Settings</h1>
+        <div className="w-6" />
       </div>
 
-      {/* SIDEBAR (desktop) */}
-      <aside
-        className={[
-          "hidden md:flex flex-col transition-all duration-300",
-          open ? "w-72" : "w-20",
-          "m-3 rounded-3xl glass border border-zinc-200/50 dark:border-slate-800/50",
-        ].join(" ")}
-      >
-        {/* Brand */}
-        <div className="flex items-center gap-3 px-4 py-4">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl shadow-md">
-            <img src="/logo1.png" alt="Bardiner" className="h-6 w-6" />
-          </span>
-          {open && (
-            <div className="flex-1">
-              <p className="text-base font-semibold tracking-tight">
-                Bardiner Account
-              </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                Dashboard
-              </p>
-            </div>
-          )}
-          <button
-            onClick={toggleSidebar}
-            aria-label="Toggle sidebar"
-            className="ml-auto inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 dark:border-slate-700 hover:bg-zinc-100/70 dark:hover:bg-slate-800/60"
-          >
-            {open ? (
-              <ChevronLeft className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
-          </button>
-        </div>
+      {/* Content */}
+      <div className="max-w-xl mx-auto px-4 py-6 space-y-6">
+        {/* Navigation */}
+        <div className="rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800">
+          {navItems.map((item) => (
+            <button
+              key={item.label}
+              onClick={() => navigate(item.to)}
+              className="w-full flex items-center gap-4 px-4 py-4 text-left hover:bg-zinc-50 dark:hover:bg-zinc-900 transition border-b last:border-b-0 border-zinc-200 dark:border-zinc-800"
+            >
+              {item.icon}
+              <span className="flex-1 text-sm font-medium">{item.label}</span>
+              <ChevronLeft className="w-4 h-4 rotate-180 opacity-40" />
+            </button>
+          ))}
 
-        {/* Nav */}
-        <nav className="mt-2 px-3 flex-1 space-y-1 overflow-y-auto">
+          {/* Theme toggle */}
           <button
             onClick={toggle}
-            className={`inline-flex h-9 w-full items-center gap-2 rounded-xl border px-3 text-sm font-medium transition ${
-              dark
-                ? "border-slate-700 text-slate-200 hover:bg-slate-800/60"
-                : "border-zinc-200 text-zinc-700 hover:bg-zinc-100/70"
-            }`}
+            className="w-full flex items-center gap-4 px-4 py-4 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition"
           >
             {dark ? (
-              <Sun className="h-4 w-4 text-yellow-400" />
+              <Sun className="w-5 h-5 text-yellow-400" />
             ) : (
-              <Moon className="h-4 w-4 text-sky-500" />
+              <Moon className="w-5 h-5 text-sky-500" />
             )}
-            {open && (
-              <span className="hidden lg:inline">
-                {dark ? "Light" : "Dark"}
-              </span>
-            )}
-          </button>
-          {navItems.map((item) => (
-            <SidebarLink key={item.label} item={item} />
-          ))}
-        </nav>
-        {/* Footer actions */}
-        <div className="p-3 border-t border-zinc-200/40 dark:border-slate-800/40">
-          <button
-            onClick={signOut}
-            className="w-full btn-surface justify-center gap-2"
-            title="Sign out"
-          >
-            <LogOut className="h-4 w-4" color="red" />
-            {open && <span>Sign out</span>}
+            <span className="flex-1 text-sm font-medium">
+              {dark ? "Light mode" : "Dark mode"}
+            </span>
           </button>
         </div>
-      </aside>
 
-      {/* MOBILE SIDEBAR (drawer) */}
-      {mobile && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => setMobile(false)}
-          />
-          <aside className="absolute left-0 top-0 h-full w-72 p-3 glass rounded-r-3xl border-r z-50">
-            <div className="flex items-center justify-between px-2 py-2">
-              <div className="flex items-center gap-2">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-sky-500 to-teal-400 shadow-md">
-                  <img src="/logo1.png" alt="Bardiner" className="h-6 w-6" />
-                </span>
-                <p className="text-base font-semibold">Bardiner Settings</p>
-              </div>
-              <button
-                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 dark:border-slate-700 hover:bg-zinc-100/70 dark:hover:bg-slate-800/60"
-                onClick={() => setMobile(false)}
-                aria-label="Close menu"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+        {/* Sign out */}
+        <button
+          onClick={signOut}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-red-600 bg-red-500/10 hover:bg-red-500/20 transition"
+        >
+          <LogOut className="w-4 h-4" />
+          Sign out
+        </button>
 
-            <nav className="mt-2 space-y-1">
-              {navItems.map((item) => (
-                <SidebarLink
-                  key={item.label}
-                  item={item}
-                  onClick={() => setMobile(false)}
-                />
-              ))}
-              <button
-                onClick={toggle}
-                className={`inline-flex h-9 items-center gap-2 rounded-xl border px-3 text-sm font-medium transition ${
-                  dark
-                    ? "border-slate-700 text-slate-200 hover:bg-slate-800/60"
-                    : "border-zinc-200 text-zinc-700 hover:bg-zinc-100/70"
-                }`}
-              >
-                {dark ? (
-                  <Sun className="h-4 w-4 text-yellow-400" />
-                ) : (
-                  <Moon className="h-4 w-4 text-sky-500" />
-                )}
-                <span className="hidden lg:inline">
-                  {dark ? "Light" : "Dark"}
-                </span>
-              </button>
-            </nav>
-
-            <div className="mt-4 border-t border-zinc-200/40 dark:border-slate-800/40 pt-3">
-              <button
-                onClick={signOut}
-                className="w-full btn-surface justify-center gap-2"
-              >
-                <LogOut className="h-4 w-4" color="red" />
-                <span>Sign out</span>
-              </button>
-            </div>
-          </aside>
-        </div>
-      )}
-
-      {/* MAIN */}
-      <div className="flex-1 flex min-w-0 bg-inherit">
-        <div className="flex-1 m-3 rounded-3xl glass overflow-hidden">
-          {/* Top bar */}
-          {/* Mobile toggle */}
-          <button
-            onClick={() => setMobile(true)}
-            className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 dark:border-slate-700 hover:bg-zinc-100/70 dark:hover:bg-slate-800/60"
-            aria-label="Open menu"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-          {/* </div> */}
-
-          {/* Content */}
-          <div className="p-4 sm:p-6 lg:p-8">
-            {account && <AccountCard account={account} />}
-            <Outlet context={account} />
-          </div>
-        </div>
+        {/* Child routes (Profile, UpdatePassword, etc.) */}
+        <Outlet />
       </div>
     </div>
   );
 }
-
-export default Settings;

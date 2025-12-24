@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Axios } from "../../lib/axios-config";
 import {
-  AdminCard,
-  EmptyState,
   Loader,
   MessagePopup,
   SearchInput,
@@ -29,21 +27,22 @@ export const City = () => {
   };
 
   useEffect(() => {
-    if (debouncedSearch.trim()) {
-      handleSearch(debouncedSearch);
-    } else handleGetAllCities();
+    if (debouncedSearch.trim()) handleSearch(debouncedSearch);
+    else handleGetAllCities();
   }, [debouncedSearch]);
+
   const handleGetAllCities = async () => {
     try {
       setLoading(true);
       const { data } = await Axios.get<IResponse<ICity[]>>("city/top");
       setCities(data.payload);
-    } catch (error) {
-      showMessage("error", "Error");
+    } catch {
+      showMessage("error", "Failed to load cities");
     } finally {
       setLoading(false);
     }
   };
+
   const handleSearch = async (query: string) => {
     try {
       setLoading(true);
@@ -52,7 +51,7 @@ export const City = () => {
       );
       setCities(data.payload);
     } catch {
-      showMessage("error", "❌ Failed to load cities");
+      showMessage("error", "❌ Failed to search cities");
     } finally {
       setLoading(false);
     }
@@ -68,49 +67,49 @@ export const City = () => {
     }
   };
 
+  if (loading) return <Loader />;
+  if (!account || account.role !== "admin")
+    return (
+      <div className="p-10 text-center text-zinc-500">❌ Not authorized</div>
+    );
+
   const filtered = cities.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (loading) return <Loader />;
-  if (!account || account.role != "admin") {
-    return (
-      <EmptyState title="Not access" subtitle="You not a admin" icon="❌" />
-    );
-  }
   return (
-    <div className="space-y-10 animate-fade-in">
+    <div className="animate-fade-in space-y-6 px-4 sm:px-6 md:px-8">
       {message && <MessagePopup {...message} />}
 
-      <AdminCard title="Cities" icon="🏙️">
-        <div className="flex items-center justify-between mb-6">
-          <SearchInput
-            value={search}
-            onChange={setSearch}
-            placeholder="Search city..."
+      {/* Top Controls */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search city..."
+          className="flex-1"
+        />
+        <div className="flex gap-2">
+          <AddButton
+            onClick={() => navigate(`/admin/city/add`)}
+            label="Add City"
           />
-          <div className="flex gap-3">
-            <AddButton
-              onClick={() => navigate(`/admin/city/add`)}
-              label="Add City"
-            />
-            <BackButton />
-          </div>
+          <BackButton />
         </div>
+      </div>
 
-        {filtered.length === 0 ? (
-          <EmptyState
-            title="No cities found"
-            subtitle="Add new cities to this country to get started."
-          />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map((city) => (
-              <CityItem key={city._id} city={city} onDelete={handleDelete} />
-            ))}
-          </div>
-        )}
-      </AdminCard>
+      {/* City Feed */}
+      {filtered.length === 0 ? (
+        <div className="text-center text-zinc-500 mt-10">
+          No cities found. Add new cities to get started.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filtered.map((city) => (
+            <CityItem key={city._id} city={city} onDelete={handleDelete} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

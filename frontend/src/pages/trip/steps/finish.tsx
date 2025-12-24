@@ -1,20 +1,20 @@
 // src/pages/Finish.tsx
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Axios } from "../../../lib/axios-config";
+import { ImagePlus, ChevronLeft } from "lucide-react";
 
 export const Finish: React.FC = () => {
   const navigate = useNavigate();
   const { tripData, setCompleted } = useOutletContext<any>();
+
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const upload = async () => {
-    if (!file) {
-      setError("Please select an image");
-      return;
-    }
+    if (!file) return;
 
     const form = new FormData();
     form.append("cover", file);
@@ -27,7 +27,7 @@ export const Finish: React.FC = () => {
       setCompleted({ finish: true });
       navigate(`/trip/${tripData.tripId}`);
     } catch {
-      setError("Failed to upload cover.");
+      setError("Failed to upload cover");
     } finally {
       setLoading(false);
     }
@@ -42,94 +42,90 @@ export const Finish: React.FC = () => {
       setCompleted({ finish: true });
       navigate(`/trip/${tripData.tripId}`);
     } catch {
-      setError("Failed to set default cover.");
+      setError("Failed to set default cover");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6">
-      <div className="text-center max-w-lg">
-        <h1 className="text-6xl font-black bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent mb-8">
-          You're Done!
-        </h1>
+    <div className="min-h-screen bg-white dark:bg-black">
+      {/* HEADER */}
+      <div className="sticky top-0 z-20 bg-white dark:bg-black border-b border-zinc-200 dark:border-zinc-800">
+        <div className="h-12 px-3 flex items-center">
+          <button onClick={() => navigate(-1)} className="p-2 -ml-2">
+            <ChevronLeft />
+          </button>
+          <h1 className="flex-1 text-center text-sm font-semibold">
+            Add cover
+          </h1>
+          <button
+            onClick={useDefault}
+            disabled={loading}
+            className="text-sm text-sky-500 font-medium disabled:opacity-50"
+          >
+            Skip
+          </button>
+        </div>
+      </div>
 
-        <p className="text-2xl text-zinc-300 mb-12">
-          Final step: upload a cover image or use the default one
+      {/* CONTENT */}
+      <div className="max-w-sm mx-auto px-4 pt-8 pb-32 flex flex-col items-center gap-6">
+        <p className="text-sm text-zinc-500 text-center">
+          Choose a cover image for your trip
         </p>
 
-        <div className="
-          bg-white/[0.05] 
-          backdrop-blur-2xl 
-          rounded-3xl 
-          p-12 
-          border border-white/10
-          shadow-[0_0_40px_-10px_rgba(0,0,0,0.7)]
-        ">
-          {error && <p className="text-red-400 mb-4">{error}</p>}
-
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="
-              block w-full text-lg
-              file:mr-6 
-              file:py-4 
-              file:px-8 
-              file:rounded-2xl
-              file:bg-gradient-to-r 
-              file:from-indigo-600 
-              file:to-purple-600
-              file:text-white 
-              file:font-semibold 
-              file:border-0
-              file:shadow-lg
-            "
-          />
-
-          {file && (
+        {/* COVER PREVIEW (Instagram post style) */}
+        <div
+          onClick={() => inputRef.current?.click()}
+          className="
+            w-full aspect-[4/5]
+            rounded-xl overflow-hidden
+            bg-zinc-100 dark:bg-zinc-900
+            border border-zinc-200 dark:border-zinc-800
+            flex items-center justify-center
+            cursor-pointer
+            active:scale-[0.98]
+            transition
+          "
+        >
+          {file ? (
             <img
               src={URL.createObjectURL(file)}
-              className="mt-6 rounded-2xl mx-auto max-h-96 shadow-lg"
+              className="w-full h-full object-cover"
             />
+          ) : (
+            <div className="flex flex-col items-center gap-3 text-zinc-400">
+              <ImagePlus className="w-9 h-9" />
+              <span className="text-xs">Tap to upload</span>
+            </div>
           )}
-
-          <div className="flex gap-6 mt-12">
-            <button
-              onClick={useDefault}
-              disabled={loading}
-              className="
-                flex-1 py-5 rounded-2xl 
-                border border-white/20 
-                bg-white/[0.03]
-                hover:bg-white/[0.08] 
-                transition 
-                font-bold
-                text-white
-              "
-            >
-              Use Default
-            </button>
-
-            <button
-              onClick={upload}
-              disabled={loading || !file}
-              className="
-                flex-1 py-5 rounded-2xl 
-                bg-gradient-to-r from-indigo-600 to-purple-600 
-                font-bold text-xl text-white
-                shadow-lg shadow-indigo-900/40
-                hover:opacity-90 
-                transition 
-                disabled:opacity-40
-              "
-            >
-              {loading ? "Uploading..." : "Finish"}
-            </button>
-          </div>
         </div>
+
+        {error && <p className="text-xs text-red-500 text-center">{error}</p>}
+
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          hidden
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+        />
+      </div>
+
+      {/* BOTTOM CTA */}
+      <div className="fixed bottom-0 inset-x-0 bg-white/90 dark:bg-black/90 backdrop-blur border-t border-zinc-200 dark:border-zinc-800 px-4 py-3">
+        <button
+          onClick={upload}
+          disabled={loading || !file}
+          className="
+            w-full h-11 rounded-md
+            bg-sky-500 text-white text-sm font-semibold
+            disabled:opacity-40
+          "
+        >
+          {loading ? "Saving…" : "Finish"}
+        </button>
       </div>
     </div>
   );

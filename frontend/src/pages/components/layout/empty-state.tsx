@@ -9,13 +9,13 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   subtitle,
   icon,
 }) => (
-  <div className="flex flex-col items-center justify-center py-20 text-zinc-500 dark:text-zinc-400 text-center animate-fade-in">
-    <p className="text-2xl font-semibold">
-      {icon && <span className="mr-2">{icon}</span>}
-      {title}
-    </p>
+  <div className="flex flex-col items-center justify-center py-16 text-center text-zinc-500 dark:text-zinc-400">
+    {icon && <span className="mb-3 text-3xl opacity-60">{icon}</span>}
+
+    <p className="text-base font-medium">{title}</p>
+
     {subtitle && (
-      <p className="text-sm mt-1 text-zinc-400 dark:text-zinc-500">
+      <p className="mt-1 text-sm text-zinc-400 dark:text-zinc-500">
         {subtitle}
       </p>
     )}

@@ -17,13 +17,11 @@ export const UpdatePassword = () => {
     reset,
     formState: { errors },
   } = useForm<FormValues>();
-
   const [loading, setLoading] = useState(false);
   const [popup, setPopup] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
-
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
 
@@ -49,21 +47,20 @@ export const UpdatePassword = () => {
   }
 
   return (
-    <div className="flex justify-center items-start min-h-screen bg-background p-6">
-      <div className="w-full max-w-lg bg-card rounded-2xl shadow-lg p-8 animate-fade-in space-y-8">
+    <div className="flex justify-center items-start min-h-screen p-6 bg-gradient-to-br from-pink-50 via-white to-sky-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="w-full max-w-lg rounded-3xl p-8 bg-white/10 dark:bg-black/20 backdrop-blur-3xl shadow-xl animate-fade-in space-y-8 border border-white/10">
         {popup && <MessagePopup {...popup} />}
 
-        <h2 className="text-2xl font-semibold text-foreground">
+        <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-500 via-teal-400 to-emerald-400">
           Update Password
         </h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Old Password */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-foreground">
+          <div className="space-y-1 relative">
+            <label className="text-sm font-medium text-zinc-900 dark:text-white">
               Old Password
             </label>
-
             {errors.oldPassword && (
               <p className="text-red-500">{errors.oldPassword.message}</p>
             )}
@@ -74,35 +71,22 @@ export const UpdatePassword = () => {
                   required: "Old password is required",
                   minLength: { value: 6, message: "At least 6 characters" },
                 })}
-                className={`
-                    w-full bg-input border rounded-lg px-3 py-2 pr-11
-                    text-foreground placeholder-muted-foreground bg-inherit
-                    focus:outline-none focus:ring-2 focus:ring-primary
-                  `}
+                className="w-full px-3 py-2 pr-11 rounded-xl border border-white/20 dark:border-slate-700 bg-white/20 dark:bg-slate-800 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-gradient-to-r focus:ring-sky-400 transition"
                 placeholder="Enter old password"
               />
-
               <button
                 type="button"
                 onClick={() => setShowOld(!showOld)}
-                className="
-                    absolute right-3 top-1/2 -translate-y-1/2
-                    text-muted-foreground hover:text-foreground
-                    transition-colors
-                  "
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition"
               >
-                {showOld ? (
-                  <EyeOff size={20} strokeWidth={1.75} />
-                ) : (
-                  <Eye size={20} strokeWidth={1.75} />
-                )}
+                {showOld ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
           </div>
 
           {/* New Password */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-foreground">
+          <div className="space-y-1 relative">
+            <label className="text-sm font-medium text-zinc-900 dark:text-white">
               New Password
             </label>
             {errors.newPassword && (
@@ -115,49 +99,27 @@ export const UpdatePassword = () => {
                   required: "New password is required",
                   minLength: { value: 6, message: "At least 6 characters" },
                 })}
-                className={`
-                    w-full bg-input border rounded-lg px-3 py-2 pr-11
-                    text-foreground placeholder-muted-foreground bg-inherit
-                    focus:outline-none focus:ring-2 focus:ring-primary
-                  `}
+                className="w-full px-3 py-2 pr-11 rounded-xl border border-white/20 dark:border-slate-700 bg-white/20 dark:bg-slate-800 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-gradient-to-r focus:ring-teal-400 transition"
                 placeholder="Enter new password"
               />
-
               <button
                 type="button"
                 onClick={() => setShowNew(!showNew)}
-                className="
-                    absolute right-3 top-1/2 -translate-y-1/2
-                    text-muted-foreground hover:text-foreground
-                    transition-colors
-                  "
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition"
               >
-                {showNew ? (
-                  <EyeOff size={20} strokeWidth={1.75} />
-                ) : (
-                  <Eye size={20} strokeWidth={1.75} />
-                )}
+                {showNew ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
-
-            <p className="text-xs text-muted-foreground">
-              Minimum 6 characters
-            </p>
+            <p className="text-xs text-zinc-500">Minimum 6 characters</p>
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className={`
-                w-full py-2 rounded-lg font-medium 
-                bg-gradient-to-r from-primary/90 to-primary 
-                text-black dark:text-white
-                hover:from-primary/80 hover:to-primary/80
-                transition-all bg-sky-500/10
-
-                ${loading ? "opacity-60 cursor-not-allowed" : ""}
-              `}
+            className={`w-full py-2 rounded-xl font-semibold bg-gradient-to-r from-emerald-400 to-sky-400 text-white hover:brightness-110 transition shadow-md ${
+              loading ? "opacity-60 cursor-not-allowed" : ""
+            }`}
           >
             {loading ? "Saving..." : "Save Changes"}
           </button>

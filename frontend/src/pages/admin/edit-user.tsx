@@ -54,76 +54,67 @@ export const EditUser = () => {
   if (loading || !user) return <Loader />;
 
   return (
-    <div className="flex justify-center items-start py-16 px-4 min-h-[80vh] bg-gradient-to-br from-sky-50/80 via-white/90 to-teal-50/80 dark:from-[#050911] dark:via-[#070b14] dark:to-[#060a12] transition-colors">
-      <div className="w-full max-w-xl bg-gradient-to-br from-white/90 to-white/70 dark:from-[#0b0f1a]/95 dark:to-[#0c101a]/90 backdrop-blur-2xl border border-black/5 dark:border-white/10 rounded-[2rem] shadow-[0_0_40px_-10px_rgba(16,185,129,0.25)] p-10 relative">
+    <div className="flex justify-center items-start py-10 px-4 min-h-[80vh] bg-gradient-to-br from-sky-50 dark:from-[#050911] transition-colors">
+      <div className="w-full max-w-md bg-white dark:bg-[#0c101a] rounded-2xl shadow-lg p-6 relative flex flex-col space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 via-teal-400 to-emerald-400 drop-shadow-[0_0_10px_rgba(56,189,248,0.25)]">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 via-teal-400 to-emerald-400">
             Edit User ✏️
           </h1>
           <BackButton to="/admin/users" />
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Username */}
-          <div>
-            <label className="block text-sm text-zinc-700 dark:text-zinc-300 mb-1">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm text-zinc-700 dark:text-zinc-300">
               Username
             </label>
             <input
               value={user.username}
               readOnly
-              className="w-full p-3.5 rounded-xl bg-white/70 dark:bg-[#0f1624]/70 border border-black/10 dark:border-white/10 text-zinc-700 dark:text-zinc-300 cursor-not-allowed shadow-inner"
+              className="w-full p-3 rounded-xl bg-gray-100 dark:bg-[#0f1624] text-zinc-700 dark:text-zinc-300 cursor-not-allowed border border-gray-300 dark:border-gray-700"
             />
           </div>
 
-          {/* Email */}
-          <div>
-            <label className="block text-sm text-zinc-700 dark:text-zinc-300 mb-1">
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm text-zinc-700 dark:text-zinc-300">
               Email
             </label>
             <input
               value={user.email}
               readOnly
-              className="w-full p-3.5 rounded-xl bg-white/70 dark:bg-[#0f1624]/70 border border-black/10 dark:border-white/10 text-zinc-700 dark:text-zinc-300 cursor-not-allowed shadow-inner"
+              className="w-full p-3 rounded-xl bg-gray-100 dark:bg-[#0f1624] text-zinc-700 dark:text-zinc-300 cursor-not-allowed border border-gray-300 dark:border-gray-700"
             />
           </div>
 
-          {/* Role */}
-          <div>
-            <label className="block text-sm text-zinc-700 dark:text-zinc-300 mb-1">
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm text-zinc-700 dark:text-zinc-300">
               Role
             </label>
             <select
               {...register("role")}
               defaultValue={user.role}
-              className="w-full p-3.5 rounded-xl bg-white/80 dark:bg-[#0f1624]/70 border border-black/10 dark:border-white/10 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-emerald-400 focus:border-transparent outline-none transition"
+              className="w-full p-3 rounded-xl bg-white dark:bg-[#0f1624] text-zinc-900 dark:text-zinc-100 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-emerald-400 outline-none transition"
             >
               <option value="user">User</option>
               <option value="admin">Admin</option>
             </select>
           </div>
 
-          {/* Save */}
           <button
             disabled={!canSave}
-            className={`w-full py-3.5 rounded-xl font-semibold tracking-wide transition-all duration-300 ${
+            className={`w-full py-3 rounded-xl font-semibold transition-all ${
               !canSave
-                ? "bg-zinc-300/70 dark:bg-zinc-800/60 text-zinc-500 cursor-not-allowed"
-                : "bg-gradient-to-r from-sky-500 via-teal-400 to-emerald-500 hover:shadow-[0_0_30px_rgba(45,212,191,0.35)] text-white"
+                ? "bg-gray-300 dark:bg-gray-800 text-gray-500 cursor-not-allowed"
+                : "bg-gradient-to-r from-sky-500 via-teal-400 to-emerald-500 text-white hover:shadow-lg"
             }`}
           >
             {canSave ? "Save Changes" : "No Changes"}
           </button>
         </form>
 
-        {/* Popup */}
-        {message && (
-          <div className="mt-6">
-            <MessagePopup type={message.type} text={message.text} />
-          </div>
-        )}
+        {message && <MessagePopup type={message.type} text={message.text} />}
       </div>
     </div>
   );

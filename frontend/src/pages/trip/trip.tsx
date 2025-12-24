@@ -1,6 +1,7 @@
 // src/pages/trip/trip.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { ChevronLeft } from "lucide-react";
 
 interface TripData {
   countryId?: string;
@@ -15,7 +16,7 @@ interface CompletedSteps {
   country: boolean;
   planning: boolean;
   city: boolean;
-  hotel: boolean; // optional է, բայց պահպանենք
+  hotel: boolean;
   dayPlanning: boolean;
   finish: boolean;
 }
@@ -29,6 +30,15 @@ const DEFAULT_COMPLETED: CompletedSteps = {
   finish: false,
 };
 
+const wizardSteps = [
+  { key: "country", label: "Country" },
+  { key: "planning", label: "Planning" },
+  { key: "city", label: "City" },
+  { key: "hotel", label: "Hotel" },
+  { key: "day-planning", label: "Days" },
+  { key: "finish", label: "Finish" },
+];
+
 export const Trip: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,59 +49,41 @@ export const Trip: React.FC = () => {
 
   const setTripData = (patch: Partial<TripData>) =>
     setTripDataState((prev) => ({ ...prev, ...patch }));
-
   const setCompleted = (patch: Partial<CompletedSteps>) =>
     setCompletedState((prev) => ({ ...prev, ...patch }));
 
   const currentStep = location.pathname.split("/").pop() || "country";
+  const currentIndex = wizardSteps.findIndex((s) => s.key === currentStep);
 
   // === STRICT NAVIGATION CHECK ===
   useEffect(() => {
-    // Եթե առաջին step-ն է՝ թույլատրել
     if (currentStep === "country") return;
-
-    // Planning → պետք է country ընտրված լինի
     if (currentStep === "planning" && !completed.country) {
       navigate("/trips/new/country", { replace: true });
       return;
     }
-
-    // Hotel → պետք է city ընտրված լինի
-    // if (currentStep === "hotel" && !completed.city) {
-    //   navigate("/trips/new/city", { replace: true });
-    //   return;
-    // }
-
-    // // Day Planning → hotel-ը optional է, բայց city-ն պարտադիր է
-    // if (currentStep === "day-planning" && !completed.city) {
-    //   navigate("/trips/new/city", { replace: true });
-    //   return;
-    // }
-
-    // Finish → պետք է day-planning ավարտված լինի
     if (currentStep === "finish" && !completed.dayPlanning) {
       navigate("/trips/new/day-planning", { replace: true });
       return;
     }
   }, [currentStep, completed, navigate]);
 
-  // Title վերևում՝ current step-ի համար
   const getTitle = () => {
     switch (currentStep) {
       case "country":
-        return "Choose Your Destination";
+        return "Choose destination";
       case "planning":
-        return "Trip Planning";
+        return "Trip dates";
       case "city":
-        return "Choose a City";
+        return "Choose city";
       case "hotel":
-        return "Select Hotel (optional)";
+        return "Select hotel";
       case "day-planning":
-        return "Plan Your Trip Days";
+        return "Plan days";
       case "finish":
-        return "You're Done!";
+        return "Done";
       default:
-        return "Create Your Trip";
+        return "New trip";
     }
   };
 
@@ -106,14 +98,41 @@ export const Trip: React.FC = () => {
   );
 
   return (
-    <div className="w-full max-w-6xl mx-auto py-8">
-      {/* Գեղեցիկ title վերևում */}
-      <h1 className="text-5xl font-bold text-center bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent mb-12">
-        {getTitle()}
-      </h1>
+    <div className="min-h-screen bg-white dark:bg-black flex flex-col">
+      {/* Header */}
+      <div className="sticky top-0 z-20 bg-white dark:bg-black border-b border-zinc-200 dark:border-zinc-800">
+        {/* Progress (Instagram stories) */}
+        <div className="flex gap-1 px-2 pt-2">
+          {wizardSteps.map((_, i) => (
+            <div
+              key={i}
+              className={`h-1 flex-1 rounded-full ${
+                i <= currentIndex
+                  ? "bg-zinc-900 dark:bg-white"
+                  : "bg-zinc-200 dark:bg-zinc-800"
+              }`}
+            />
+          ))}
+        </div>
 
-      {/* Content — step component-ները */}
-      <Outlet context={contextValue} />
+        {/* Top bar */}
+        <div className="h-12 px-3 flex items-center">
+          <button onClick={() => navigate(-1)} className="p-2 -ml-2">
+            <ChevronLeft />
+          </button>
+          <h1 className="flex-1 text-center text-sm font-semibold">
+            {getTitle()}
+          </h1>
+          <div className="w-8" />
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-xl mx-auto px-4 py-6">
+          <Outlet context={contextValue} />
+        </div>
+      </div>
     </div>
   );
 };

@@ -7,21 +7,29 @@ export const CountryCard: React.FC<ICountryCardProps> = ({ country, next }) => {
   const { name, description, images } = country;
 
   return (
-    <div className="bg-white/5 dark:bg-zinc-900/50 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300">
+    <div className="bg-white/10 dark:bg-slate-900/60 rounded-3xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col">
+      {/* Image Carousel */}
       {images?.length > 0 && (
-        <div className="h-56 w-full">
+        <div className="w-full h-52 sm:h-56 relative">
           <ImageCarousel images={images} />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
         </div>
       )}
-      <div className="p-4 flex flex-col gap-2">
-        <h3 className="text-lg font-semibold text-white">{name}</h3>
+
+      {/* Info */}
+      <div className="p-4 flex flex-col gap-2 flex-1">
+        <h3 className="text-lg font-semibold text-white line-clamp-1">
+          {name}
+        </h3>
         {description && (
           <p className="text-sm text-zinc-400 line-clamp-3">{description}</p>
         )}
       </div>
+
+      {/* Action Button */}
       <button
         onClick={() => next(country._id)}
-        className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-b-3xl transition-colors"
+        className="w-full py-2 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-500 text-white font-medium rounded-b-3xl transition-colors shadow-sm"
       >
         Create Trip
       </button>

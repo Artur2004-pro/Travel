@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Axios } from "../../../lib/axios-config";
+import toast from "react-hot-toast";
 import DaySelector from "./day-selector";
 import DayPlanningControls from "./day-planning-control";
 import { Loader } from "../../components";
-import toast from "react-hot-toast";
 import { DayActions } from "../components/day-action";
 import { ActivityGrid } from "../components/activity-grid";
 import { ActivityTabs } from "../components/activity-tabs";
@@ -29,7 +29,6 @@ const DayPlanning: React.FC = () => {
     night: IActivity[];
     cafe: IActivity[];
   }>({ day: [], night: [], cafe: [] });
-
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [hotelSearch, setHotelSearch] = useState("");
@@ -38,7 +37,6 @@ const DayPlanning: React.FC = () => {
 
   const selectedDay = tripDays[selectedIndex];
 
-  // Ընտրված հյուրանոց՝ անվտանգ
   const selectedHotel = useMemo(() => {
     if (!selectedDay?.hotelId) return null;
     return hotels.find((h) => h.id === selectedDay.hotelId) || null;
@@ -47,12 +45,10 @@ const DayPlanning: React.FC = () => {
   // === Օրերի ստեղծում ===
   useEffect(() => {
     if (!startDate || !endDate || !tripId) return;
-
     const start = new Date(startDate);
     const end = new Date(endDate);
     const days: ITripDayLocal[] = [];
     let current = new Date(start);
-
     while (current <= end) {
       days.push({
         day: days.length + 1,
@@ -121,7 +117,6 @@ const DayPlanning: React.FC = () => {
       .finally(() => setLoading(false));
   }, [selectedDay?.cityId]);
 
-  // === Հյուրանոցների ֆիլտրում ===
   const filteredHotels = useMemo(() => {
     return hotels
       .filter(
@@ -132,7 +127,6 @@ const DayPlanning: React.FC = () => {
       .sort((a, b) => (b.stars || 0) - (a.stars || 0));
   }, [hotels, hotelSearch, minStars]);
 
-  // === Քաղաքի փոփոխություն ===
   const handleCityChange = (cityId: string) => {
     setTripDays((prev) =>
       prev.map((d, i) =>
@@ -150,7 +144,6 @@ const DayPlanning: React.FC = () => {
     );
   };
 
-  // === Հյուրանոցի ընտրություն ===
   const handleHotelSelect = (hotelId: string | null) => {
     setTripDays((prev) =>
       prev.map((d, i) =>
@@ -159,7 +152,6 @@ const DayPlanning: React.FC = () => {
     );
   };
 
-  // === Ակտիվության toggle ===
   const toggleActivity = (
     activity: IActivity,
     type: "day" | "night" | "cafe"
@@ -174,7 +166,6 @@ const DayPlanning: React.FC = () => {
             ? "nightActivities"
             : "cafes";
         const exists = d[key].some((a: IActivity) => a.id === activity.id);
-
         return {
           ...d,
           [key]: exists
@@ -185,10 +176,8 @@ const DayPlanning: React.FC = () => {
     );
   };
 
-  // === Օրվա պահպանում ===
   const saveCurrentDay = async () => {
     if (!selectedDay?.cityId) return toast.error("Ընտրեք քաղաք");
-
     setSaving(true);
     toast.loading("Պահպանվում է օրը...", { id: "save" });
 
@@ -206,7 +195,6 @@ const DayPlanning: React.FC = () => {
       );
 
       const promises = [];
-
       for (const act of [...selectedDay.dayActivities, ...selectedDay.cafes]) {
         promises.push(
           Axios.post("/activity", {
@@ -216,7 +204,6 @@ const DayPlanning: React.FC = () => {
           }).catch(() => {})
         );
       }
-
       for (const act of selectedDay.nightActivities) {
         promises.push(
           Axios.post("/activity/night", {
@@ -251,36 +238,31 @@ const DayPlanning: React.FC = () => {
     setCompleted({ dayPlanning: true });
     navigate("/trips/new/finish");
   };
-  const currentActivities = activities[activeTab];
 
+  const currentActivities = activities[activeTab];
   const selectedActivities =
     activeTab === "day"
       ? selectedDay?.dayActivities || []
       : activeTab === "night"
       ? selectedDay?.nightActivities || []
       : selectedDay?.cafes || [];
-
   const counts = {
     day: selectedDay?.dayActivities.length || 0,
     night: selectedDay?.nightActivities.length || 0,
     cafe: selectedDay?.cafes.length || 0,
   };
-
   const toggleCurrentActivity = (activity: IActivity) =>
     toggleActivity(activity, activeTab);
 
-  // Եթե օրեր դեռ չեն ստեղծվել՝ loader
-  // if (tripDays.length === 0) {
-  //   return (
-  //     <div className="flex justify-center items-center min-h-screen">
-  //       <Loader />
-  //     </div>
-  //   );
-  // }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950/30 to-slate-950 text-white py-12">
-      <div className="max-w-7xl mx-auto px-4 space-y-12">
-        <DayPlanningControls onSkip={skipAll} onFinish={skipAll} />
+    <div className="min-h-screen bg-black text-white">
+      <div className="max-w-7xl mx-auto px-4 pb-32 sm:pb-12 space-y-8">
+        {/* Desktop top controls */}
+        <div className="hidden sm:block">
+          <DayPlanningControls onSkip={skipAll} onFinish={skipAll} />
+        </div>
+
+        {/* Day selector */}
         <DaySelector
           tripDays={tripDays}
           selectedIndex={selectedIndex}
@@ -288,18 +270,25 @@ const DayPlanning: React.FC = () => {
         />
 
         {selectedDay && (
-          <div className="bg-zinc-900/80 backdrop-blur-3xl rounded-3xl border border-zinc-800 shadow-2xl overflow-hidden">
-            <DayHeader day={selectedDay.day} date={selectedDay.date} />
+          <div className="space-y-8">
+            {/* Day header */}
+            <div className="rounded-2xl bg-white/5 border border-white/10 p-4 sm:p-6">
+              <DayHeader day={selectedDay.day} date={selectedDay.date} />
+            </div>
 
-            <div className="p-8 md:p-14 space-y-16">
+            {/* City selector */}
+            <div className="rounded-2xl bg-white/5 border border-white/10 p-4 sm:p-6">
               <CitySelector
                 cities={allCities}
                 selectedCityId={selectedDay.cityId}
                 onChange={handleCityChange}
               />
+            </div>
 
-              {selectedDay.cityId && (
-                <>
+            {selectedDay.cityId && (
+              <>
+                {/* Hotel section */}
+                <div className="rounded-2xl bg-white/5 border border-white/10 p-4 sm:p-6">
                   <HotelSection
                     hotels={hotels}
                     selectedHotel={selectedHotel}
@@ -310,50 +299,71 @@ const DayPlanning: React.FC = () => {
                     onHotelSelect={handleHotelSelect}
                     loading={loading}
                   />
-
-                  <div className="space-y-12">
-                    <ActivityTabs
-                      activeTab={activeTab}
-                      onTabChange={setActiveTab}
-                      counts={counts}
-                    />
-                    <ActivityGrid
-                      activities={currentActivities}
-                      selectedActivities={selectedActivities}
-                      onToggle={toggleCurrentActivity}
-                    />
-                  </div>
-                </>
-              )}
-
-              <DayActions
-                canCopyFromPrevious={
-                  selectedIndex > 0 && !!tripDays[selectedIndex - 1].cityId
-                }
-                onCopyFromPrevious={() => {
-                  const prev = tripDays[selectedIndex - 1];
-                  setTripDays((d) =>
-                    d.map((x, i) =>
-                      i === selectedIndex
-                        ? { ...x, cityId: prev.cityId, hotelId: prev.hotelId }
-                        : x
-                    )
-                  );
-                }}
-                saving={saving}
-                hasCity={!!selectedDay.cityId}
-                onSave={saveCurrentDay}
-                onSkipAll={skipAll}
-              />
-
-              {loading && (
-                <div className="flex justify-center py-32">
-                  <Loader />
                 </div>
-              )}
-            </div>
+
+                {/* Activities */}
+                <div className="rounded-2xl bg-white/5 border border-white/10 p-4 sm:p-6 space-y-6">
+                  <ActivityTabs
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                    counts={counts}
+                  />
+                  <ActivityGrid
+                    activities={currentActivities}
+                    selectedActivities={selectedActivities}
+                    onToggle={toggleCurrentActivity}
+                  />
+                </div>
+
+                {/* Desktop actions */}
+                <div className="hidden sm:block">
+                  <DayActions
+                    canCopyFromPrevious={
+                      selectedIndex > 0 && !!tripDays[selectedIndex - 1].cityId
+                    }
+                    onCopyFromPrevious={() => {
+                      const prev = tripDays[selectedIndex - 1];
+                      setTripDays((d) =>
+                        d.map((x, i) =>
+                          i === selectedIndex
+                            ? {
+                                ...x,
+                                cityId: prev.cityId,
+                                hotelId: prev.hotelId,
+                              }
+                            : x
+                        )
+                      );
+                    }}
+                    saving={saving}
+                    hasCity={!!selectedDay.cityId}
+                    onSave={saveCurrentDay}
+                    onSkipAll={skipAll}
+                  />
+                </div>
+              </>
+            )}
           </div>
         )}
+      </div>
+
+      {/* Mobile bottom bar (Instagram-style) */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-xl border-t border-white/10 px-4 py-3">
+        <div className="flex gap-3">
+          <button
+            onClick={skipAll}
+            className="flex-1 py-3 rounded-full bg-white/10 text-white text-sm font-medium"
+          >
+            Skip
+          </button>
+          <button
+            onClick={saveCurrentDay}
+            disabled={saving}
+            className="flex-[1.5] py-3 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-semibold disabled:opacity-50"
+          >
+            {selectedIndex < tripDays.length - 1 ? "Save day" : "Finish trip"}
+          </button>
+        </div>
       </div>
     </div>
   );

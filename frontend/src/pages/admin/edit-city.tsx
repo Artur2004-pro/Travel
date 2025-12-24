@@ -100,50 +100,45 @@ export const EditCity = () => {
   if (loading || !city) return <Loader />;
 
   return (
-    <div className="flex justify-center items-start py-2 px-0 min-h-[80vh] bg-transparent">
-      <div className="w-full max-w-2xl bg-transparent rounded-[2rem] shadow-[0_0_40px_-10px_rgba(16,185,129,0.25)] p-10 relative">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 via-teal-400 to-emerald-400 drop-shadow-[0_0_10px_rgba(56,189,248,0.25)]">
+    <div className="flex flex-col items-center py-4 px-2 min-h-screen bg-gray-50 dark:bg-[#0f1624]">
+      <div className="w-full max-w-xl bg-white dark:bg-[#1a1f2b] rounded-2xl shadow-lg p-6 space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Edit City ✏️
           </h1>
           <BackButton to="/admin/city" />
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div>
-            <label className="block text-sm text-zinc-700 dark:text-zinc-300 mb-1">
-              City Name
-            </label>
-            <input
-              {...register("name", { required: "City name is required" })}
-              placeholder="City name"
-              className="w-full p-3.5 rounded-xl bg-white/80 dark:bg-[#0f1624]/70 border border-black/10 dark:border-white/10 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:ring-2 focus:ring-emerald-400 focus:border-transparent outline-none shadow-inner transition"
-            />
-            {formState.errors.name && (
-              <p className="text-sm text-red-500 mt-1">
-                {formState.errors.name.message}
-              </p>
-            )}
-          </div>
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <input
+            {...register("name", { required: "City name is required" })}
+            placeholder="City Name"
+            className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-[#0f1624]/70 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-400 focus:border-transparent outline-none"
+          />
+          {formState.errors.name && (
+            <p className="text-sm text-red-500">
+              {formState.errors.name.message}
+            </p>
+          )}
 
-          <div>
-            <label className="block text-sm text-zinc-700 dark:text-zinc-300 mb-1">
-              Description
-            </label>
-            <textarea
-              {...register("description")}
-              placeholder="City description..."
-              rows={4}
-              className="w-full p-3.5 rounded-xl bg-white/80 dark:bg-[#0f1624]/70 border border-black/10 dark:border-white/10 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:ring-2 focus:ring-emerald-400 focus:border-transparent outline-none shadow-inner transition"
-            />
-          </div>
+          <textarea
+            {...register("description")}
+            placeholder="City description..."
+            rows={4}
+            className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-[#0f1624]/70 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-400 focus:border-transparent outline-none"
+          />
 
+          {/* Image Carousel */}
           <ImageCarousel
             isAdmin
             images={city.images}
             onDeleteImage={handleDeleteOldImage}
+            className="rounded-xl overflow-hidden"
           />
 
+          {/* Upload */}
           <UploadImages
             label="Upload New Images"
             previews={previews}
@@ -152,22 +147,19 @@ export const EditCity = () => {
           />
 
           <button
+            type="submit"
             disabled={!canSave}
-            className={`w-full py-3.5 rounded-xl font-semibold tracking-wide transition-all duration-300 ${
-              !canSave
-                ? "bg-zinc-300/70 dark:bg-zinc-800/60 text-zinc-500 cursor-not-allowed"
-                : "bg-gradient-to-r from-sky-500 via-teal-400 to-emerald-500 hover:shadow-[0_0_30px_rgba(45,212,191,0.35)] text-white"
+            className={`w-full py-3 rounded-xl font-semibold text-white ${
+              canSave
+                ? "bg-gradient-to-r from-sky-500 via-teal-400 to-emerald-500 hover:brightness-105"
+                : "bg-gray-400 cursor-not-allowed"
             }`}
           >
-            {loading ? "Saving..." : "Save Changes"}
+            Save Changes
           </button>
         </form>
 
-        {message && (
-          <div className="mt-6">
-            <MessagePopup type={message.type} text={message.text} />
-          </div>
-        )}
+        {message && <MessagePopup type={message.type} text={message.text} />}
       </div>
     </div>
   );

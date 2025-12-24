@@ -14,82 +14,85 @@ export default function AdminLayout() {
   useEffect(() => {
     handleGetAccount();
   }, []);
+
   const toggleSidebar = () => setOpen((v) => !v);
 
   const signOut = () => {
     localStorage.removeItem("Authorization");
     navigate("/");
   };
+
   const handleGetAccount = async () => {
     try {
       const { data } = await Axios.get<IResponse<IAccount>>("account/");
       setAccount(data.payload);
-    } catch (error) {
+    } catch {
       setAccount(null);
     }
   };
-  if (!account || account.role != "admin") {
+
+  if (!account || account.role !== "admin") {
     return (
       <EmptyState title="Cannot access" icon="❌" subtitle="You not admin" />
     );
   }
+
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-gray-50 dark:bg-slate-900">
       {/* BACKGROUND */}
-      <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-sky-100 via-white to-teal-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950" />
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-[26rem] w-[46rem] rounded-full blur-3xl opacity-25 bg-gradient-to-r from-sky-400 to-teal-400 dark:from-sky-700/40 dark:to-teal-600/40 animate-pulse-slow" />
+      <div className="fixed inset-0 -z-10 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-br from-pink-50 via-white to-teal-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950" />
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[46rem] h-[26rem] rounded-full blur-3xl opacity-30 bg-gradient-to-r from-pink-400 via-purple-400 to-teal-400 animate-pulse-slow" />
       </div>
 
-      {/* SIDEBAR (desktop) */}
+      {/* DESKTOP SIDEBAR */}
       <aside
-        className={[
-          "hidden md:flex flex-col transition-all duration-300",
-          open ? "w-72" : "w-20",
-          "m-3 rounded-3xl glass border border-zinc-200/50 dark:border-slate-800/50",
-        ].join(" ")}
+        className={`hidden md:flex flex-col transition-all duration-300 m-3 rounded-3xl glass border border-zinc-200/30 dark:border-slate-800/30 ${
+          open ? "w-72" : "w-20"
+        }`}
       >
         {/* Brand */}
-        <div className="flex items-center gap-3 px-4 py-4">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl shadow-md">
-            <img src="/logo1.png" alt="Bardiner" className="h-6 w-6" />
-          </span>
-          {open && (
-            <div className="flex-1">
-              <p className="text-base font-semibold tracking-tight">
-                Bardiner Admin
-              </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                Dashboard
-              </p>
-            </div>
-          )}
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl shadow-md bg-gradient-to-tr from-pink-400 to-teal-400">
+              <img src="/logo1.png" alt="Bardiner" className="h-6 w-6" />
+            </span>
+            {open && (
+              <div className="flex flex-col">
+                <span className="font-semibold text-base text-gray-800 dark:text-gray-100">
+                  Bardiner Admin
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  Dashboard
+                </span>
+              </div>
+            )}
+          </div>
           <button
             onClick={toggleSidebar}
             aria-label="Toggle sidebar"
-            className="ml-auto inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 dark:border-slate-700 hover:bg-zinc-100/70 dark:hover:bg-slate-800/60"
+            className="h-9 w-9 rounded-xl border border-zinc-200 dark:border-slate-700 hover:bg-gray-100/60 dark:hover:bg-slate-800/50 flex items-center justify-center"
           >
             {open ? (
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="w-4 h-4" />
             ) : (
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="w-4 h-4" />
             )}
           </button>
         </div>
 
         {/* Nav */}
-        <nav className="mt-2 px-3 flex-1 space-y-1 overflow-y-auto">
+        <nav className="mt-4 px-3 flex-1 space-y-2 overflow-y-auto">
           {navItems.map((item) => (
             <SidebarLink key={item.label} item={item} />
           ))}
         </nav>
 
-        {/* Footer actions */}
-        <div className="p-3 border-t border-zinc-200/40 dark:border-slate-800/40">
+        {/* Footer */}
+        <div className="p-3 border-t border-zinc-200/20 dark:border-slate-800/20">
           <button
             onClick={signOut}
-            className="w-full btn-surface justify-center gap-2"
-            title="Sign out"
+            className="w-full flex items-center justify-center gap-2 btn-surface rounded-xl py-2 hover:bg-gray-100/50 dark:hover:bg-slate-800/50 transition"
           >
             <LogOut className="h-4 w-4" />
             {open && <span>Sign out</span>}
@@ -97,31 +100,33 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      {/* MOBILE SIDEBAR (drawer) */}
+      {/* MOBILE DRAWER */}
       {mobile && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setMobile(false)}
           />
-          <aside className="absolute left-0 top-0 h-full w-72 p-3 glass rounded-r-3xl border-r z-50">
-            <div className="flex items-center justify-between px-2 py-2">
+          <aside className="absolute left-0 top-0 h-full w-72 p-4 glass rounded-r-3xl border-r border-zinc-200/20 dark:border-slate-800/20 shadow-lg">
+            <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-sky-500 to-teal-400 shadow-md">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-pink-400 to-teal-400 shadow-md">
                   <img src="/logo1.png" alt="Bardiner" className="h-6 w-6" />
                 </span>
-                <p className="text-base font-semibold">Bardiner Admin</p>
+                <span className="font-semibold text-base text-gray-800 dark:text-gray-100">
+                  Bardiner Admin
+                </span>
               </div>
               <button
-                className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 dark:border-slate-700 hover:bg-zinc-100/70 dark:hover:bg-slate-800/60"
                 onClick={() => setMobile(false)}
                 aria-label="Close menu"
+                className="h-9 w-9 flex items-center justify-center rounded-xl border border-zinc-200 dark:border-slate-700 hover:bg-gray-100/60 dark:hover:bg-slate-800/50"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <nav className="mt-2 space-y-1">
+            <nav className="flex flex-col gap-2">
               {navItems.map((item) => (
                 <SidebarLink
                   key={item.label}
@@ -131,10 +136,10 @@ export default function AdminLayout() {
               ))}
             </nav>
 
-            <div className="mt-4 border-t border-zinc-200/40 dark:border-slate-800/40 pt-3">
+            <div className="mt-6 border-t border-zinc-200/20 dark:border-slate-800/20 pt-3">
               <button
                 onClick={signOut}
-                className="w-full btn-surface justify-center gap-2"
+                className="w-full flex items-center justify-center gap-2 btn-surface rounded-xl py-2 hover:bg-gray-100/50 dark:hover:bg-slate-800/50 transition"
               >
                 <LogOut className="h-4 w-4" />
                 <span>Sign out</span>
@@ -144,24 +149,19 @@ export default function AdminLayout() {
         </div>
       )}
 
-      {/* MAIN */}
-      <div className="flex-1 flex min-w-0">
-        <div className="flex-1 m-3 rounded-3xl glass overflow-hidden">
-          {/* Top bar */}
-          {/* Mobile toggle */}
+      {/* MAIN CONTENT */}
+      <div className="flex-1 flex flex-col">
+        <div className="flex items-center justify-between p-4 md:hidden">
           <button
             onClick={() => setMobile(true)}
-            className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 dark:border-slate-700 hover:bg-zinc-100/70 dark:hover:bg-slate-800/60"
+            className="h-9 w-9 flex items-center justify-center rounded-xl border border-zinc-200 dark:border-slate-700 hover:bg-gray-100/60 dark:hover:bg-slate-800/50"
             aria-label="Open menu"
           >
             <Menu className="h-5 w-5" />
           </button>
-          {/* </div> */}
-
-          {/* Content */}
-          <div className="p-4 sm:p-6 lg:p-8">
-            <Outlet context={account} />
-          </div>
+        </div>
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+          <Outlet context={account} />
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Axios } from "../../lib/axios-config";
 import { Loader, MessagePopup } from "../components";
-import { Lock, Mail, User, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import type { ILoginResponse, IResponse } from "../../types";
 import axios from "axios";
 
@@ -21,28 +21,33 @@ export default function Signup() {
     watch,
     formState: { errors },
   } = useForm<FormValues>();
-  const [code, setCode] = useState<boolean>(false);
+
+  const navigate = useNavigate();
+
+  const [code, setCode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
-  const navigate = useNavigate();
+
   const resendVerification = async () => {
     try {
-      const allFormData = watch();
-      const { data } = await Axios.post<IResponse>(
-        "/auth/resend-verification",
-        allFormData
-      );
+      const data = watch();
+      await Axios.post<IResponse>("/auth/resend-verification", data);
       setCode(true);
-      console.log(data);
+      setMessage({ type: "success", text: "Verification code resent" });
     } catch (err) {
-      if (axios.isAxiosError(err))
-        setMessage({ type: "error", text: err.response?.data.message });
+      if (axios.isAxiosError(err)) {
+        setMessage({
+          type: "error",
+          text: err.response?.data.message || "Failed to resend code",
+        });
+      }
     }
   };
+
   const onSubmit = async (data: FormValues) => {
     setLoading(true);
     try {
@@ -50,7 +55,7 @@ export default function Signup() {
         const res = await Axios.post("auth/signup", data);
         setMessage({
           type: "success",
-          text: res.data.message || "Account created!",
+          text: res.data.message || "Account created",
         });
         setCode(true);
       } else {
@@ -64,158 +69,113 @@ export default function Signup() {
     } catch (err: any) {
       setMessage({
         type: "error",
-        text: err?.response?.data?.message || "Signup failed.",
+        text: err?.response?.data?.message || "Signup failed",
       });
-      setTimeout(() => {
-        setMessage(null);
-      }, 1500);
     } finally {
       setLoading(false);
     }
   };
 
-  const inputBase =
-    "w-full rounded-lg border px-3 py-2 text-sm placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent";
+  const input =
+    "w-full h-10 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 px-3 text-sm outline-none focus:border-zinc-500";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-app px-4 py-10">
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black px-4">
       {loading && <Loader />}
       {message && <MessagePopup {...message} />}
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="glass w-full max-w-md rounded-3xl p-8 shadow-xl border border-zinc-200/50 dark:border-slate-800/40 animate-fade-in"
-      >
-        <h1 className="text-3xl font-extrabold text-center bg-clip-text text-transparent bg-gradient-to-r from-sky-500 via-teal-400 to-emerald-400 mb-8">
-          Create Your Bardiner Account
-        </h1>
 
-        {/* Name */}
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-300 mb-1">
-            Full Name
-          </label>
-          <div className="relative flex items-center">
-            <User className="absolute left-3 text-zinc-400 dark:text-zinc-500 h-5 w-5" />
+      <div className="w-full max-w-sm">
+        {/* Card */}
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-black px-8 py-10"
+        >
+          <h1 className="text-3xl font-semibold text-center mb-6 tracking-tight">
+            Bardiner
+          </h1>
+
+          <p className="text-center text-sm text-zinc-500 mb-6">
+            Sign up to see trips and plans
+          </p>
+
+          <div className="space-y-3">
             <input
-              type="text"
-              {...register("username", { required: "Full name is required" })}
-              placeholder="e.g. Anna Martirosyan"
-              className={`${inputBase} pl-10 ${
-                errors.username
-                  ? "border-destructive text-destructive placeholder-destructive"
-                  : "border-zinc-300 dark:border-slate-700"
-              }`}
+              {...register("username", { required: true })}
+              placeholder="Full name"
+              className={input}
             />
-          </div>
-          {errors.username && (
-            <p className="text-xs text-destructive mt-1">
-              {errors.username.message}
-            </p>
-          )}
-        </div>
+            {errors.username && (
+              <p className="text-xs text-red-500">Full name is required</p>
+            )}
 
-        {/* Email */}
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-300 mb-1">
-            Email Address
-          </label>
-          <div className="relative flex items-center">
-            <Mail className="absolute left-3 text-zinc-400 dark:text-zinc-500 h-5 w-5" />
             <input
               type="email"
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /^\S+@\S+\.\S+$/,
-                  message: "Invalid email address",
-                },
-              })}
-              placeholder="you@example.com"
-              className={`${inputBase} pl-10 ${
-                errors.email
-                  ? "border-destructive text-destructive placeholder-destructive"
-                  : "border-zinc-300 dark:border-slate-700"
-              }`}
+              {...register("email", { required: true })}
+              placeholder="Email address"
+              className={input}
             />
-          </div>
-          {errors.email && (
-            <p className="text-xs text-destructive mt-1">
-              {errors.email.message}
-            </p>
-          )}
-        </div>
+            {errors.email && (
+              <p className="text-xs text-red-500">Email is required</p>
+            )}
 
-        {/* Password */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-300 mb-1">
-            Password
-          </label>
-          <div className="relative flex items-center">
-            <Lock className="absolute left-3 text-zinc-400 dark:text-zinc-500 h-5 w-5" />
-            <input
-              type={showPassword ? "text" : "password"}
-              {...register("password", {
-                required: "Password is required",
-                minLength: {
-                  value: 6,
-                  message: "Password must be at least 6 characters",
-                },
-              })}
-              placeholder="••••••••"
-              className={`${inputBase} pl-10 ${
-                errors.password
-                  ? "border-destructive text-destructive placeholder-destructive"
-                  : "border-zinc-300 dark:border-slate-700"
-              }`}
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                {...register("password", { required: true, minLength: 6 })}
+                placeholder="Password"
+                className={`${input} pr-10`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+
+            {code && (
+              <input
+                {...register("code")}
+                placeholder="Verification code"
+                className={input}
+              />
+            )}
+          </div>
+
+          {code && (
             <button
               type="button"
-              onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3 text-zinc-400 dark:text-zinc-500 hover:text-sky-500 transition"
+              onClick={resendVerification}
+              className="mt-4 text-xs text-sky-500 hover:underline"
             >
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              Resend verification code
             </button>
-          </div>
-          {errors.password && (
-            <p className="text-xs text-destructive mt-1">
-              {errors.password.message}
-            </p>
           )}
-        </div>
 
-        {/* Verification Code */}
-        {code && (
-          <div className="mb-5">
-            <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-300 mb-1">
-              Verification code
-            </label>
-            <div className="relative flex items-center">
-              <Mail className="absolute left-3 text-zinc-400 dark:text-zinc-500 h-5 w-5" />
-              <input
-                type="text"
-                {...register("code")}
-                placeholder="123456"
-                className={`${inputBase} pl-10 border-zinc-300 dark:border-slate-700`}
-              />
-            </div>
-          </div>
-        )}
-        {/* Submit */}
-        <p onClick={resendVerification}>Resend Verification code?</p>
-        <button type="submit" className="btn-primary w-full text-base">
-          {loading ? "Creating..." : "Sign Up"}
-        </button>
+          <button
+            type="submit"
+            className="mt-5 w-full h-9 rounded-md bg-sky-500 text-white text-sm font-semibold hover:bg-sky-600"
+          >
+            {code ? "Verify" : "Sign up"}
+          </button>
 
-        <p className="text-center text-sm text-zinc-500 dark:text-zinc-400 mt-6">
-          Already have an account?{" "}
+          <p className="mt-6 text-center text-xs text-zinc-500">
+            By signing up, you agree to our Terms and Privacy Policy.
+          </p>
+        </form>
+
+        {/* Footer */}
+        <div className="mt-3 border border-zinc-300 dark:border-zinc-700 rounded-lg py-4 text-center text-sm">
+          Have an account?{" "}
           <span
             onClick={() => navigate("/login")}
-            className="text-sky-500 dark:text-teal-400 font-medium hover:underline cursor-pointer"
+            className="font-semibold text-sky-500 hover:underline cursor-pointer"
           >
-            Sign in
+            Log in
           </span>
-        </p>
-      </form>
+        </div>
+      </div>
     </div>
   );
 }

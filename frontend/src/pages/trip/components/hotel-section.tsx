@@ -1,4 +1,3 @@
-// src/pages/trip/steps/day-planning/components/HotelSection.tsx
 import React from "react";
 import ActivityCard from "../steps/activity-card";
 import type { HotelSectionProps } from "../trip.types";
@@ -25,20 +24,25 @@ export const HotelSection: React.FC<HotelSectionProps> = ({
 
   return (
     <div className="space-y-10">
-      <h2 className="text-4xl font-bold text-center">Հյուրանոց</h2>
+      <h2 className="text-3xl sm:text-4xl font-extrabold text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
+        Հյուրանոց
+      </h2>
 
       {!selectedHotel ? (
         <>
-          <div className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-6 justify-center">
+          {/* Search & Filter */}
+          <div className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center">
             <input
               type="text"
               placeholder="Որոնել հյուրանոց..."
               value={hotelSearch}
               onChange={(e) => onHotelSearch(e.target.value)}
-              className="px-6 py-4 rounded-2xl bg-zinc-800/80 border border-zinc-700 focus:ring-4 focus:ring-indigo-500"
+              className="w-full sm:w-auto px-4 sm:px-6 py-3 sm:py-4 rounded-2xl bg-zinc-800/90 border border-zinc-700 text-white placeholder-zinc-400 focus:ring-4 focus:ring-indigo-500 transition-shadow shadow-inner"
             />
             <div className="flex items-center gap-3">
-              <span className="text-zinc-400">Մին. աստղեր:</span>
+              <span className="text-zinc-400 text-sm sm:text-base">
+                Մին. աստղեր:
+              </span>
               <input
                 type="range"
                 min="0"
@@ -46,34 +50,40 @@ export const HotelSection: React.FC<HotelSectionProps> = ({
                 step="1"
                 value={minStars}
                 onChange={(e) => onMinStarsChange(Number(e.target.value))}
-                className="w-32 accent-indigo-500"
+                className="w-24 sm:w-32 accent-indigo-500"
               />
-              <span className="text-xl w-12 text-center">
+              <span className="text-white font-semibold text-lg w-8 text-center">
                 {minStars || "-"}
               </span>
             </div>
           </div>
 
+          {/* Hotel Grid */}
           {filteredHotels.length === 0 ? (
             <p className="text-center text-zinc-500 py-10">
               Հյուրանոցներ չեն գտնվել
             </p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 p-2 sm:p-4">
               {filteredHotels.map((hotel) => (
-                <ActivityCard
+                <div
                   key={hotel.id}
-                  activity={hotel}
-                  selected={false}
-                  onClick={() => onHotelSelect(hotel.id)}
-                  isHotel={true}
-                />
+                  className="transition-transform transform hover:scale-105"
+                >
+                  <ActivityCard
+                    activity={hotel}
+                    selected={false}
+                    onClick={() => onHotelSelect(hotel.id)}
+                    isHotel={true}
+                  />
+                </div>
               ))}
             </div>
           )}
         </>
       ) : (
-        <div className="max-w-2xl mx-auto space-y-8">
+        // Selected Hotel View
+        <div className="max-w-2xl mx-auto space-y-6">
           <ActivityCard
             activity={selectedHotel}
             selected={true}
@@ -84,7 +94,7 @@ export const HotelSection: React.FC<HotelSectionProps> = ({
           <div className="text-center">
             <button
               onClick={() => onHotelSelect(null)}
-              className="px-10 py-4 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 transition text-lg"
+              className="px-8 sm:px-10 py-3 sm:py-4 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 transition text-lg sm:text-xl font-semibold"
             >
               Փոխել հյուրանոցը
             </button>

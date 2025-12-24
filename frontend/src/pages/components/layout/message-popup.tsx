@@ -8,14 +8,19 @@ export const MessagePopup = ({
   text: string;
 }) =>
   createPortal(
-    <div
-      className={`fixed top-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl text-sm font-semibold shadow-lg backdrop-blur-md z-[10000] transition-all animate-fade-in-down ${
-        type === "success"
-          ? "bg-emerald-500/90 text-white shadow-emerald-300/20"
-          : "bg-rose-500/90 text-white shadow-rose-300/20"
-      }`}
-    >
-      {text}
+    <div className="fixed inset-x-0 top-4 z-[10000] flex justify-center pointer-events-none">
+      <div
+        className={[
+          "px-4 py-2 rounded-lg text-xs sm:text-sm font-medium",
+          "backdrop-blur bg-black/80 text-white",
+          "animate-fade-in-down",
+          type === "error" && "bg-rose-600/90",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        {text}
+      </div>
     </div>,
     document.body
   );

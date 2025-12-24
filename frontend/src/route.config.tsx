@@ -4,8 +4,9 @@ import { lazy, Suspense } from "react";
 // Layouts
 import Layout from "./pages/general/layout"; // ընդհանուր կայքի layout (header + footer)
 import AdminLayout from "./pages/admin/admin-layout";
-import TripLayout from "./pages/trip/trip-layout";
+// import TripLayout from "./pages/trip/trip-layout";
 import TripDashboard from "./pages/trip/trip-layout";
+import Profile from "./pages/settings/profile";
 // Lazy pages
 const Home = lazy(() => import("./pages/general/home"));
 const Login = lazy(() => import("./pages/general/login"));
@@ -102,7 +103,7 @@ export const router = createBrowserRouter([
             path: "profile",
             element: (
               <Suspense fallback={<Loader />}>
-                <Settings />
+                <Profile />
               </Suspense>
             ),
           },
@@ -125,6 +126,7 @@ export const router = createBrowserRouter([
           { path: "*", element: <Navigate to="/settings/profile" replace /> },
         ],
       },
+
       // Admin
       {
         path: "admin",

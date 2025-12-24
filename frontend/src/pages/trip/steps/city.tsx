@@ -1,8 +1,8 @@
-// src/pages/City.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { Axios } from "../../../lib/axios-config";
 import { MapPin } from "lucide-react";
+import { ImageCarousel } from "../../components"; // եթե city.images են լինելու
+import { Axios } from "../../../lib/axios-config";
 
 export const City: React.FC = () => {
   const navigate = useNavigate();
@@ -17,65 +17,94 @@ export const City: React.FC = () => {
       return;
     }
 
+    let mounted = true;
     Axios.get(`/city/all/${tripData.countryId}`)
-      .then((res) => setCities(res.data.payload || []))
-      .finally(() => setLoading(false));
-  }, []);
+      .then((res) => {
+        if (!mounted) return;
+        setCities(res.data.payload || []);
+      })
+      .finally(() => {
+        if (!mounted) return;
+        setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [tripData.countryId]);
 
   const selectCity = (id: string) => {
     setTripData({ cityId: id });
     navigate("/trips/hotel");
   };
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="text-center py-32 text-2xl text-zinc-400">Loading...</div>
+      <div className="flex items-center justify-center min-h-screen text-zinc-400 animate-pulse">
+        Loading…
+      </div>
     );
+  }
 
   return (
-    <div className="min-h-screen py-20 px-6">
-      <h1
-        className="
-          text-5xl font-bold text-center mb-16
-          bg-gradient-to-r from-indigo-400 to-purple-500
-          bg-clip-text text-transparent
-        "
-      >
-        Choose a City
-      </h1>
+    <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+      {/* HEADER */}
+      <div className="text-center sm:text-left">
+        <h1 className="text-2xl sm:text-4xl font-bold text-white tracking-tight">
+          Choose a city
+        </h1>
+        <p className="text-zinc-500 mt-1 hidden sm:block">
+          Select a city to continue planning
+        </p>
+      </div>
 
-      <div
-        className="
-          grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10
-          max-w-6xl mx-auto
-        "
-      >
+      {/* EMPTY STATE */}
+      {cities.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-24 space-y-4">
+          <MapPin className="w-20 h-20 text-zinc-600" />
+          <p className="text-zinc-400 text-lg text-center">No cities found</p>
+        </div>
+      )}
+
+      {/* CITIES GRID */}
+      <div className="space-y-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-6 sm:space-y-0">
         {cities.map((city) => (
-          <div
+          <button
             key={city._id}
             onClick={() => selectCity(city._id)}
             className="
-              group cursor-pointer rounded-3xl overflow-hidden
-              bg-white/[0.04] border border-white/10
-              backdrop-blur-2xl shadow-xl shadow-black/30
-              p-10 text-center
-              hover:bg-white/[0.08] hover:border-indigo-500
-              hover:shadow-2xl hover:scale-[1.03]
+              relative w-full text-left
+              overflow-hidden rounded-3xl
+              bg-white/5 border border-white/10
+              shadow-sm hover:shadow-lg
               transition-all duration-300
+              active:scale-[0.98]
             "
           >
-            <MapPin
-              className="
-                w-16 h-16 mx-auto mb-6
-                text-indigo-400 group-hover:text-indigo-300
-                transition
-              "
-            />
-            <h3 className="text-3xl font-bold text-white mb-3">{city.name}</h3>
-            <p className="text-zinc-400">
-              {city.description || "Beautiful city to explore"}
-            </p>
-          </div>
+            {city.images?.length > 0 && (
+              <div className="aspect-[4/5]">
+                <ImageCarousel images={city.images} />
+              </div>
+            )}
+
+            {/* OVERLAY */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+
+            <div className="relative flex items-center gap-4 p-4">
+              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/10 text-indigo-400 shrink-0">
+                <MapPin className="w-5 h-5" />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="text-white font-semibold truncate">
+                  {city.name}
+                </div>
+                <div className="text-sm text-zinc-300 line-clamp-2">
+                  {city.description || "Beautiful city to explore"}
+                </div>
+              </div>
+            </div>
+          </button>
         ))}
       </div>
     </div>

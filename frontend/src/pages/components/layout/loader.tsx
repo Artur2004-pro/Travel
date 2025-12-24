@@ -1,11 +1,5 @@
 export const Loader = () => (
-  <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-[9999]">
-    <div className="relative flex items-center justify-center">
-      <div className="absolute h-14 w-14 rounded-full border-4 border-t-transparent border-sky-400 animate-spin-slow"></div>
-      <div className="absolute h-10 w-10 rounded-full border-4 border-t-transparent border-teal-400 animate-spin-reverse"></div>
-      <span className="text-sm font-medium text-white absolute top-16">
-        Loading...
-      </span>
-    </div>
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white dark:bg-black">
+    <div className="h-8 w-8 rounded-full border-2 border-zinc-300 dark:border-zinc-700 border-t-transparent animate-spin" />
   </div>
 );

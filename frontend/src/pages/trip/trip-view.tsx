@@ -12,17 +12,19 @@ import {
   Coffee,
   Lock,
   CheckCircle,
-} from "lucide-react"; // add icons as needed
+  ArrowLeft,
+} from "lucide-react";
+import dayjs from "dayjs";
 
 interface TripDay {
   _id: string;
   order: number;
   date: string;
   cityName: string;
-  hotel?: { name: string; address: string /* other */ };
+  hotel?: { name: string; address: string };
   activities: Array<{
     type: string;
-    activity: { name: string; address: string /* other */ };
+    activity: { name: string; address: string };
     notes?: string;
     cost?: number;
   }>;
@@ -38,7 +40,6 @@ interface Trip {
   isCompleted?: boolean;
   coverImage?: string;
   days: TripDay[];
-  // other
 }
 
 const TripView: React.FC = () => {
@@ -46,6 +47,8 @@ const TripView: React.FC = () => {
   const navigate = useNavigate();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
+  const app = useRef(import.meta.env.VITE_APP_DOMAIN);
+
   useEffect(() => {
     if (!id) return;
     Axios.get(`/trip/${id}`)
@@ -53,84 +56,109 @@ const TripView: React.FC = () => {
       .catch(() => toast.error("Failed to load trip"))
       .finally(() => setLoading(false));
   }, [id]);
-  const app = useRef(import.meta.env.VITE_APP_DOMAIN);
+
   if (loading) return <Loader />;
-  if (!trip) return <p className="text-center text-red-400">Trip not found</p>;
+  if (!trip) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0b0f19] via-[#131829] to-[#0b0f19] text-white py-12 px-6">
-      <div className="max-w-5xl mx-auto space-y-10">
+    <div className="min-h-screen bg-white dark:bg-black">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-white dark:bg-black border-b border-zinc-200 dark:border-zinc-800 px-4 h-12 flex items-center">
         <button
           onClick={() => navigate("/trips")}
-          className="text-zinc-400 hover:text-white mb-4"
+          className="flex items-center gap-2 text-sm font-medium"
         >
-          ← Back to My Trips
+          <ArrowLeft size={18} /> Trips
         </button>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-xl mx-auto">
+        {/* Cover */}
         {trip.coverImage && (
           <img
             src={app.current + trip.coverImage}
             alt="cover"
-            className="w-full h-96 object-cover rounded-3xl shadow-lg"
+            className="w-full aspect-square object-cover"
           />
         )}
-        <h1 className="text-5xl font-bold">{trip.title}</h1>
-        <p className="text-xl text-zinc-300">{trip.description}</p>
-        <div className="flex items-center gap-6 text-zinc-400">
-          <CalendarIcon /> {trip.startDate} - {trip.endDate}
-          {trip.isPrivate && <Lock className="text-red-400" />}
-          {trip.isCompleted && <CheckCircle className="text-green-400" />}
+
+        {/* Info */}
+        <div className="px-4 py-3 space-y-2 border-b border-zinc-200 dark:border-zinc-800">
+          <h1 className="text-lg font-semibold">{trip.title}</h1>
+
+          <p className="text-sm text-zinc-500">{trip.description}</p>
+
+          <div className="flex items-center gap-3 text-xs text-zinc-500">
+            <span className="flex items-center gap-1">
+              <CalendarIcon size={14} />
+              {dayjs(trip.startDate).format("MMM D")} –{" "}
+              {dayjs(trip.endDate).format("MMM D")}
+            </span>
+            {trip.isPrivate && <Lock size={14} />}
+            {trip.isCompleted && (
+              <CheckCircle size={14} className="text-emerald-500" />
+            )}
+          </div>
         </div>
 
-        <div className="space-y-8">
+        {/* Days Feed */}
+        <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
           {trip.days
             .sort((a, b) => a.order - b.order)
             .map((day) => (
-              <div
-                key={day._id}
-                className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 space-y-6"
-              >
-                <h2 className="text-3xl font-semibold">
-                  Day {day.order} - {day.date}
-                </h2>
-                <div className="flex items-center gap-2 text-zinc-300">
-                  <MapPin /> {day.cityName}
+              <div key={day._id} className="px-4 py-4 space-y-3">
+                {/* Day header */}
+                <div className="flex items-center justify-between">
+                  <h2 className="font-medium text-sm">
+                    Day {day.order} · {dayjs(day.date).format("MMM D")}
+                  </h2>
+                  <span className="flex items-center gap-1 text-xs text-zinc-500">
+                    <MapPin size={12} /> {day.cityName}
+                  </span>
                 </div>
+
+                {/* Hotel */}
                 {day.hotel && (
-                  <div className="space-y-2">
-                    <h3 className="text-2xl flex items-center gap-2">
-                      <Hotel /> Hotel: {day.hotel.name}
-                    </h3>
-                    <p className="text-zinc-400">{day.hotel.address}</p>
+                  <div className="flex gap-2 text-sm">
+                    <Hotel size={16} className="mt-0.5" />
+                    <div>
+                      <p className="font-medium">{day.hotel.name}</p>
+                      <p className="text-xs text-zinc-500">
+                        {day.hotel.address}
+                      </p>
+                    </div>
                   </div>
                 )}
-                <div className="space-y-4">
-                  <h3 className="text-xl font-medium">Activities</h3>
+
+                {/* Activities */}
+                <div className="space-y-2">
                   {day.activities.map((act, i) => (
-                    <div
-                      key={i}
-                      className="bg-white/3 p-4 rounded-2xl space-y-1"
-                    >
-                      <div className="flex items-center gap-2">
-                        {act.type === "night" ? (
-                          <Moon />
-                        ) : act.type === "cafe" ? (
-                          <Coffee />
-                        ) : (
-                          <Activity />
+                    <div key={i} className="flex gap-2 text-sm items-start">
+                      {act.type === "night" ? (
+                        <Moon size={16} />
+                      ) : act.type === "cafe" ? (
+                        <Coffee size={16} />
+                      ) : (
+                        <Activity size={16} />
+                      )}
+
+                      <div className="flex-1">
+                        <p className="font-medium">{act.activity.name}</p>
+                        <p className="text-xs text-zinc-500">
+                          {act.activity.address}
+                        </p>
+                        {act.notes && (
+                          <p className="text-xs text-zinc-400 mt-1">
+                            {act.notes}
+                          </p>
                         )}
-                        <span className="font-medium">{act.activity.name}</span>
+                        {act.cost && (
+                          <p className="text-xs text-zinc-400">
+                            Cost: {act.cost}
+                          </p>
+                        )}
                       </div>
-                      <p className="text-zinc-400">{act.activity.address}</p>
-                      {act.notes && (
-                        <p className="text-sm text-zinc-500">
-                          Notes: {act.notes}
-                        </p>
-                      )}
-                      {act.cost && (
-                        <p className="text-sm text-zinc-500">
-                          Cost: {act.cost}
-                        </p>
-                      )}
                     </div>
                   ))}
                 </div>
