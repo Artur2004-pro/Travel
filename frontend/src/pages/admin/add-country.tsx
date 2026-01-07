@@ -6,6 +6,7 @@ import type { ICountry, IShowMessage } from "../../types";
 
 export const AddCountry = () => {
   const navigate = useNavigate();
+
   const [form, setForm] = useState<Partial<ICountry>>({
     name: "",
     description: "",
@@ -17,7 +18,7 @@ export const AddCountry = () => {
 
   const showMessage = (type: "error" | "success", text: string) => {
     setMessage({ type, text });
-    setTimeout(() => setMessage(null), 2000);
+    setTimeout(() => setMessage(null), 2500);
   };
 
   const handleChange = (
@@ -31,25 +32,23 @@ export const AddCountry = () => {
     if (!e.target.files) return;
     const imgs = Array.from(e.target.files);
     if (files.length + imgs.length > 5) {
-      showMessage("error", "Maximum 5 images allowed.");
+      showMessage("error", "Maximum 5 images allowed");
       return;
     }
-    setFiles((prev) => [...prev, ...imgs]);
-    setPreviews((prev) => [
-      ...prev,
-      ...imgs.map((i) => URL.createObjectURL(i)),
-    ]);
+    setFiles((p) => [...p, ...imgs]);
+    setPreviews((p) => [...p, ...imgs.map(URL.createObjectURL)]);
   };
 
   const handleDelete = (i: number) => {
-    setFiles(files.filter((_, x) => x !== i));
-    setPreviews(previews.filter((_, x) => x !== i));
+    setFiles((p) => p.filter((_, x) => x !== i));
+    setPreviews((p) => p.filter((_, x) => x !== i));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name?.trim())
+    if (!form.name?.trim()) {
       return showMessage("error", "Country name is required");
+    }
 
     try {
       setLoading(true);
@@ -61,58 +60,89 @@ export const AddCountry = () => {
       await Axios.post("/country", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      showMessage("success", "Country added successfully!");
-      setTimeout(() => navigate("/admin/country"), 1000);
+
+      showMessage("success", "Country added");
+      setTimeout(() => navigate("/admin/country"), 800);
     } catch {
-      showMessage("error", "Failed to add country.");
+      showMessage("error", "Failed to add country");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 sm:p-8 rounded-3xl glass backdrop-blur-md border border-white/10 shadow-lg animate-fade-in">
+    <div className="w-full max-w-[720px]">
+      {message && <MessagePopup {...message} />}
+
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-400 to-teal-400 flex items-center gap-2">
-          Add New Country 🌍
-        </h1>
+        <div>
+          <h1 className="text-lg font-semibold">Add country</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Create a new destination
+          </p>
+        </div>
         <BackButton to="/admin/country" />
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Country Name */}
-        <div>
-          <label className="block text-sm text-gray-400 mb-1">
-            Country Name
-          </label>
+      {/* Form */}
+      <form
+        onSubmit={handleSubmit}
+        className="
+          space-y-5
+          rounded-xl
+          border border-zinc-200 dark:border-zinc-800
+          bg-white dark:bg-black
+          p-5
+        "
+      >
+        {/* Name */}
+        <div className="space-y-1">
+          <label className="text-sm font-medium">Country name</label>
           <input
             name="name"
             value={form.name}
             onChange={handleChange}
-            placeholder="Enter country name..."
-            className="w-full p-3 rounded-2xl bg-white/10 dark:bg-slate-800/30 text-white placeholder-gray-400 outline-none border border-white/20 focus:border-pink-400 focus:ring-1 focus:ring-pink-400 transition"
-            required
+            placeholder="Italy"
+            className="
+              w-full
+              rounded-lg
+              border border-zinc-300 dark:border-zinc-700
+              bg-transparent
+              px-3 py-2
+              text-sm
+              outline-none
+              focus:border-black dark:focus:border-white
+            "
           />
         </div>
 
         {/* Description */}
-        <div>
-          <label className="block text-sm text-gray-400 mb-1">
-            Description
-          </label>
+        <div className="space-y-1">
+          <label className="text-sm font-medium">Description</label>
           <textarea
             name="description"
             value={form.description}
             onChange={handleChange}
-            placeholder="Write a short description..."
             rows={4}
-            className="w-full p-3 rounded-2xl bg-white/10 dark:bg-slate-800/30 text-white placeholder-gray-400 outline-none border border-white/20 focus:border-teal-400 focus:ring-1 focus:ring-teal-400 transition resize-none"
+            placeholder="Short description for travelers"
+            className="
+              w-full
+              rounded-lg
+              border border-zinc-300 dark:border-zinc-700
+              bg-transparent
+              px-3 py-2
+              text-sm
+              resize-none
+              outline-none
+              focus:border-black dark:focus:border-white
+            "
           />
         </div>
 
-        {/* Upload Images */}
+        {/* Images */}
         <UploadImages
-          label="Country Images"
+          label="Images"
           previews={previews}
           onAdd={handleUpload}
           onDelete={handleDelete}
@@ -121,17 +151,21 @@ export const AddCountry = () => {
         {/* Submit */}
         <button
           disabled={loading}
-          className={`w-full py-3 rounded-2xl font-medium transition-all shadow-md ${
-            loading
-              ? "bg-gray-600/50 text-gray-300 cursor-not-allowed"
-              : "bg-gradient-to-r from-pink-500 via-purple-400 to-teal-400 hover:brightness-110 text-white"
-          }`}
+          className="
+            w-full
+            rounded-lg
+            bg-black dark:bg-white
+            py-2.5
+            text-sm font-medium
+            text-white dark:text-black
+            transition
+            hover:opacity-90
+            disabled:opacity-50
+          "
         >
-          {loading ? "Saving..." : "Add Country"}
+          {loading ? "Saving..." : "Add country"}
         </button>
       </form>
-
-      {message && <MessagePopup {...message} />}
     </div>
   );
 };

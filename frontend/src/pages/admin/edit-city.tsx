@@ -1,23 +1,19 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Axios } from "../../lib/axios-config";
-import {
-  Loader,
-  MessagePopup,
-  BackButton,
-  UploadImages,
-  ImageCarousel,
-} from "../components";
+import { Loader, MessagePopup, BackButton } from "../components";
 import type { ICity, IResponse, IShowMessage } from "../../types";
 import { useForm } from "react-hook-form";
+import { Plus, X } from "lucide-react";
+import { ImageGrid } from "../components/image/image-grid";
 
-export const EditCity = () => {
+export default function EditCity() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [city, setCity] = useState<ICity | null>(null);
   const [message, setMessage] = useState<IShowMessage | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -31,7 +27,6 @@ export const EditCity = () => {
 
   const fetchCity = async () => {
     try {
-      setLoading(true);
       const { data } = await Axios.get<IResponse<ICity>>(`/city/${id}`);
       setCity(data.payload);
       reset(data.payload);
@@ -39,7 +34,7 @@ export const EditCity = () => {
       setPreviews([]);
       setImagesChanged(false);
     } catch {
-      setMessage({ type: "error", text: "Failed to load city data." });
+      setMessage({ type: "error", text: "Failed to load city" });
     } finally {
       setLoading(false);
     }
@@ -50,18 +45,14 @@ export const EditCity = () => {
     try {
       const formData = new FormData();
       formData.append("name", data.name);
-      formData.append("description", data.description);
+      formData.append("description", data.description || "");
       files.forEach((f) => formData.append("city", f));
-      await Axios.patch(`/city/${id}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      setMessage({ type: "success", text: "City updated successfully!" });
-      setFiles([]);
-      setPreviews([]);
-      setImagesChanged(false);
-      setTimeout(() => navigate("/admin/city"), 1100);
+
+      await Axios.patch(`/city/${id}`, formData);
+      setMessage({ type: "success", text: "City updated" });
+      setTimeout(() => navigate("/admin/city"), 800);
     } catch {
-      setMessage({ type: "error", text: "Update failed." });
+      setMessage({ type: "error", text: "Update failed" });
     }
   };
 
@@ -71,98 +62,85 @@ export const EditCity = () => {
     setFiles((prev) => [...prev, ...imgs]);
     setPreviews((prev) => [
       ...prev,
-      ...imgs.map((i) => URL.createObjectURL(i)),
+      ...imgs.map((f) => URL.createObjectURL(f)),
     ]);
   };
-  const handleDeleteNew = (i: number) => {
-    setFiles((prev) => prev.filter((_, x) => x !== i));
-    setPreviews((prev) => prev.filter((_, x) => x !== i));
+
+  const deleteNew = (i: number) => {
+    setFiles((prev) => prev.filter((_, idx) => idx !== i));
+    setPreviews((prev) => prev.filter((_, idx) => idx !== i));
   };
-  const handleDeleteOldImage = async (filename: string) => {
+
+  const deleteOld = async (img: string) => {
     try {
-      await Axios.delete(`/city/${id}/photos?filename=${filename}`);
-      if (city) {
-        setCity({
-          ...city,
-          images: city.images.filter((img) => img !== filename),
-        });
-      }
+      await Axios.delete(`/city/${id}/photos?filename=${img}`);
+      setCity((c) =>
+        c ? { ...c, images: c.images.filter((i) => i !== img) } : c
+      );
       setImagesChanged(true);
     } catch {
-      setMessage({ type: "error", text: "Failed to delete image." });
+      setMessage({ type: "error", text: "Failed to delete image" });
     }
   };
 
-  const canSave = useMemo(() => {
-    return formState.isDirty || files.length > 0 || imagesChanged;
-  }, [formState.isDirty, files.length, imagesChanged]);
+  const canSave = useMemo(
+    () => formState.isDirty || files.length > 0 || imagesChanged,
+    [formState.isDirty, files.length, imagesChanged]
+  );
 
   if (loading || !city) return <Loader />;
 
   return (
-    <div className="flex flex-col items-center py-4 px-2 min-h-screen bg-gray-50 dark:bg-[#0f1624]">
-      <div className="w-full max-w-xl bg-white dark:bg-[#1a1f2b] rounded-2xl shadow-lg p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Edit City ✏️
-          </h1>
-          <BackButton to="/admin/city" />
-        </div>
+    <div className="max-w-xl mx-auto px-4 py-8 space-y-6">
+      {message && <MessagePopup {...message} />}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <input
-            {...register("name", { required: "City name is required" })}
-            placeholder="City Name"
-            className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-[#0f1624]/70 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-400 focus:border-transparent outline-none"
-          />
-          {formState.errors.name && (
-            <p className="text-sm text-red-500">
-              {formState.errors.name.message}
-            </p>
-          )}
-
-          <textarea
-            {...register("description")}
-            placeholder="City description..."
-            rows={4}
-            className="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-[#0f1624]/70 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-400 focus:border-transparent outline-none"
-          />
-
-          {/* Image Carousel */}
-          <ImageCarousel
-            isAdmin
-            images={city.images}
-            onDeleteImage={handleDeleteOldImage}
-            className="rounded-xl overflow-hidden"
-          />
-
-          {/* Upload */}
-          <UploadImages
-            label="Upload New Images"
-            previews={previews}
-            onAdd={handleUpload}
-            onDelete={handleDeleteNew}
-          />
-
-          <button
-            type="submit"
-            disabled={!canSave}
-            className={`w-full py-3 rounded-xl font-semibold text-white ${
-              canSave
-                ? "bg-gradient-to-r from-sky-500 via-teal-400 to-emerald-500 hover:brightness-105"
-                : "bg-gray-400 cursor-not-allowed"
-            }`}
-          >
-            Save Changes
-          </button>
-        </form>
-
-        {message && <MessagePopup type={message.type} text={message.text} />}
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Edit City</h1>
+        <BackButton to="/admin/city" />
       </div>
+
+      {/* Images */}
+      <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black p-4 space-y-3">
+        <ImageGrid
+          oldImages={city.images}
+          newImages={previews}
+          onDeleteOld={deleteOld}
+          onDeleteNew={deleteNew}
+          onUpload={handleUpload}
+        />
+      </div>
+
+      {/* Form */}
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black p-4 space-y-4"
+      >
+        <input
+          {...register("name", { required: true })}
+          className="w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-300 dark:focus:ring-zinc-700"
+          placeholder="City name"
+        />
+        <textarea
+          {...register("description")}
+          rows={3}
+          className="w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-transparent px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-300 dark:focus:ring-zinc-700"
+          placeholder="Description"
+        />
+        <button
+          disabled={!canSave}
+          className={`
+            w-full rounded-xl py-2.5 text-sm font-semibold transition
+            ${
+              canSave
+                ? "bg-black dark:bg-white text-white dark:text-black"
+                : "bg-zinc-200 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed"
+            }
+          `}
+        >
+          Save changes
+        </button>
+      </form>
     </div>
   );
-};
-
-export default EditCity;
+}

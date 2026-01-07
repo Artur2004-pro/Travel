@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Axios } from "../../../lib/axios-config";
 import toast from "react-hot-toast";
+
 import DaySelector from "./day-selector";
 import DayPlanningControls from "./day-planning-control";
 import { Loader } from "../../components";
@@ -11,6 +12,7 @@ import { ActivityTabs } from "../components/activity-tabs";
 import { HotelSection } from "../components/hotel-section";
 import { CitySelector } from "../components/city-selector";
 import { DayHeader } from "../components/day-header";
+
 import type { IActivity, ITripDayLocal } from "../trip.types";
 
 const DayPlanning: React.FC = () => {

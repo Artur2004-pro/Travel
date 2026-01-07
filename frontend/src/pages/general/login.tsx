@@ -4,19 +4,14 @@ import { Axios } from "../../lib/axios-config";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../../hooks/useThem";
 import axios from "axios";
+import { useAuth } from "../../context/auth-context";
 
-export const Login = () => {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<ILoginUser>();
+export default function Login() {
+  const { register, handleSubmit, reset } = useForm<ILoginUser>();
 
+  const { login } = useAuth();
   const navigate = useNavigate();
-  const { dark } = useTheme();
 
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
@@ -26,7 +21,7 @@ export const Login = () => {
     try {
       setLoading(true);
       const response = await Axios.post<ILoginResponse>("auth/login", data);
-      localStorage.setItem("Authorization", response.data.payload);
+      login(response.data.payload);
       reset();
       setIsError(false);
       setMessage("Login successful");
@@ -43,15 +38,16 @@ export const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black px-4">
+    /* ⬇️ սա է ամբողջ մոգությունը */
+    <div className="flex-1 flex justify-center px-6 pt-24">
       <div className="w-full max-w-sm">
         {/* Card */}
         <form
           onSubmit={handleSubmit(submit)}
-          className="border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-black rounded-lg px-8 py-10"
+          className="border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-black rounded-xl px-10 py-8"
         >
-          {/* Logo / Title */}
-          <h1 className="text-3xl font-semibold text-center mb-8 tracking-tight">
+          {/* Logo */}
+          <h1 className="text-7xl font-semibold tracking-tight font-tangerine text-center mb-10">
             Bardiner
           </h1>
 
@@ -75,14 +71,15 @@ export const Login = () => {
           <div className="space-y-3">
             <input
               {...register("username", { required: true })}
-              placeholder="Phone number, username, or email"
-              className="w-full h-10 px-3 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-sm outline-none focus:border-zinc-500"
+              placeholder="Username, or email"
+              className="w-full h-11 px-3 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-sm outline-none focus:border-black dark:focus:border-white"
             />
+
             <input
               {...register("password", { required: true })}
               type="password"
               placeholder="Password"
-              className="w-full h-10 px-3 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-sm outline-none focus:border-zinc-500"
+              className="w-full h-11 px-3 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-sm outline-none focus:border-black dark:focus:border-white"
             />
           </div>
 
@@ -90,26 +87,25 @@ export const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="mt-5 w-full h-9 rounded-md bg-sky-500 text-white text-sm font-semibold hover:bg-sky-600 disabled:opacity-50"
+            className="mt-6 w-full h-10 rounded-md bg-sky-500 text-white text-sm font-semibold hover:bg-sky-600 disabled:opacity-40"
           >
             {loading ? "Logging in…" : "Log in"}
           </button>
 
           {/* Divider */}
-          <div className="flex items-center gap-4 my-6">
+          <div className="flex items-center gap-4 my-8">
             <div className="flex-1 h-px bg-zinc-300 dark:bg-zinc-700" />
             <span className="text-xs text-zinc-500 font-medium">OR</span>
             <div className="flex-1 h-px bg-zinc-300 dark:bg-zinc-700" />
           </div>
 
-          {/* Extra */}
           <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
             Forgot your password?
           </p>
         </form>
 
         {/* Signup */}
-        <div className="mt-3 border border-zinc-300 dark:border-zinc-700 rounded-lg py-4 text-center text-sm bg-white dark:bg-black">
+        <div className="mt-4 border border-zinc-300 dark:border-zinc-700 rounded-xl py-4 text-center text-sm bg-white dark:bg-black">
           Don’t have an account?{" "}
           <a
             href="/signup"
@@ -121,6 +117,4 @@ export const Login = () => {
       </div>
     </div>
   );
-};
-
-export default Login;
+}

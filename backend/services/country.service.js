@@ -88,7 +88,7 @@ class CountryService {
   }
   async getById(data) {
     try {
-      const country = await Country.findById(data.id);
+      const country = await Country.findById(data.id).populate("cities");
       if (!country) {
         throw new ServiceError("Country not found", 404);
       }

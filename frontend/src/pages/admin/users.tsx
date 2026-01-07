@@ -1,89 +1,76 @@
 import { useEffect, useState } from "react";
 import { Axios } from "../../lib/axios-config";
-import {
-  AdminCard,
-  Loader,
-  MessagePopup,
-  EmptyState,
-  SearchInput,
-} from "../components";
-import type { IAccount, IResponse, IShowMessage } from "../../types";
+import { Loader, EmptyState, SearchInput } from "../components";
+import type { IAccount, IResponse } from "../../types";
 import { UserItem } from "./user-item";
 import { useOutletContext } from "react-router-dom";
+import { useDebounce } from "../../hooks/useDebounce";
 
-export const Users = () => {
+export default function Users() {
   const account = useOutletContext<IAccount>();
   const [users, setUsers] = useState<IAccount[]>([]);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 400);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<IShowMessage | null>(null);
-
-  const showMessage = (type: "success" | "error", text: string) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage(null), 3000);
-  };
 
   useEffect(() => {
-    if (!search.trim()) return;
-    handleGetUsers();
-  }, [search]);
+    if (!debouncedSearch.trim()) {
+      setUsers([]);
+      return;
+    }
+    fetchUsers();
+  }, [debouncedSearch]);
 
-  const handleGetUsers = async () => {
+  const fetchUsers = async () => {
     try {
       setLoading(true);
       const { data } = await Axios.get<IResponse<IAccount[]>>(
-        `account/user?search=${search}`
+        `account/user?search=${debouncedSearch}`
       );
       setUsers(data.payload);
     } catch {
-      showMessage("error", "❌ Failed to load users");
     } finally {
       setLoading(false);
     }
   };
 
-  const filtered = users.filter((u) =>
-    `${u.username} ${u.email}`.toLowerCase().includes(search.toLowerCase())
-  );
-
-  if (loading) return <Loader />;
   if (!account || account.role !== "admin") {
     return (
-      <EmptyState title="No access" subtitle="You are not an admin" icon="❌" />
+      <EmptyState title="No access" subtitle="Admin only section" icon="⛔" />
     );
   }
 
   return (
-    <div className="px-4 py-6 sm:px-6 lg:px-8">
-      {message && <MessagePopup {...message} />}
+    <div className="flex flex-col items-center justify-center max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* Sticky Search */}
+      <div className="sticky top-0 z-10 w-full max-w-md bg-white/90 dark:bg-black/80 backdrop-blur-md border border-zinc-200 dark:border-zinc-800 rounded-full p-2 flex justify-center mx-auto">
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search users by username or email"
+          className="w-full"
+        />
+      </div>
 
-      <AdminCard title="User Management" icon="👥">
-        {/* 🔍 Search bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <SearchInput
-            value={search}
-            onChange={setSearch}
-            placeholder="Search users..."
-            className="w-full sm:max-w-sm rounded-xl shadow-inner border border-gray-300 dark:border-gray-700"
-          />
-        </div>
-
-        {/* 🚫 Empty or grid */}
-        {filtered.length === 0 ? (
+      {/* Content */}
+      {loading ? (
+        <Loader />
+      ) : users.length === 0 ? (
           <EmptyState
-            title="No users found"
-            subtitle="Try adjusting your search or add new users manually."
+            title={search ? "No users found" : "Start typing to search users"}
+            subtitle={
+              search
+                ? "Try a different username or email"
+                : "Search users by username or email"
+            }
           />
-        ) : (
-          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {filtered.map((user) => (
-              <UserItem key={user._id} account={user} />
-            ))}
-          </div>
-        )}
-      </AdminCard>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 w-full justify-center">
+          {users.map((user) => (
+            <UserItem key={user._id} account={user} />
+          ))}
+        </div>
+      )}
     </div>
   );
-};
-
-export default Users;
+}

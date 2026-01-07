@@ -6,6 +6,7 @@ import { Loader, MessagePopup } from "../components";
 import { Eye, EyeOff } from "lucide-react";
 import type { ILoginResponse, IResponse } from "../../types";
 import axios from "axios";
+import { useAuth } from "../../context/auth-context";
 
 type FormValues = {
   username: string;
@@ -21,7 +22,7 @@ export default function Signup() {
     watch,
     formState: { errors },
   } = useForm<FormValues>();
-
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const [code, setCode] = useState(false);
@@ -63,7 +64,7 @@ export default function Signup() {
           "auth/verify-signup",
           data
         );
-        localStorage.setItem("Authorization", res.data.payload);
+        login(res.data.payload);
         navigate("/");
       }
     } catch (err: any) {
@@ -80,100 +81,104 @@ export default function Signup() {
     "w-full h-10 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 px-3 text-sm outline-none focus:border-zinc-500";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black px-4">
-      {loading && <Loader />}
-      {message && <MessagePopup {...message} />}
+    <div className="flex-1 flex justify-center px-6 pt-24">
+      <div className="w-full max-w-sm ">
+        {loading && <Loader />}
+        {message && <MessagePopup {...message} />}
 
-      <div className="w-full max-w-sm">
-        {/* Card */}
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-black px-8 py-10"
-        >
-          <h1 className="text-3xl font-semibold text-center mb-6 tracking-tight">
-            Bardiner
-          </h1>
+        <div className="w-full max-w-sm">
+          {/* Card */}
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-black px-8 py-10"
+          >
+            <h1 className="text-7xl font-semibold tracking-tight font-tangerine text-center mb-10">
+              Bardiner
+            </h1>
 
-          <p className="text-center text-sm text-zinc-500 mb-6">
-            Sign up to see trips and plans
-          </p>
+            <p className="text-center text-sm text-zinc-500 mb-6">
+              Sign up to see trips and plans
+            </p>
 
-          <div className="space-y-3">
-            <input
-              {...register("username", { required: true })}
-              placeholder="Full name"
-              className={input}
-            />
-            {errors.username && (
-              <p className="text-xs text-red-500">Full name is required</p>
-            )}
-
-            <input
-              type="email"
-              {...register("email", { required: true })}
-              placeholder="Email address"
-              className={input}
-            />
-            {errors.email && (
-              <p className="text-xs text-red-500">Email is required</p>
-            )}
-
-            <div className="relative">
+            <div className="space-y-3">
               <input
-                type={showPassword ? "text" : "password"}
-                {...register("password", { required: true, minLength: 6 })}
-                placeholder="Password"
-                className={`${input} pr-10`}
+                {...register("username", { required: true })}
+                placeholder="username"
+                className={input}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
+              {errors.username && (
+                <p className="text-xs text-red-500">
+                  UserName name is required
+                </p>
+              )}
+
+              <input
+                type="email"
+                {...register("email", { required: true })}
+                placeholder="Email address"
+                className={input}
+              />
+              {errors.email && (
+                <p className="text-xs text-red-500">Email is required</p>
+              )}
+
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  {...register("password", { required: true, minLength: 6 })}
+                  placeholder="Password"
+                  className={`${input} pr-10`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+
+              {code && (
+                <input
+                  {...register("code")}
+                  placeholder="Verification code"
+                  className={input}
+                />
+              )}
             </div>
 
             {code && (
-              <input
-                {...register("code")}
-                placeholder="Verification code"
-                className={input}
-              />
+              <button
+                type="button"
+                onClick={resendVerification}
+                className="mt-4 text-xs text-sky-500 hover:underline"
+              >
+                Resend verification code
+              </button>
             )}
-          </div>
 
-          {code && (
             <button
-              type="button"
-              onClick={resendVerification}
-              className="mt-4 text-xs text-sky-500 hover:underline"
+              type="submit"
+              className="mt-5 w-full h-9 rounded-md bg-sky-500 text-white text-sm font-semibold hover:bg-sky-600"
             >
-              Resend verification code
+              {code ? "Verify" : "Sign up"}
             </button>
-          )}
 
-          <button
-            type="submit"
-            className="mt-5 w-full h-9 rounded-md bg-sky-500 text-white text-sm font-semibold hover:bg-sky-600"
-          >
-            {code ? "Verify" : "Sign up"}
-          </button>
+            <p className="mt-6 text-center text-xs text-zinc-500">
+              By signing up, you agree to our Terms and Privacy Policy.
+            </p>
+          </form>
 
-          <p className="mt-6 text-center text-xs text-zinc-500">
-            By signing up, you agree to our Terms and Privacy Policy.
-          </p>
-        </form>
-
-        {/* Footer */}
-        <div className="mt-3 border border-zinc-300 dark:border-zinc-700 rounded-lg py-4 text-center text-sm">
-          Have an account?{" "}
-          <span
-            onClick={() => navigate("/login")}
-            className="font-semibold text-sky-500 hover:underline cursor-pointer"
-          >
-            Log in
-          </span>
+          {/* Footer */}
+          <div className="mt-3 border border-zinc-300 dark:border-zinc-700 rounded-lg py-4 text-center text-sm">
+            Have an account?{" "}
+            <span
+              onClick={() => navigate("/login")}
+              className="font-semibold text-sky-500 hover:underline cursor-pointer"
+            >
+              Log in
+            </span>
+          </div>
         </div>
       </div>
     </div>

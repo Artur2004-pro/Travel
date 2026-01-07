@@ -12,19 +12,34 @@ const items = [
 
 export default function MobileBottomNav() {
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black">
-      <div className="flex justify-around items-center h-14">
+    <nav
+      className="
+        fixed bottom-0 inset-x-0 z-50 md:hidden
+        border-t border-zinc-200 dark:border-zinc-800
+        bg-white dark:bg-black
+        pb-[env(safe-area-inset-bottom)]
+      "
+    >
+      <div className="flex items-center justify-around h-[56px]">
         {items.map(({ to, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
-              `flex items-center justify-center w-full h-full ${
-                isActive ? "text-black dark:text-white" : "text-zinc-400"
-              }`
+              `
+              flex items-center justify-center flex-1 h-full
+              transition-colors duration-150
+              ${
+                isActive
+                  ? "text-black dark:text-white"
+                  : "text-zinc-500 dark:text-zinc-400"
+              }
+            `
             }
           >
-            <Icon size={24} />
+            {({ isActive }) => (
+              <Icon className="w-6 h-6" strokeWidth={isActive ? 2.6 : 2} />
+            )}
           </NavLink>
         ))}
       </div>

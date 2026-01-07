@@ -24,7 +24,7 @@ export const HotelSection: React.FC<HotelSectionProps> = ({
 
   return (
     <div className="space-y-10">
-      <h2 className="text-3xl sm:text-4xl font-extrabold text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
+      <h2 className="text-3xl sm:text-4xl font-extrabold text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 drop-shadow-md">
         Հյուրանոց
       </h2>
 
@@ -37,10 +37,10 @@ export const HotelSection: React.FC<HotelSectionProps> = ({
               placeholder="Որոնել հյուրանոց..."
               value={hotelSearch}
               onChange={(e) => onHotelSearch(e.target.value)}
-              className="w-full sm:w-auto px-4 sm:px-6 py-3 sm:py-4 rounded-2xl bg-zinc-800/90 border border-zinc-700 text-white placeholder-zinc-400 focus:ring-4 focus:ring-indigo-500 transition-shadow shadow-inner"
+              className="w-full sm:w-auto px-4 sm:px-6 py-3 sm:py-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none shadow-sm hover:shadow-md transition-all"
             />
             <div className="flex items-center gap-3">
-              <span className="text-zinc-400 text-sm sm:text-base">
+              <span className="text-zinc-600 dark:text-zinc-400 text-sm sm:text-base">
                 Մին. աստղեր:
               </span>
               <input
@@ -52,7 +52,7 @@ export const HotelSection: React.FC<HotelSectionProps> = ({
                 onChange={(e) => onMinStarsChange(Number(e.target.value))}
                 className="w-24 sm:w-32 accent-indigo-500"
               />
-              <span className="text-white font-semibold text-lg w-8 text-center">
+              <span className="text-zinc-900 dark:text-zinc-100 font-semibold text-lg w-8 text-center">
                 {minStars || "-"}
               </span>
             </div>
@@ -60,7 +60,7 @@ export const HotelSection: React.FC<HotelSectionProps> = ({
 
           {/* Hotel Grid */}
           {filteredHotels.length === 0 ? (
-            <p className="text-center text-zinc-500 py-10">
+            <p className="text-center text-zinc-500 dark:text-zinc-400 py-10">
               Հյուրանոցներ չեն գտնվել
             </p>
           ) : (
@@ -74,7 +74,7 @@ export const HotelSection: React.FC<HotelSectionProps> = ({
                     activity={hotel}
                     selected={false}
                     onClick={() => onHotelSelect(hotel.id)}
-                    isHotel={true}
+                    isHotel
                   />
                 </div>
               ))}
@@ -86,15 +86,15 @@ export const HotelSection: React.FC<HotelSectionProps> = ({
         <div className="max-w-2xl mx-auto space-y-6">
           <ActivityCard
             activity={selectedHotel}
-            selected={true}
+            selected
             onClick={() => {}}
             disabled
-            isHotel={true}
+            isHotel
           />
           <div className="text-center">
             <button
               onClick={() => onHotelSelect(null)}
-              className="px-8 sm:px-10 py-3 sm:py-4 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-600 transition text-lg sm:text-xl font-semibold"
+              className="px-8 sm:px-10 py-3 sm:py-4 rounded-2xl bg-zinc-800 dark:bg-zinc-700 hover:bg-zinc-700 dark:hover:bg-zinc-600 border border-zinc-600 dark:border-zinc-500 transition text-lg sm:text-xl font-semibold text-white"
             >
               Փոխել հյուրանոցը
             </button>

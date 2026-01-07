@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Axios } from "../../lib/axios-config";
 import type { IAccount, IResponse } from "../../types";
+import { Settings } from "lucide-react";
 
 export default function Profile() {
   const [account, setAccount] = useState<IAccount | null>(null);
@@ -14,47 +15,85 @@ export default function Profile() {
   if (!account) return null;
 
   return (
-    <div className="max-w-md mx-auto bg-white dark:bg-zinc-900 rounded-2xl shadow-md overflow-hidden border border-zinc-200 dark:border-zinc-800 transition-colors">
-      {/* Cover */}
-      <div className="relative h-32 bg-gradient-to-r from-pink-400 via-purple-400 to-teal-400">
-        <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full border-4 border-white dark:border-zinc-900 overflow-hidden shadow-lg">
-          {account.avatar ? (
-            <img
-              src={account.avatar}
-              alt={account.username}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-zinc-200 dark:bg-zinc-800" />
-          )}
+    <div className="mx-auto w-full max-w-[935px] px-4">
+      {/* Top section */}
+      <section className="flex gap-8 py-8">
+        {/* Avatar */}
+        <div className="flex-shrink-0">
+          <div className="w-36 h-36 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-800">
+            {account.avatar ? (
+              <img
+                src={account.avatar}
+                alt={account.username}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-zinc-200 dark:bg-zinc-800" />
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Info */}
-      <div className="mt-12 px-6 pb-6 text-center space-y-2">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-          {account.username}
-        </h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          {account.email}
-        </p>
-      </div>
+        {/* Info */}
+        <div className="flex flex-col gap-4">
+          {/* Username + actions */}
+          <div className="flex items-center gap-4">
+            <h1 className="text-xl font-normal">{account.username}</h1>
 
-      {/* Details */}
-      <div className="px-6 pb-6 space-y-2 text-sm">
-        <div className="flex justify-between py-2 border-b border-zinc-200 dark:border-zinc-800">
-          <span className="text-zinc-500 dark:text-zinc-400">Username</span>
-          <span className="font-medium">{account.username}</span>
+            <button
+              className="
+                px-4 py-1.5 text-sm font-semibold
+                border border-zinc-300 dark:border-zinc-700
+                rounded-lg
+                hover:bg-zinc-100 dark:hover:bg-zinc-800
+                transition-colors
+              "
+            >
+              Edit profile
+            </button>
+
+            <button
+              className="
+                p-2 rounded-full
+                hover:bg-zinc-100 dark:hover:bg-zinc-800
+                transition-colors
+              "
+              aria-label="Settings"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Stats */}
+          <div className="flex gap-6 text-sm">
+            <span>
+              <strong className="font-semibold">0</strong> posts
+            </span>
+            <span>
+              <strong className="font-semibold">0</strong> followers
+            </span>
+            <span>
+              <strong className="font-semibold">0</strong> following
+            </span>
+          </div>
+
+          {/* Bio */}
+          <div className="text-sm">
+            <div className="font-semibold">{account.username}</div>
+            <div className="text-zinc-600 dark:text-zinc-300">
+              {account.email}
+            </div>
+            <div className="text-zinc-500">Role: {account.role}</div>
+          </div>
         </div>
-        <div className="flex justify-between py-2 border-b border-zinc-200 dark:border-zinc-800">
-          <span className="text-zinc-500 dark:text-zinc-400">Email</span>
-          <span className="font-medium">{account.email}</span>
-        </div>
-        <div className="flex justify-between py-2">
-          <span className="text-zinc-500 dark:text-zinc-400">Role</span>
-          <span className="font-medium">{account.role}</span>
-        </div>
-      </div>
+      </section>
+
+      {/* Divider */}
+      <div className="border-t border-zinc-200 dark:border-zinc-800" />
+
+      {/* Empty posts state */}
+      <section className="py-12 text-center text-sm text-zinc-500">
+        No posts yet
+      </section>
     </div>
   );
 }

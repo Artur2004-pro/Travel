@@ -1,30 +1,58 @@
 import type { ICityProps } from "../../types";
 import { EditButton, DeleteButton, ImageSection } from "../components";
+import { MoreHorizontal } from "lucide-react";
 
 export const CityItem = ({ city, onDelete }: ICityProps) => {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-zinc-200/20 dark:border-slate-700/20 bg-white dark:bg-slate-900 shadow-sm hover:shadow-md transition-all duration-300">
-      {/* Image Section */}
-      <div className="relative w-full h-64 sm:h-80 md:h-64">
+    <article
+      className="
+        group
+        relative
+        overflow-hidden
+        rounded-2xl
+        border border-zinc-200 dark:border-zinc-800
+        bg-white dark:bg-black
+        transition
+        hover:shadow-lg
+      "
+    >
+      {/* Image */}
+      <div className="relative aspect-square overflow-hidden">
         {city.images?.length ? (
           <ImageSection images={city.images} />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-sky-200/30 to-teal-200/20 dark:from-slate-800 dark:to-slate-900" />
+          <div className="w-full h-full bg-gradient-to-br from-sky-200/30 to-teal-200/20 dark:from-zinc-800 dark:to-zinc-900" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-        <h3 className="absolute bottom-3 left-3 text-lg sm:text-xl font-semibold text-white drop-shadow-md">
-          {city.name}
-        </h3>
-      </div>
 
-      {/* Description */}
-      <div className="p-3 sm:p-4 flex flex-col justify-between space-y-2 sm:space-y-3">
-        <p className="text-sm sm:text-base line-clamp-2 text-zinc-700 dark:text-zinc-300">
-          {city.description || "No description provided."}
-        </p>
+        {/* Overlay */}
+        <div
+          className="
+            absolute inset-0
+            bg-gradient-to-t
+            from-black/60
+            via-black/10
+            to-transparent
+            opacity-90
+          "
+        />
 
-        {/* Actions */}
-        <div className="flex justify-end gap-2 mt-2">
+        {/* Title */}
+        <div className="absolute bottom-3 left-3 right-3">
+          <h3 className="text-base sm:text-lg font-semibold text-white leading-tight">
+            {city.name}
+          </h3>
+        </div>
+
+        {/* Actions (hover / mobile always visible) */}
+        <div
+          className="
+            absolute top-2 right-2
+            flex items-center gap-1
+            opacity-100 sm:opacity-0
+            sm:group-hover:opacity-100
+            transition
+          "
+        >
           <EditButton to={`/admin/city/edit/${city._id}`} small />
           <DeleteButton
             id={city._id}
@@ -33,6 +61,13 @@ export const CityItem = ({ city, onDelete }: ICityProps) => {
           />
         </div>
       </div>
-    </div>
+
+      {/* Meta */}
+      <div className="px-4 py-3 space-y-1">
+        <p className="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2">
+          {city.description || "No description provided."}
+        </p>
+      </div>
+    </article>
   );
 };

@@ -5,8 +5,9 @@ import { AdminCard, EmptyState, Loader, MessagePopup } from "../components";
 import type { IAccount, IResponse, IShowMessage, IStats } from "../../types";
 import { useOutletContext } from "react-router-dom";
 
-export const Admin = () => {
+export default function Admin() {
   const account = useOutletContext<IAccount>();
+
   const [stats, setStats] = useState<IStats>({
     countries: 0,
     cities: 0,
@@ -24,11 +25,10 @@ export const Admin = () => {
   useEffect(() => {
     (async () => {
       try {
-        setLoading(true);
         const { data } = await Axios.get<IResponse<IStats>>("admin/stats");
         setStats(data.payload);
       } catch {
-        showMessage("error", "❌ Failed to load statistics.");
+        showMessage("error", "Failed to load admin statistics");
       } finally {
         setLoading(false);
       }
@@ -36,92 +36,98 @@ export const Admin = () => {
   }, []);
 
   if (loading) return <Loader />;
+
   if (!account || account.role !== "admin") {
     return (
-      <EmptyState title="No Access" subtitle="You are not admin" icon="❌" />
+      <EmptyState
+        title="Access denied"
+        subtitle="Admin only section"
+        icon="⛔"
+      />
     );
   }
 
   return (
-    <div className="space-y-8 animate-fade-in p-4 sm:p-6">
+    <div className="max-w-5xl mx-auto space-y-8">
       {message && <MessagePopup {...message} />}
 
       {/* Header */}
-      <div className="text-center mb-6">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-400 to-teal-400">
-          Admin Dashboard
-        </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Overview of platform activity and data
+      <header className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          Quick overview of the platform
         </p>
-      </div>
+      </header>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatCard
-          title="Countries"
-          value={stats.countries}
-          icon={<Globe2 className="h-6 w-6 text-pink-500" />}
-          gradient="from-pink-200/40 to-pink-100/10"
-        />
-        <StatCard
-          title="Cities"
-          value={stats.cities}
-          icon={<MapPin className="h-6 w-6 text-teal-500" />}
-          gradient="from-teal-200/40 to-teal-100/10"
-        />
-        <StatCard
-          title="Users"
-          value={stats.users}
-          icon={<Users className="h-6 w-6 text-purple-500" />}
-          gradient="from-purple-200/40 to-purple-100/10"
-        />
-        <StatCard
-          title="Admins"
-          value={stats.admins}
-          icon={<ShieldCheck className="h-6 w-6 text-indigo-500" />}
-          gradient="from-indigo-200/40 to-indigo-100/10"
-        />
-      </div>
+      {/* Stats grid */}
+      <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <StatTile label="Countries" value={stats.countries} icon={<Globe2 />} />
+        <StatTile label="Cities" value={stats.cities} icon={<MapPin />} />
+        <StatTile label="Users" value={stats.users} icon={<Users />} />
+        <StatTile label="Admins" value={stats.admins} icon={<ShieldCheck />} />
+      </section>
 
-      {/* Recent Updates */}
-      <AdminCard title="Recent Updates" icon="🕓">
-        <EmptyState
-          title="No recent updates yet"
-          subtitle="Add countries, cities or manage users to see data here."
-        />
-      </AdminCard>
+      {/* Feed-like cards */}
+      <section className="space-y-6">
+        <AdminCard title="Recent activity">
+          <EmptyState
+            title="No activity yet"
+            subtitle="Create content or manage users to see activity."
+          />
+        </AdminCard>
+
+        <AdminCard title="System status">
+          <div className="text-sm text-zinc-500 dark:text-zinc-400">
+            All services are running normally.
+          </div>
+        </AdminCard>
+      </section>
     </div>
   );
-};
+}
 
-interface StatCardProps {
-  title: string;
+/* ---------------------------------- */
+
+interface StatTileProps {
+  label: string;
   value: number;
   icon: React.ReactNode;
-  gradient: string;
 }
 
-function StatCard({ title, value, icon, gradient }: StatCardProps) {
+function StatTile({ label, value, icon }: StatTileProps) {
   return (
     <div
-      className={`relative p-5 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 backdrop-blur-md bg-gradient-to-br ${gradient}`}
+      className="
+        group
+        flex items-center justify-between
+        rounded-2xl
+        border border-zinc-200 dark:border-zinc-800
+        bg-white dark:bg-black
+        px-4 py-4
+        transition
+        hover:bg-zinc-50 dark:hover:bg-zinc-900
+      "
     >
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            {title}
-          </p>
-          <h3 className="text-3xl font-extrabold mt-1 text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-400 to-teal-400">
-            {value}
-          </h3>
-        </div>
-        <div className="p-3 rounded-xl bg-white/60 dark:bg-slate-800/60 shadow-inner">
-          {icon}
-        </div>
+      <div className="space-y-0.5">
+        <span className="text-xs text-zinc-500 dark:text-zinc-400">
+          {label}
+        </span>
+        <span className="text-xl font-semibold">{value}</span>
+      </div>
+
+      <div
+        className="
+          h-10 w-10
+          rounded-full
+          flex items-center justify-center
+          bg-zinc-100 dark:bg-zinc-900
+          text-zinc-500 dark:text-zinc-400
+          group-hover:scale-105
+          transition
+        "
+      >
+        {icon}
       </div>
     </div>
   );
 }
-
-export default Admin;

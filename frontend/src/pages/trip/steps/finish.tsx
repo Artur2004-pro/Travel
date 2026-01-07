@@ -1,4 +1,4 @@
-// src/pages/Finish.tsx
+// src/pages/trip/steps/Finish.tsx
 import React, { useRef, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Axios } from "../../../lib/axios-config";
@@ -11,7 +11,7 @@ export const Finish: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const upload = async () => {
     if (!file) return;
@@ -49,54 +49,55 @@ export const Finish: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black">
+    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">
       {/* HEADER */}
-      <div className="sticky top-0 z-20 bg-white dark:bg-black border-b border-zinc-200 dark:border-zinc-800">
-        <div className="h-12 px-3 flex items-center">
-          <button onClick={() => navigate(-1)} className="p-2 -ml-2">
-            <ChevronLeft />
-          </button>
-          <h1 className="flex-1 text-center text-sm font-semibold">
-            Add cover
-          </h1>
-          <button
-            onClick={useDefault}
-            disabled={loading}
-            className="text-sm text-sky-500 font-medium disabled:opacity-50"
-          >
-            Skip
-          </button>
-        </div>
-      </div>
+      <header className="sticky top-0 z-30 h-12 flex items-center px-3 border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 backdrop-blur">
+        <button
+          onClick={() => navigate(-1)}
+          className="p-2 -ml-2 active:opacity-60"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+
+        <h1 className="flex-1 text-center text-sm font-semibold">Add cover</h1>
+
+        <button
+          onClick={useDefault}
+          disabled={loading}
+          className="text-sm font-medium text-sky-500 disabled:opacity-40"
+        >
+          Skip
+        </button>
+      </header>
 
       {/* CONTENT */}
-      <div className="max-w-sm mx-auto px-4 pt-8 pb-32 flex flex-col items-center gap-6">
+      <main className="max-w-sm mx-auto px-4 pt-8 pb-28 flex flex-col items-center gap-6">
         <p className="text-sm text-zinc-500 text-center">
           Choose a cover image for your trip
         </p>
 
-        {/* COVER PREVIEW (Instagram post style) */}
+        {/* COVER PREVIEW */}
         <div
           onClick={() => inputRef.current?.click()}
           className="
             w-full aspect-[4/5]
             rounded-xl overflow-hidden
             bg-zinc-100 dark:bg-zinc-900
-            border border-zinc-200 dark:border-zinc-800
             flex items-center justify-center
             cursor-pointer
-            active:scale-[0.98]
-            transition
+            active:scale-[0.97]
+            transition-transform
           "
         >
           {file ? (
             <img
               src={URL.createObjectURL(file)}
+              alt="Trip cover preview"
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="flex flex-col items-center gap-3 text-zinc-400">
-              <ImagePlus className="w-9 h-9" />
+            <div className="flex flex-col items-center gap-2 text-zinc-400">
+              <ImagePlus className="w-8 h-8" />
               <span className="text-xs">Tap to upload</span>
             </div>
           )}
@@ -111,16 +112,17 @@ export const Finish: React.FC = () => {
           hidden
           onChange={(e) => setFile(e.target.files?.[0] || null)}
         />
-      </div>
+      </main>
 
       {/* BOTTOM CTA */}
-      <div className="fixed bottom-0 inset-x-0 bg-white/90 dark:bg-black/90 backdrop-blur border-t border-zinc-200 dark:border-zinc-800 px-4 py-3">
+      <div className="fixed bottom-0 inset-x-0 border-t border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 backdrop-blur px-4 py-3">
         <button
           onClick={upload}
           disabled={loading || !file}
           className="
             w-full h-11 rounded-md
-            bg-sky-500 text-white text-sm font-semibold
+            bg-sky-500 text-white
+            text-sm font-semibold
             disabled:opacity-40
           "
         >

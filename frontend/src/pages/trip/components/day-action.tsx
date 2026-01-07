@@ -11,14 +11,16 @@ export const DayActions: React.FC<DayActionsProps> = ({
 }) => (
   <>
     <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center pt-8 sm:pt-12">
+      {/* Copy from previous day */}
       <button
         onClick={onCopyFromPrevious}
         disabled={!canCopyFromPrevious}
-        className="px-6 sm:px-10 py-3 sm:py-5 rounded-2xl border border-zinc-500 hover:bg-white/10 transition text-base sm:text-xl disabled:opacity-50 shadow-sm hover:shadow-md"
+        className="px-6 sm:px-10 py-3 sm:py-5 rounded-2xl border border-zinc-400 dark:border-zinc-600 bg-zinc-50 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition text-base sm:text-xl disabled:opacity-50 shadow-sm hover:shadow-md"
       >
         Պատճենել նախորդ օրվանից
       </button>
 
+      {/* Save and continue */}
       <button
         onClick={onSave}
         disabled={saving || !hasCity}
@@ -28,10 +30,11 @@ export const DayActions: React.FC<DayActionsProps> = ({
       </button>
     </div>
 
+    {/* Skip all days */}
     <div className="text-center pt-6 sm:pt-8">
       <button
         onClick={onSkipAll}
-        className="text-zinc-400 hover:text-white text-base sm:text-lg underline transition-colors"
+        className="text-zinc-500 dark:text-zinc-400 hover:text-white dark:hover:text-white text-base sm:text-lg underline transition-colors"
       >
         Բաց թողնել օրերի պլանավորումը
       </button>

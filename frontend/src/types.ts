@@ -73,6 +73,15 @@ export interface ICountry {
   images: string[];
 }
 
+export interface ICountryView {
+  name: string;
+  description: string;
+  images: string[];
+  cities: ICity[];
+  _id: string;
+  top: number;
+}
+
 export interface IOutletContext {
   account: IAccount;
 }
@@ -80,6 +89,7 @@ export interface Item {
   label: string;
   to: string;
   icon: React.ReactNode;
+  children?: Item[];
 }
 
 // props

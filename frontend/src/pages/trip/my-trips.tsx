@@ -1,18 +1,12 @@
+// src/pages/MyTrips.tsx
 import React, { useEffect, useRef, useState } from "react";
 import { Axios } from "../../lib/axios-config";
 import { useNavigate } from "react-router-dom";
 import { Loader } from "../components";
-import {
-  Edit,
-  Trash2,
-  Copy,
-  CheckCircle,
-  Eye,
-  Lock,
-  Unlock,
-} from "lucide-react";
+import { Edit, Trash2, CheckCircle, Eye, Lock, Unlock } from "lucide-react";
 import toast from "react-hot-toast";
 import dayjs from "dayjs";
+import { useAuth } from "../../context/auth-context";
 
 interface Trip {
   _id: string;
@@ -28,11 +22,12 @@ interface Trip {
 
 const MyTrips: React.FC = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) {
+    navigate("/login");
+  }
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cloningId, setCloningId] = useState<string | null>(null);
-  const [newStartDate, setNewStartDate] = useState("");
-  const [newEndDate, setNewEndDate] = useState("");
   const app = useRef(import.meta.env.VITE_APP_DOMAIN);
 
   useEffect(() => {
@@ -83,114 +78,98 @@ const MyTrips: React.FC = () => {
   if (loading) return <Loader />;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black px-4 py-6">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-xl font-semibold mb-6">My Trips</h1>
+    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">
+      <main className="max-w-sm mx-auto pt-4 pb-24">
+        <h1 className="text-lg font-semibold px-4 mb-4">My Trips</h1>
 
         {trips.length === 0 ? (
           <p className="text-sm text-zinc-500 text-center">No trips yet</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-8">
             {trips.map((trip) => (
               <div
                 key={trip._id}
-                className="border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white dark:bg-black"
+                className="border-b border-zinc-200 dark:border-zinc-800"
               >
-                {/* Cover */}
-                {trip.coverImage && (
-                  <img
-                    src={app.current + trip.coverImage}
-                    alt="cover"
-                    className="w-full h-40 object-cover"
-                  />
-                )}
+                {/* HEADER */}
+                <div className="flex items-center justify-between px-4 py-3">
+                  <div>
+                    <div className="text-sm font-semibold truncate">
+                      {trip.title}
+                    </div>
+                    <div className="text-xs text-zinc-500">
+                      {dayjs(trip.startDate).format("MMM D")} –{" "}
+                      {dayjs(trip.endDate).format("MMM D")} · {trip.dayCount}{" "}
+                      days
+                    </div>
+                  </div>
 
-                {/* Content */}
-                <div className="p-4 space-y-2">
-                  <h2 className="font-medium truncate">{trip.title}</h2>
-
-                  <p className="text-xs text-zinc-500 line-clamp-2">
-                    {trip.description}
-                  </p>
-
-                  <p className="text-xs text-zinc-400">
-                    {dayjs(trip.startDate).format("MMM D")} –{" "}
-                    {dayjs(trip.endDate).format("MMM D")} · {trip.dayCount} days
-                  </p>
-
-                  {/* Status */}
-                  <div className="flex items-center gap-2 text-xs text-zinc-500">
-                    {trip.isPrivate ? <Lock size={14} /> : <Unlock size={14} />}
+                  <div className="flex items-center gap-2 text-zinc-400">
+                    {trip.isPrivate ? <Lock size={16} /> : <Unlock size={16} />}
                     {trip.isCompleted && (
-                      <CheckCircle size={14} className="text-emerald-500" />
+                      <CheckCircle size={16} className="text-emerald-500" />
                     )}
                   </div>
+                </div>
 
-                  {/* Actions */}
-                  <div className="flex items-center justify-between pt-2">
-                    <div className="flex gap-3">
-                      <button onClick={() => navigate(`/trips/${trip._id}`)}>
-                        <Eye size={18} />
-                      </button>
-                      <button
-                        onClick={() => navigate(`/trips/edit/${trip._id}`)}
-                      >
-                        <Edit size={18} />
-                      </button>
-                      <button onClick={() => setCloningId(trip._id)}>
-                        <Copy size={18} />
-                      </button>
-                    </div>
+                {/* COVER */}
+                {trip.coverImage && (
+                  <div
+                    onClick={() => navigate(`/trips/${trip._id}`)}
+                    className="aspect-[4/5] bg-zinc-100 dark:bg-zinc-900 cursor-pointer"
+                  >
+                    <img
+                      src={app.current + trip.coverImage}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
 
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() =>
-                          toggleComplete(trip._id, trip.isCompleted || false)
-                        }
-                      >
-                        <CheckCircle size={18} />
-                      </button>
-                      <button
-                        onClick={() => togglePrivate(trip._id, trip.isPrivate)}
-                      >
-                        {trip.isPrivate ? (
-                          <Unlock size={18} />
-                        ) : (
-                          <Lock size={18} />
-                        )}
-                      </button>
-                      <button onClick={() => deleteTrip(trip._id)}>
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
+                {/* ACTIONS */}
+                <div className="flex items-center justify-between px-4 py-3">
+                  <div className="flex gap-4">
+                    <button onClick={() => navigate(`/trips/${trip._id}`)}>
+                      <Eye size={20} />
+                    </button>
+                    <button onClick={() => navigate(`/trips/edit/${trip._id}`)}>
+                      <Edit size={20} />
+                    </button>
+                    <button
+                      onClick={() =>
+                        toggleComplete(trip._id, trip.isCompleted || false)
+                      }
+                    >
+                      <CheckCircle size={20} />
+                    </button>
                   </div>
 
-                  {/* Clone */}
-                  {cloningId === trip._id && (
-                    <div className="pt-3 space-y-2">
-                      <input
-                        type="date"
-                        value={newStartDate}
-                        onChange={(e) => setNewStartDate(e.target.value)}
-                        className="w-full h-9 px-2 border rounded-md text-sm"
-                      />
-                      <input
-                        type="date"
-                        value={newEndDate}
-                        onChange={(e) => setNewEndDate(e.target.value)}
-                        className="w-full h-9 px-2 border rounded-md text-sm"
-                      />
-                      <button className="w-full h-9 bg-sky-500 text-white rounded-md text-sm">
-                        Clone
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => togglePrivate(trip._id, trip.isPrivate)}
+                    >
+                      {trip.isPrivate ? (
+                        <Unlock size={20} />
+                      ) : (
+                        <Lock size={20} />
+                      )}
+                    </button>
+                    <button onClick={() => deleteTrip(trip._id)}>
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
                 </div>
+
+                {/* DESCRIPTION */}
+                {trip.description && (
+                  <p className="px-4 pb-4 text-sm text-zinc-500 line-clamp-2">
+                    {trip.description}
+                  </p>
+                )}
               </div>
             ))}
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 };

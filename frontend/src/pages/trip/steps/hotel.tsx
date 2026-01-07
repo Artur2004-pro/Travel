@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Axios } from "../../../lib/axios-config";
 import { Loader } from "../../components";
-import { Star, ExternalLink, ChevronLeft } from "lucide-react";
+import { Star, ExternalLink, ChevronLeft, Check } from "lucide-react";
 
 export const Hotel: React.FC = () => {
   const navigate = useNavigate();
@@ -47,24 +47,27 @@ export const Hotel: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black">
+    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">
       {/* HEADER */}
-      <div className="sticky top-0 z-20 bg-white dark:bg-black border-b border-zinc-200 dark:border-zinc-800">
-        <div className="h-12 px-3 flex items-center">
-          <button onClick={() => navigate(-1)} className="p-2 -ml-2">
-            <ChevronLeft />
-          </button>
-          <h1 className="flex-1 text-center text-sm font-semibold">
-            Select hotel
-          </h1>
-          <button onClick={skip} className="text-sm text-zinc-500 font-medium">
-            Skip
-          </button>
-        </div>
-      </div>
+      <header className="sticky top-0 z-30 h-12 flex items-center px-3 border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 backdrop-blur">
+        <button
+          onClick={() => navigate(-1)}
+          className="p-2 -ml-2 active:opacity-60"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+
+        <h1 className="flex-1 text-center text-sm font-semibold">
+          Select hotel
+        </h1>
+
+        <button onClick={skip} className="text-sm font-medium text-zinc-500">
+          Skip
+        </button>
+      </header>
 
       {/* CONTENT */}
-      <div className="max-w-xl mx-auto px-3 py-4 space-y-4 pb-28">
+      <main className="max-w-sm mx-auto px-0 pt-2 pb-28 space-y-6">
         {loading && <Loader />}
 
         {hotels.map((hotel) => {
@@ -74,34 +77,31 @@ export const Hotel: React.FC = () => {
             <div
               key={hotel.id}
               onClick={() => setSelectedHotel(hotel.id)}
-              className={`
-                rounded-xl overflow-hidden cursor-pointer
-                border transition
-                ${
-                  active
-                    ? "border-sky-500"
-                    : "border-zinc-200 dark:border-zinc-800"
-                }
-              `}
+              className="cursor-pointer"
             >
               {/* IMAGE */}
               {hotel.images?.[0] && (
-                <div className="relative">
+                <div className="relative aspect-[4/5] bg-zinc-100 dark:bg-zinc-900">
                   <img
                     src={hotel.images[0]}
-                    className="w-full h-44 object-cover"
+                    className="w-full h-full object-cover"
                   />
+
                   {active && (
-                    <div className="absolute inset-0 ring-2 ring-sky-500" />
+                    <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-sky-500 flex items-center justify-center">
+                        <Check className="w-5 h-5 text-white" />
+                      </div>
+                    </div>
                   )}
                 </div>
               )}
 
               {/* INFO */}
-              <div className="px-3 py-2">
+              <div className="px-4 pt-3 pb-1">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <div className="text-sm font-medium">{hotel.name}</div>
+                    <div className="text-sm font-semibold">{hotel.name}</div>
                     <div className="text-xs text-zinc-500">{hotel.address}</div>
                   </div>
 
@@ -132,10 +132,10 @@ export const Hotel: React.FC = () => {
             </div>
           );
         })}
-      </div>
+      </main>
 
-      {/* MOBILE BOTTOM CTA */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 bg-white/90 dark:bg-black/90 backdrop-blur border-t border-zinc-200 dark:border-zinc-800 px-4 py-3">
+      {/* BOTTOM CTA */}
+      <div className="fixed bottom-0 inset-x-0 border-t border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 backdrop-blur px-4 py-3">
         <button
           onClick={next}
           disabled={!selectedHotel}

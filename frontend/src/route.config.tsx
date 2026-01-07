@@ -7,6 +7,7 @@ import AdminLayout from "./pages/admin/admin-layout";
 // import TripLayout from "./pages/trip/trip-layout";
 import TripDashboard from "./pages/trip/trip-layout";
 import Profile from "./pages/settings/profile";
+import { CountryView } from "./pages/country/country-view";
 // Lazy pages
 const Home = lazy(() => import("./pages/general/home"));
 const Login = lazy(() => import("./pages/general/login"));
@@ -39,6 +40,7 @@ const TripFinish = lazy(() => import("./pages/trip/steps/finish"));
 const MyTrips = lazy(() => import("./pages/trip/my-trips"));
 const TripView = lazy(() => import("./pages/trip/trip-view"));
 const EditTrip = lazy(() => import("./pages/trip/edit-trip"));
+
 const Loader = () => (
   <div className="min-h-screen flex items-center justify-center">
     <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
@@ -126,7 +128,14 @@ export const router = createBrowserRouter([
           { path: "*", element: <Navigate to="/settings/profile" replace /> },
         ],
       },
-
+      {
+        path: "country/:id",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <CountryView />
+          </Suspense>
+        ),
+      },
       // Admin
       {
         path: "admin",

@@ -12,20 +12,31 @@ export default function CountryFeedCard({ country }: Props) {
   return (
     <div
       onClick={() => navigate(`/admin/country/${country._id}`)}
-      className="cursor-pointer bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden hover:shadow-md transition"
+      className="
+        cursor-pointer
+        rounded-2xl
+        overflow-hidden
+        bg-white dark:bg-zinc-950
+        border border-zinc-200/70 dark:border-zinc-800
+        transition
+        active:scale-[0.98]
+        hover:shadow-lg
+      "
     >
-      {/* Image (1:1 Instagram ratio) */}
-      <div className="aspect-square bg-zinc-100 dark:bg-zinc-800">
+      {/* Image */}
+      <div className="aspect-square bg-zinc-100 dark:bg-zinc-900">
         <ImageSection images={country.images} />
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-1">
-        <h3 className="text-sm font-semibold leading-tight">{country.name}</h3>
+      <div className="px-4 py-3 space-y-1">
+        <h3 className="text-sm font-semibold tracking-tight">{country.name}</h3>
 
-        <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">
-          {country.description}
-        </p>
+        {country.description && (
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">
+            {country.description}
+          </p>
+        )}
       </div>
     </div>
   );

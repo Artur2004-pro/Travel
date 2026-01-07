@@ -1,167 +1,160 @@
 import { useEffect, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronRight, ChevronLeft, LogOut } from "lucide-react";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { Menu, X, LogOut } from "lucide-react";
 import type { IAccount, IResponse } from "../../types";
 import { Axios } from "../../lib/axios-config";
-import { EmptyState, navItems, SidebarLink } from "../components";
+import { navItems } from "../components";
+import { useAuth } from "../../context/auth-context";
 
 export default function AdminLayout() {
-  const [open, setOpen] = useState(true);
-  const [mobile, setMobile] = useState(false);
   const [account, setAccount] = useState<IAccount | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
-
+  const { logout } = useAuth();
   useEffect(() => {
-    handleGetAccount();
+    getAccount();
   }, []);
 
-  const toggleSidebar = () => setOpen((v) => !v);
-
-  const signOut = () => {
-    localStorage.removeItem("Authorization");
-    navigate("/");
-  };
-
-  const handleGetAccount = async () => {
+  const getAccount = async () => {
     try {
       const { data } = await Axios.get<IResponse<IAccount>>("account/");
       setAccount(data.payload);
     } catch {
-      setAccount(null);
+      logout();
+      navigate("/");
     }
+  };
+
+  const signOut = () => {
+    logout();
+    navigate("/");
   };
 
   if (!account || account.role !== "admin") {
     return (
-      <EmptyState title="Cannot access" icon="❌" subtitle="You not admin" />
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black">
+        <div className="text-center space-y-2">
+          <div className="text-4xl">⛔</div>
+          <h2 className="text-lg font-semibold">Access denied</h2>
+          <p className="text-sm text-zinc-500">
+            You do not have permission to view this page
+          </p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-50 dark:bg-slate-900">
-      {/* BACKGROUND */}
-      <div className="fixed inset-0 -z-10 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-pink-50 via-white to-teal-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950" />
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[46rem] h-[26rem] rounded-full blur-3xl opacity-30 bg-gradient-to-r from-pink-400 via-purple-400 to-teal-400 animate-pulse-slow" />
-      </div>
-
+    <div className="min-h-screen flex bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">
       {/* DESKTOP SIDEBAR */}
-      <aside
-        className={`hidden md:flex flex-col transition-all duration-300 m-3 rounded-3xl glass border border-zinc-200/30 dark:border-slate-800/30 ${
-          open ? "w-72" : "w-20"
-        }`}
-      >
-        {/* Brand */}
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl shadow-md bg-gradient-to-tr from-pink-400 to-teal-400">
-              <img src="/logo1.png" alt="Bardiner" className="h-6 w-6" />
-            </span>
-            {open && (
-              <div className="flex flex-col">
-                <span className="font-semibold text-base text-gray-800 dark:text-gray-100">
-                  Bardiner Admin
-                </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  Dashboard
-                </span>
-              </div>
-            )}
-          </div>
-          <button
-            onClick={toggleSidebar}
-            aria-label="Toggle sidebar"
-            className="h-9 w-9 rounded-xl border border-zinc-200 dark:border-slate-700 hover:bg-gray-100/60 dark:hover:bg-slate-800/50 flex items-center justify-center"
-          >
-            {open ? (
-              <ChevronLeft className="w-4 h-4" />
-            ) : (
-              <ChevronRight className="w-4 h-4" />
-            )}
-          </button>
+      <aside className="hidden md:flex flex-col w-[240px] h-screen border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black sticky top-0">
+        {/* Header / Logo */}
+        <div className="px-6 py-6 flex-shrink-0">
+          <NavLink to="/" className="text-xl font-semibold tracking-tight">
+            Bardiner Admin
+          </NavLink>
         </div>
 
         {/* Nav */}
-        <nav className="mt-4 px-3 flex-1 space-y-2 overflow-y-auto">
-          {navItems.map((item) => (
-            <SidebarLink key={item.label} item={item} />
+        <nav className="flex-1 overflow-y-auto px-2 space-y-1">
+          {navItems.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `flex items-center gap-4 px-4 py-3 rounded-lg text-sm transition ${
+                  isActive
+                    ? "font-semibold text-black dark:text-white"
+                    : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                }`
+              }
+            >
+              {Icon}
+              <span>{label}</span>
+            </NavLink>
           ))}
         </nav>
 
-        {/* Footer */}
-        <div className="p-3 border-t border-zinc-200/20 dark:border-slate-800/20">
+        {/* Logout */}
+        <div className="p-4 border-t border-zinc-200 dark:border-zinc-800">
           <button
             onClick={signOut}
-            className="w-full flex items-center justify-center gap-2 btn-surface rounded-xl py-2 hover:bg-gray-100/50 dark:hover:bg-slate-800/50 transition"
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-sm hover:bg-zinc-100 dark:hover:bg-zinc-900"
           >
-            <LogOut className="h-4 w-4" />
-            {open && <span>Sign out</span>}
+            <LogOut className="w-4 h-4" />
+            Sign out
           </button>
         </div>
       </aside>
 
       {/* MOBILE DRAWER */}
-      {mobile && (
+      {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => setMobile(false)}
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setMobileOpen(false)}
           />
-          <aside className="absolute left-0 top-0 h-full w-72 p-4 glass rounded-r-3xl border-r border-zinc-200/20 dark:border-slate-800/20 shadow-lg">
+          <aside className="absolute left-0 top-0 h-full w-64 bg-white dark:bg-black border-r border-zinc-200 dark:border-zinc-800 p-4">
             <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-pink-400 to-teal-400 shadow-md">
-                  <img src="/logo1.png" alt="Bardiner" className="h-6 w-6" />
-                </span>
-                <span className="font-semibold text-base text-gray-800 dark:text-gray-100">
-                  Bardiner Admin
-                </span>
-              </div>
+              <span className="font-semibold text-lg">Bardiner</span>
               <button
-                onClick={() => setMobile(false)}
-                aria-label="Close menu"
-                className="h-9 w-9 flex items-center justify-center rounded-xl border border-zinc-200 dark:border-slate-700 hover:bg-gray-100/60 dark:hover:bg-slate-800/50"
+                onClick={() => setMobileOpen(false)}
+                className="h-8 w-8 flex items-center justify-center rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-900"
               >
-                <X className="h-5 w-5" />
+                <X size={18} />
               </button>
             </div>
 
-            <nav className="flex flex-col gap-2">
-              {navItems.map((item) => (
-                <SidebarLink
-                  key={item.label}
-                  item={item}
-                  onClick={() => setMobile(false)}
-                />
+            <nav className="space-y-1">
+              {navItems.map(({ to, label, icon: Icon }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  onClick={() => setMobileOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-4 py-3 rounded-lg text-sm ${
+                      isActive
+                        ? "font-semibold"
+                        : "text-zinc-600 dark:text-zinc-400"
+                    }`
+                  }
+                >
+                  {Icon}
+                  {label}
+                </NavLink>
               ))}
             </nav>
 
-            <div className="mt-6 border-t border-zinc-200/20 dark:border-slate-800/20 pt-3">
-              <button
-                onClick={signOut}
-                className="w-full flex items-center justify-center gap-2 btn-surface rounded-xl py-2 hover:bg-gray-100/50 dark:hover:bg-slate-800/50 transition"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Sign out</span>
-              </button>
-            </div>
+            <button
+              onClick={signOut}
+              className="mt-6 w-full flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-900 text-sm"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign out
+            </button>
           </aside>
         </div>
       )}
 
-      {/* MAIN CONTENT */}
+      {/* MAIN */}
       <div className="flex-1 flex flex-col">
-        <div className="flex items-center justify-between p-4 md:hidden">
+        {/* Mobile top bar */}
+        <div className="md:hidden h-14 flex items-center justify-between px-4 border-b border-zinc-200 dark:border-zinc-800">
           <button
-            onClick={() => setMobile(true)}
-            className="h-9 w-9 flex items-center justify-center rounded-xl border border-zinc-200 dark:border-slate-700 hover:bg-gray-100/60 dark:hover:bg-slate-800/50"
-            aria-label="Open menu"
+            onClick={() => setMobileOpen(true)}
+            className="h-9 w-9 flex items-center justify-center rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-900"
           >
-            <Menu className="h-5 w-5" />
+            <Menu size={20} />
           </button>
+          <span className="font-semibold">Bardiner</span>
+          <div className="w-9" />
         </div>
-        <div className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-          <Outlet context={account} />
+
+        {/* Content */}
+        <div className="flex-1 flex items-center w-full justify-center p-4 sm:p-6 lg:p-8 overflow-y-auto">
+          <div className="w-screen max-w-5xl">
+            <Outlet context={account} />
+          </div>
         </div>
       </div>
     </div>
