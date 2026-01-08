@@ -7,12 +7,12 @@ const baseItems = [
   { to: "/trips", label: "Trips", icon: Map },
   { to: "/trips/new", label: "Create", icon: PlusSquare },
   { to: "/explore", label: "Explore", icon: Search },
-  { to: "/settings", label: "Profile", icon: User },
+  { to: "/profile", label: "Profile", icon: User },
 ];
 
 export default function Sidebar() {
-  const { isAuthenticated } = useAuth();
-  const items = isAuthenticated
+  const { account } = useAuth();
+  const items = account
     ? baseItems
     : [...baseItems, { to: "/login", label: "Login", icon: User }];
 

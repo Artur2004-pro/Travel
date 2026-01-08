@@ -52,6 +52,26 @@ class PostController {
       return res.status(err.statusCode).send({ message: err.meesage });
     }
   }
+  async getAll(req, res) {
+    try {
+      const posts = await this.service.getAll(req.user._id);
+      return res
+        .status(200)
+        .send({ message: "Posts fetched successfully", payload: posts });
+    } catch (err) {
+      return res.status(err.statusCode).send({ message: err.message });
+    }
+  }
+  async getById(req, res) {
+    try {
+      const post = await this.service.getById(req.params.id);
+      return res
+        .status(200)
+        .send({ message: "Post fetched successfully", payload: post });
+    } catch (err) {
+      return res.status(err.statusCode).send({ message: err.message });
+    }
+  }
 }
 
 module.exports = new PostController();

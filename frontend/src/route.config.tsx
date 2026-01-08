@@ -6,8 +6,13 @@ import Layout from "./pages/general/layout"; // ընդհանուր կայքի la
 import AdminLayout from "./pages/admin/admin-layout";
 // import TripLayout from "./pages/trip/trip-layout";
 import TripDashboard from "./pages/trip/trip-layout";
-import Profile from "./pages/settings/profile";
 import { CountryView } from "./pages/country/country-view";
+import SettingsLayout from "./pages/settings/layout";
+import ProfileTrips from "./pages/profile/trips";
+import ProfilePosts from "./pages/profile/posts";
+import ProfileLayout from "./pages/profile/layout";
+import EditProfileForm from "./pages/settings/sections/edit-profile-form";
+import PrivacySettings from "./pages/settings/sections/privacy";
 // Lazy pages
 const Home = lazy(() => import("./pages/general/home"));
 const Login = lazy(() => import("./pages/general/login"));
@@ -15,7 +20,6 @@ const Signup = lazy(() => import("./pages/general/signup"));
 const AboutPage = lazy(() => import("./pages/general/about"));
 const BeAdmin = lazy(() => import("./pages/admin/be-admin"));
 // Settings
-const Settings = lazy(() => import("./pages/settings/setting"));
 const UpdatePassword = lazy(() => import("./pages/settings/update-password"));
 const UpdateUsername = lazy(() => import("./pages/settings/update-username"));
 // Admin
@@ -94,38 +98,13 @@ export const router = createBrowserRouter([
       // Settings
       {
         path: "settings",
-        element: (
-          <Suspense fallback={<Loader />}>
-            <Settings />
-          </Suspense>
-        ),
+        element: <SettingsLayout />,
         children: [
-          { index: true, element: <Navigate to="profile" replace /> },
-          {
-            path: "profile",
-            element: (
-              <Suspense fallback={<Loader />}>
-                <Profile />
-              </Suspense>
-            ),
-          },
-          {
-            path: "update-password",
-            element: (
-              <Suspense fallback={<Loader />}>
-                <UpdatePassword />
-              </Suspense>
-            ),
-          },
-          {
-            path: "update-username",
-            element: (
-              <Suspense fallback={<Loader />}>
-                <UpdateUsername />
-              </Suspense>
-            ),
-          },
-          { path: "*", element: <Navigate to="/settings/profile" replace /> },
+          { index: true, element: <EditProfileForm /> }, // profile main page
+          { path: "edit-profile", element: <EditProfileForm /> },
+          { path: "privacy", element: <PrivacySettings /> },
+          { path: "security", element: <UpdatePassword /> },
+          { path: "account", element: <UpdateUsername /> },
         ],
       },
       {
@@ -136,6 +115,33 @@ export const router = createBrowserRouter([
           </Suspense>
         ),
       },
+      {
+        path: "profile/",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <ProfileLayout />
+          </Suspense>
+        ),
+        children: [
+          {
+            index: true,
+            element: (
+              <Suspense fallback={<Loader />}>
+                <ProfilePosts />
+              </Suspense>
+            ),
+          },
+          {
+            path: "trips",
+            element: (
+              <Suspense fallback={<Loader />}>
+                <ProfileTrips />
+              </Suspense>
+            ),
+          },
+        ],
+      },
+
       // Admin
       {
         path: "admin",

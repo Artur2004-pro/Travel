@@ -2,15 +2,19 @@
 import { NavLink } from "react-router-dom";
 import { Home, Search, PlusSquare, Map, User } from "lucide-react";
 
+type Props = {
+  onCreateClick?: () => void;
+};
+
 const items = [
   { to: "/", icon: Home },
   { to: "/trips", icon: Map },
-  { to: "/trips/new", icon: PlusSquare },
+  { to: "create", icon: PlusSquare }, // <-- this is now special
   { to: "/explore", icon: Search },
   { to: "/settings", icon: User },
 ];
 
-export default function MobileBottomNav() {
+export default function MobileBottomNav({ onCreateClick }: Props) {
   return (
     <nav
       className="
@@ -24,7 +28,13 @@ export default function MobileBottomNav() {
         {items.map(({ to, icon: Icon }) => (
           <NavLink
             key={to}
-            to={to}
+            to={to === "create" ? "#" : to} // no actual route
+            onClick={(e) => {
+              if (to === "create" && onCreateClick) {
+                e.preventDefault();
+                onCreateClick();
+              }
+            }}
             className={({ isActive }) =>
               `
               flex items-center justify-center flex-1 h-full

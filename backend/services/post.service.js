@@ -3,6 +3,25 @@ const { Post } = require("../models/index.js");
 const { deleteImage } = require("../helpers/index.js");
 
 class PostService {
+  async getAll(id) {
+    try {
+      const posts = await Post.find({ author: id });
+      return posts;
+    } catch (err) {
+      throw ErrorHandler.normalize(err);
+    }
+  }
+  async getById(id) {
+    try {
+      const post = await Post.findById(id);
+      if (!post) {
+        throw new ServiceError("Post not found", 404);
+      }
+      return post;
+    } catch (err) {
+      throw ErrorHandler.normalize(err);
+    }
+  }
   async add(data) {
     try {
       const post = await Post.create({
@@ -11,6 +30,7 @@ class PostService {
         content: data.content,
         city: data.cityId,
         images: data.images,
+        hashtags: data.hashtags,
       });
       return post;
     } catch (err) {

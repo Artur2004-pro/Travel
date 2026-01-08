@@ -1,12 +1,20 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import {  PlusCircle } from "lucide-react";
+import { PlusCircle } from "lucide-react";
+import { useAuth } from "../../context/auth-context";
+import { useEffect } from "react";
 
 export const TripDashboard = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { account } = useAuth();
+  useEffect(() => {
+    if (!account) {
+      navigate("/login");
+      return;
+    }
+  }, [account, navigate]);
 
   const isWizard = location.pathname.startsWith("/trips/new");
-
   return (
     <div className="flex-1 flex justify-center px-6 pt-24">
       <div className="w-full max-w-sm">
@@ -28,11 +36,10 @@ export const TripDashboard = () => {
           <main className="flex-1 overflow-y-auto">
             <Outlet />
           </main>
-
         </div>
       </div>
     </div>
-  );      
+  );
 };
 
 export default TripDashboard;

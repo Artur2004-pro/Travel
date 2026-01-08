@@ -1,14 +1,22 @@
 class PostValidator {
+  static getById(req, res, next) {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).send({ message: "Missing id" });
+    }
+    req.params = { id };
+    next();
+  }
   static add(req, res, next) {
     const { id } = req.params;
     const { files } = req;
-    const { title, content } = req.body;
+    const { title, content, hashtags } = req.body;
     if (!files?.length || !title?.trim() || !content?.trim()) {
       return res.status(400).send({ message: "Missing fields..." });
     }
     const userId = req.user._id;
     const images = files.map((file) => file.path);
-    req.body = { images, cityId: id, title, content, userId };
+    req.body = { images, cityId: id, title, content, userId, hashtags };
     next();
   }
   static delete(req, res, next) {

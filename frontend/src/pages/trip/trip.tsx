@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
+import { useAuth } from "../../context/auth-context";
 
 interface TripData {
   countryId?: string;
@@ -41,6 +42,7 @@ const wizardSteps = [
 export const Trip: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { account } = useAuth();
 
   const [tripData, setTripDataState] = useState<TripData>({});
   const [completed, setCompletedState] =
@@ -88,7 +90,10 @@ export const Trip: React.FC = () => {
     () => ({ tripData, setTripData, completed, setCompleted }),
     [tripData, completed]
   );
-
+  if (!account) {
+    navigate("/login");
+    return null;
+  }
   return (
     <div className="min-h-screen bg-white dark:bg-black flex flex-col">
       {/* Header */}
