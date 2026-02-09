@@ -68,6 +68,16 @@ class AccountController {
       return res.status(err.statusCode).send({ message: err.message });
     }
   }
+  async updateDefaultTripVisibility(req, res) {
+    try {
+      const account = await this.service.updateDefaultTripVisibility(req.body);
+      return res
+        .status(200)
+        .send({ message: "Preferences updated", payload: account });
+    } catch (err) {
+      return res.status(err.statusCode).send({ message: err.message });
+    }
+  }
   async updateAvatar(req, res) {
     try {
       const updated = await this.service.updateAvatar(req.body);

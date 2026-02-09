@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ["user", "admin"], default: "user" },
     isBlocked: { type: Boolean, default: false },
     avatar: { type: String },
+    defaultTripVisibility: { type: String, enum: ["public", "private"], default: "public" },
     emailVerified: { type: Boolean, default: false },
     emailVerifyExpires: { type: Date },
     emailVerifyToken: { type: String },

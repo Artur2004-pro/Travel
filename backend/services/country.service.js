@@ -82,7 +82,6 @@ class CountryService {
         .populate("cities");
       return countries;
     } catch (err) {
-      console.log(err);
       throw ErrorHandler.normalize(err);
     }
   }

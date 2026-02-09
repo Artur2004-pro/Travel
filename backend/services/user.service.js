@@ -289,6 +289,21 @@ class UserService {
       throw ErrorHandler.normalize(err);
     }
   }
+  async updateDefaultTripVisibility(data) {
+    try {
+      const { userId, defaultTripVisibility } = data;
+      const user = await User.findById(userId);
+      if (!user) {
+        throw new ServiceError("User not found", 404);
+      }
+      user.defaultTripVisibility = defaultTripVisibility;
+      await user.save();
+      const account = await User.findById(userId).select(UserService.ignoreFields);
+      return account;
+    } catch (err) {
+      throw ErrorHandler.normalize(err);
+    }
+  }
   async updateAvatar(data) {
     try {
       const { userId, filePath } = data;

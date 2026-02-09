@@ -4,6 +4,7 @@ const {
   getTripDayCount,
   updateTrip,
 } = require("../helpers/index.js");
+const generateTripPdf = require("../helpers/trip/trip-pdf.js");
 const { Trip, Country } = require("../models");
 const { ServiceError, ErrorHandler } = require("./error-handler.js");
 
@@ -66,10 +67,7 @@ class TripService {
     try {
       const { id } = data;
       const trips = await Trip.find({ user: id }).populate("days");
-      if (!trips || !trips.length) {
-        throw new ServiceError("Trip not found", 404);
-      }
-      return trips;
+      return trips || [];
     } catch (err) {
       throw ErrorHandler.normalize(err);
     }
@@ -120,6 +118,23 @@ class TripService {
       throw ErrorHandler.normalize(err);
     }
   }
+  async toggleComplete(data) {
+    try {
+      const { id, userId } = data;
+      const trip = await Trip.findById(id);
+      if (!trip) {
+        throw new ServiceError("Trip not found", 404);
+      }
+      if (userId != trip.user) {
+        throw new ServiceError("Cannot access or modify this trip", 409);
+      }
+      trip.isCompleted = !trip.isCompleted;
+      await trip.save();
+      return trip;
+    } catch (err) {
+      throw ErrorHandler.normalize(err);
+    }
+  }
   async getAllTrips(data) {
     try {
       const { role, id, userId } = data;
@@ -139,7 +154,7 @@ class TripService {
   }
   async add(data) {
     try {
-      const { startDate, endDate, description, countryId, userId, title } =
+      const { startDate, endDate, description, countryId, userId, title, isPrivate } =
         data;
       const isValid = dateValidaton(startDate, endDate);
       if (isValid.message != "ok") {
@@ -150,6 +165,9 @@ class TripService {
       if (!countryExists) {
         throw new ServiceError("Country not found", 404);
       }
+      const User = require("../models/user");
+      const user = await User.findById(userId).select("defaultTripVisibility");
+      const visibility = isPrivate ?? (user?.defaultTripVisibility === "private");
       const trip = await Trip.create({
         country: countryExists._id,
         user: userId,
@@ -159,6 +177,7 @@ class TripService {
         description,
         days: [],
         dayCount,
+        isPrivate: visibility,
       });
       return trip;
     } catch (err) {
@@ -178,6 +197,27 @@ class TripService {
       await trip.deleteOne();
       await deleteImage(trip.coverImage || []);
       return trip;
+    } catch (err) {
+      throw ErrorHandler.normalize(err);
+    }
+  }
+  async getPdf(data) {
+    try {
+      const { id, userId } = data;
+      const trip = await Trip.findById(id).populate({
+        path: "days",
+        populate: { path: "activities" },
+      });
+      if (!trip) {
+        throw new ServiceError("Trip not found", 404);
+      }
+      if (trip.user.toString() !== userId) {
+        if (trip.isPrivate) {
+          throw new ServiceError("Trip is private", 403);
+        }
+      }
+      const pdf = await generateTripPdf(trip);
+      return pdf;
     } catch (err) {
       throw ErrorHandler.normalize(err);
     }

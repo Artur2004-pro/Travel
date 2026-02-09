@@ -10,34 +10,21 @@ export default function CountryFeedCard({ country }: Props) {
   const navigate = useNavigate();
 
   return (
-    <div
-      onClick={() => navigate(`/admin/country/${country._id}`)}
-      className="
-        cursor-pointer
-        rounded-2xl
-        overflow-hidden
-        bg-white dark:bg-zinc-950
-        border border-zinc-200/70 dark:border-zinc-800
-        transition
-        active:scale-[0.98]
-        hover:shadow-lg
-      "
+    <article
+      onClick={() => navigate(`/country/${country._id}`)}
+      className="cursor-pointer border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden bg-white dark:bg-neutral-950 hover:border-neutral-300 dark:hover:border-neutral-700 transition-colors"
     >
-      {/* Image */}
-      <div className="aspect-square bg-zinc-100 dark:bg-zinc-900">
+      <div className="aspect-square bg-neutral-100 dark:bg-neutral-900">
         <ImageSection images={country.images} />
       </div>
-
-      {/* Content */}
-      <div className="px-4 py-3 space-y-1">
-        <h3 className="text-sm font-semibold tracking-tight">{country.name}</h3>
-
+      <div className="px-4 py-3">
+        <h3 className="text-sm font-semibold">{country.name}</h3>
         {country.description && (
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">
+          <p className="text-xs text-neutral-500 dark:text-neutral-400 line-clamp-2 mt-0.5">
             {country.description}
           </p>
         )}
       </div>
-    </div>
+    </article>
   );
 }

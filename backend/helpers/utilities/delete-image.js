@@ -12,8 +12,8 @@ async function deleteImage(imagePath) {
       try {
         await fs.unlink(filePath);
         deletedCount++;
-      } catch (error) {
-        console.log(filePath);
+      } catch {
+        // File may already be deleted
       }
     }
     return deletedCount;

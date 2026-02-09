@@ -19,6 +19,7 @@ export interface IAccount {
   role: "user" | "admin";
   isBlocked: boolean;
   emailVerified: boolean;
+  defaultTripVisibility?: "public" | "private";
   createdAt: string;
   updatedAt: string;
   __v: number;

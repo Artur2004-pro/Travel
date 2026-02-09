@@ -2,14 +2,12 @@ import { useForm } from "react-hook-form";
 import type { ILoginUser, ILoginResponse } from "../../types";
 import { Axios } from "../../lib/axios-config";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../context/auth-context";
 
 export default function Login() {
   const { register, handleSubmit, reset } = useForm<ILoginUser>();
-
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -38,81 +36,61 @@ export default function Login() {
   };
 
   return (
-    /* ⬇️ սա է ամբողջ մոգությունը */
-    <div className="flex-1 flex justify-center px-6 pt-24">
-      <div className="w-full max-w-sm">
-        {/* Card */}
+    <div className="flex-1 flex items-center justify-center px-6 py-12 min-h-[80vh]">
+      <div className="w-full max-w-[350px]">
         <form
           onSubmit={handleSubmit(submit)}
-          className="border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-black rounded-xl px-10 py-8"
+          className="border border-neutral-200 dark:border-neutral-800 rounded-lg bg-white dark:bg-neutral-950 px-8 py-10"
         >
-          {/* Logo */}
-          <h1 className="text-7xl font-semibold tracking-tight font-tangerine text-center mb-10">
-            Bardiner
-          </h1>
+          <h1 className="text-3xl font-semibold text-center mb-8">Bardiner</h1>
 
-          {/* Message */}
-          <AnimatePresence>
-            {message && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className={`mb-4 text-center text-sm ${
-                  isError ? "text-red-500" : "text-emerald-500"
-                }`}
-              >
-                {message}
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {message && (
+            <p
+              className={`mb-4 text-center text-sm ${
+                isError ? "text-red-500" : "text-emerald-600 dark:text-emerald-400"
+              }`}
+            >
+              {message}
+            </p>
+          )}
 
-          {/* Inputs */}
           <div className="space-y-3">
             <input
               {...register("username", { required: true })}
-              placeholder="Username, or email"
-              className="w-full h-11 px-3 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-sm outline-none focus:border-black dark:focus:border-white"
+              placeholder="Username or email"
+              className="w-full h-10 px-3 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
             />
 
             <input
               {...register("password", { required: true })}
               type="password"
               placeholder="Password"
-              className="w-full h-11 px-3 rounded-md border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 text-sm outline-none focus:border-black dark:focus:border-white"
+              className="w-full h-10 px-3 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
             />
           </div>
 
-          {/* Button */}
           <button
             type="submit"
             disabled={loading}
-            className="mt-6 w-full h-10 rounded-md bg-sky-500 text-white text-sm font-semibold hover:bg-sky-600 disabled:opacity-40"
+            className="mt-6 w-full h-10 rounded-lg bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
             {loading ? "Logging in…" : "Log in"}
           </button>
 
-          {/* Divider */}
-          <div className="flex items-center gap-4 my-8">
-            <div className="flex-1 h-px bg-zinc-300 dark:bg-zinc-700" />
-            <span className="text-xs text-zinc-500 font-medium">OR</span>
-            <div className="flex-1 h-px bg-zinc-300 dark:bg-zinc-700" />
+          <div className="flex items-center gap-4 my-6">
+            <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-800" />
+            <span className="text-xs text-neutral-400 font-medium">OR</span>
+            <div className="flex-1 h-px bg-neutral-200 dark:bg-neutral-800" />
           </div>
 
-          <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
-            Forgot your password?
-          </p>
+          <p className="text-center text-xs text-neutral-500">Forgot password?</p>
         </form>
 
-        {/* Signup */}
-        <div className="mt-4 border border-zinc-300 dark:border-zinc-700 rounded-xl py-4 text-center text-sm bg-white dark:bg-black">
-          Don’t have an account?{" "}
-          <a
-            href="/signup"
-            className="font-semibold text-sky-500 hover:underline"
-          >
+        <div className="mt-4 border border-neutral-200 dark:border-neutral-800 rounded-lg py-4 text-center text-sm bg-white dark:bg-neutral-950">
+          Don't have an account?{" "}
+          <Link to="/signup" className="font-semibold text-neutral-900 dark:text-white hover:underline">
             Sign up
-          </a>
+          </Link>
         </div>
       </div>
     </div>

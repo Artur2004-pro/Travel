@@ -4,6 +4,12 @@ const { TripValidator } = require("../validators/");
 const { isAuth, upload } = require("../middlewares/");
 
 router.get("/", isAuth, trip.getMyTrips.bind(trip));
+router.get(
+  "/:id/pdf",
+  isAuth,
+  TripValidator.getTrip,
+  trip.getPdf.bind(trip)
+);
 router.get("/:id", isAuth, TripValidator.getTrip, trip.getTrip.bind(trip));
 router.get(
   "/all/:id",
@@ -20,6 +26,12 @@ router.post(
   trip.addCoverImage.bind(trip)
 );
 router.patch(
+  "/:id/complete",
+  isAuth,
+  TripValidator.toggleComplete,
+  trip.toggleComplete.bind(trip)
+);
+router.patch(
   "/:id",
   isAuth,
   TripValidator.togglePrivate,
@@ -32,5 +44,6 @@ router.delete(
   TripValidator.removeCoverImage,
   trip.removeCoverImage.bind(trip)
 );
+
 router.delete("/:id", isAuth, TripValidator.delete, trip.delete.bind(trip));
 module.exports = router;

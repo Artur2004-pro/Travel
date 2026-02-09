@@ -65,6 +65,16 @@ class TripController {
       return res.status(err.statusCode).send({ message: err.message });
     }
   }
+  async toggleComplete(req, res) {
+    try {
+      const trip = await this.service.toggleComplete(req.body);
+      return res
+        .status(200)
+        .send({ message: "Successfully updated", payload: trip });
+    } catch (err) {
+      return res.status(err.statusCode).send({ message: err.message });
+    }
+  }
   async getAllTrips(req, res) {
     try {
       const trips = await this.service.getAllTrips(req.body);
@@ -90,6 +100,19 @@ class TripController {
       return res.status(200).send({ message: "Trip deleted", payload: trip });
     } catch (err) {
       return res.status(err.statusCode).send({ message: err.message });
+    }
+  }
+  async getPdf(req, res) {
+    try {
+      const pdf = await this.service.getPdf(req.body);
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="trip-${req.params.id}.pdf"`
+      );
+      return res.send(pdf);
+    } catch (err) {
+      return res.status(err.statusCode || 500).send({ message: err.message });
     }
   }
 }

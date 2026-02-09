@@ -1,5 +1,0 @@
-export const Cities = () => {
-    return <>
-    <h1>Cities</h1>
-    </>
-}

@@ -1,39 +1,25 @@
 import React from "react";
 
 const team = [
-  {
-    name: "Artur",
-    role: "CEO & Founder",
-    avatar: "/artur.png",
-  },
-  {
-    name: "Gurgen",
-    role: "Backend Engineer",
-    avatar: "/gurgen.png",
-  },
-  {
-    name: "Arman",
-    role: "Frontend Engineer",
-    avatar: "/arman.png",
-  },
+  { name: "Artur", role: "CEO & Founder", avatar: "/artur.png" },
+  { name: "Gurgen", role: "Backend Engineer", avatar: "/gurgen.png" },
+  { name: "Arman", role: "Frontend Engineer", avatar: "/arman.png" },
 ];
 
 export const AboutPage: React.FC = () => {
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 pt-8 pb-16">
-      {/* Hero */}
-      <section className="text-center mb-14">
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
+    <div className="w-full max-w-feed mx-auto px-4 py-8 pb-24 md:pb-10">
+      <section className="text-center mb-12">
+        <h1 className="text-2xl font-semibold tracking-tight mb-3">
           About Bardiner
         </h1>
-        <p className="text-zinc-600 dark:text-zinc-400 text-base sm:text-lg">
+        <p className="text-neutral-600 dark:text-neutral-400 text-sm leading-relaxed">
           Bardiner is your travel companion — designed to help you explore,
           plan, and remember journeys beautifully.
         </p>
       </section>
 
-      {/* Mission / Vision / Values */}
-      <section className="space-y-10 mb-16">
+      <section className="space-y-8 mb-12">
         {[
           {
             title: "Mission",
@@ -50,34 +36,29 @@ export const AboutPage: React.FC = () => {
         ].map((item) => (
           <div
             key={item.title}
-            className="border-b border-zinc-200 dark:border-zinc-800 pb-6"
+            className="border-b border-neutral-200 dark:border-neutral-800 pb-6"
           >
-            <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-            <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 leading-relaxed">
+            <h3 className="text-base font-semibold mb-2">{item.title}</h3>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
               {item.text}
             </p>
           </div>
         ))}
       </section>
 
-      {/* Team */}
       <section>
-        <h2 className="text-xl font-semibold mb-8 text-center">
-          Meet the Team
-        </h2>
-
-        <div className="flex flex-col gap-8">
+        <h2 className="text-base font-semibold mb-6 text-center">Meet the Team</h2>
+        <div className="flex flex-col gap-6">
           {team.map((member) => (
             <div key={member.name} className="flex items-center gap-4">
               <img
                 src={member.avatar}
                 alt={member.name}
-                className="w-14 h-14 rounded-full object-cover border border-zinc-200 dark:border-zinc-800"
+                className="w-12 h-12 rounded-full object-cover border border-neutral-200 dark:border-neutral-800"
               />
-
               <div>
-                <p className="font-medium">{member.name}</p>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                <p className="font-medium text-sm">{member.name}</p>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
                   {member.role}
                 </p>
               </div>

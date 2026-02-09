@@ -6,7 +6,7 @@ const { PostValidator } = require("../validators/");
 router.get("/", isAuth, post.getAll.bind(post));
 router.get("/:id", isAuth, PostValidator.getById, post.getById.bind(post));
 router.post(
-  "/:id",
+  "/",
   isAuth,
   upload.array("post"),
   PostValidator.add,

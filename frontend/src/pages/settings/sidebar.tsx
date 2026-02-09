@@ -9,48 +9,56 @@ export default function SettingsSidebar() {
 
   const items = [
     { label: "Edit profile", to: "edit-profile" },
+    { label: "Appearance", to: "appearance" },
     { label: "Privacy", to: "privacy" },
-    { label: "Update password", to: "security" },
-    { label: "Update username", to: "account" },
+    { label: "Password", to: "security" },
+    { label: "Account", to: "account" },
   ];
 
   return (
-    <div className="hidden md:flex flex-col w-64 border-r border-zinc-200 dark:border-zinc-800">
-      {items.map((item) => (
-        <NavLink
-          key={item.to}
-          to={item.to}
-          className={({ isActive }) =>
-            `flex items-center justify-between px-4 py-4 text-sm rounded-md ${
-              isActive
-                ? "bg-zinc-100 dark:bg-zinc-900 font-semibold"
-                : "hover:bg-zinc-50 dark:hover:bg-zinc-800 transition"
-            }`
-          }
+    <aside className="hidden md:flex fixed left-[72px] xl:left-[244px] top-0 h-screen w-[244px] flex-col border-r border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 z-30">
+      <div className="px-4 pt-6 pb-4">
+        <h2 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+          Settings
+        </h2>
+      </div>
+      <nav className="px-2 space-y-0.5 flex-1">
+        {items.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) =>
+              `group flex items-center justify-between px-4 py-2.5 rounded-lg text-sm transition-colors ${
+                isActive
+                  ? "font-semibold text-neutral-900 dark:text-white bg-neutral-100 dark:bg-neutral-800"
+                  : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              }`
+            }
+          >
+            <span>{item.label}</span>
+            <ChevronRight className="w-4 h-4 opacity-40" strokeWidth={2} />
+          </NavLink>
+        ))}
+      </nav>
+      <div className="p-2 space-y-0.5">
+        <button
+          onClick={toggle}
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
         >
-          <span>{item.label}</span>
-          <ChevronRight className="w-4 h-4 opacity-40" />
-        </NavLink>
-      ))}
-
-      <button
-        onClick={toggle}
-        className="flex items-center gap-2 px-4 py-4 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-900 transition"
-      >
-        {dark ? (
-          <Sun className="w-5 h-5 text-yellow-400" />
-        ) : (
-          <Moon className="w-5 h-5 text-sky-500" />
-        )}
-        <span>{dark ? "Light mode" : "Dark mode"}</span>
-      </button>
-
-      <button
-        onClick={logout}
-        className="mt-auto px-4 py-4 text-left text-sm font-semibold text-red-600 hover:bg-red-500/10 transition"
-      >
-        Sign out
-      </button>
-    </div>
+          {dark ? (
+            <Sun className="w-5 h-5" strokeWidth={2} />
+          ) : (
+            <Moon className="w-5 h-5" strokeWidth={2} />
+          )}
+          <span>{dark ? "Light mode" : "Dark mode"}</span>
+        </button>
+        <button
+          onClick={logout}
+          className="w-full px-4 py-2.5 rounded-lg text-left text-sm font-semibold text-red-600 hover:bg-red-500/10 transition-colors"
+        >
+          Sign out
+        </button>
+      </div>
+    </aside>
   );
 }

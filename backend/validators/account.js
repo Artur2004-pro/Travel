@@ -61,9 +61,20 @@ class AccountValidator {
     req.body = { username, password, id: req.user._id };
     next();
   }
+  static updateDefaultTripVisibility(req, res, next) {
+    const { defaultTripVisibility } = req.body;
+    if (!["public", "private"].includes(defaultTripVisibility)) {
+      return res.status(400).send({ message: "Invalid value" });
+    }
+    req.body = { userId: req.user._id.toString(), defaultTripVisibility };
+    next();
+  }
   static updateAvatar(req, res, next) {
     const userId = req.user._id.toString();
-    const { file } = req;
+    const file = req.file;
+    if (!file) {
+      return res.status(400).send({ message: "Missing avatar file" });
+    }
     req.body = { userId, filePath: file.path };
     next();
   }

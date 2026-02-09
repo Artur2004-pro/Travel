@@ -31,6 +31,12 @@ router.post(
   account.updateUsername.bind(account)
 );
 router.patch(
+  "/preferences",
+  isAuth,
+  AccountValidator.updateDefaultTripVisibility,
+  account.updateDefaultTripVisibility.bind(account)
+);
+router.patch(
   "/avatar",
   isAuth,
   upload.single("avatar"),

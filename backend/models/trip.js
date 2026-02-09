@@ -32,6 +32,7 @@ const tripSchema = new Schema(
       currency: { type: String, default: "USD" },
     },
     isPrivate: { type: Boolean, default: false },
+    isCompleted: { type: Boolean, default: false },
     coverImage: { type: String },
   },
   { timestamps: true }

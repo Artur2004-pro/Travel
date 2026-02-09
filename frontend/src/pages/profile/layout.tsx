@@ -7,24 +7,20 @@ import { MessagePopup } from "../components";
 
 export default function ProfileLayout() {
   const navigate = useNavigate();
-  const { account } = useAuth();
+  const { isAuthenticated, account } = useAuth();
   const { message, showMessage } = useMessage();
+
   useEffect(() => {
-    if (!account) {
-      showMessage(
-        "error",
-        "You must be logged in to view profile",
-        1500,
-        () => {
-          navigate("/login");
-        }
-      );
-      return;
+    if (!isAuthenticated) {
+      showMessage("error", "You must be logged in to view profile", 1500, () => {
+        navigate("/login");
+      });
     }
-  }, [account, navigate]);
+  }, [isAuthenticated, account, navigate, showMessage]);
+
   return (
-    <main className="flex justify-center w-full bg-white dark:bg-black">
-      <div className="w-full max-w-[935px] px-4">
+    <main className="flex justify-center w-full bg-white dark:bg-neutral-950 min-h-screen">
+      <div className="w-full max-w-feed min-w-0 px-4">
         {message ? (
           <MessagePopup text={message.text} type={message.type} />
         ) : (
@@ -34,10 +30,9 @@ export default function ProfileLayout() {
               onEdit={() => navigate("/settings/edit-profile")}
             />
 
-            <nav className="border-t flex justify-center gap-12 text-xs uppercase tracking-widest overflow-x-auto">
-              <Tab to="">Posts</Tab>
+            <nav className="border-t border-neutral-200 dark:border-neutral-800 flex justify-center gap-12">
+              <Tab to="" end>Posts</Tab>
               <Tab to="trips">Trips</Tab>
-              <Tab to="comments">Comments</Tab>
             </nav>
 
             <section className="pt-6 pb-24 md:pb-10">
@@ -50,16 +45,24 @@ export default function ProfileLayout() {
   );
 }
 
-function Tab({ to, children }: any) {
+function Tab({
+  to,
+  end,
+  children,
+}: {
+  to: string;
+  end?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <NavLink
-      end
+      end={end}
       to={to}
       className={({ isActive }) =>
-        `py-4 border-t-2 ${
+        `py-4 text-xs font-semibold tracking-wider uppercase border-t-2 -mt-px transition-colors ${
           isActive
-            ? "border-black dark:border-white font-semibold"
-            : "border-transparent text-zinc-400 dark:text-zinc-500"
+            ? "border-neutral-900 dark:border-white text-neutral-900 dark:text-white"
+            : "border-transparent text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-400"
         }`
       }
     >

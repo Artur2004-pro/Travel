@@ -4,7 +4,6 @@ import { Axios } from "../../lib/axios-config";
 import { Loader, MessagePopup, BackButton } from "../components";
 import type { ICountry, IResponse, IShowMessage } from "../../types";
 import { useForm } from "react-hook-form";
-import { Plus, X } from "lucide-react";
 import { ImageGrid } from "../components/image/image-grid";
 
 export default function EditCountry() {
@@ -72,7 +71,7 @@ export default function EditCountry() {
     try {
       await Axios.delete(`/country/${id}/photos?filename=${img}`);
       setCountry((c) =>
-        c ? { ...c, images: c.images.filter((i) => i !== img) } : c
+        c ? { ...c, images: c.images.filter((i) => i !== img) } : c,
       );
       setImagesChanged(true);
     } catch {
@@ -82,7 +81,7 @@ export default function EditCountry() {
 
   const canSave = useMemo(
     () => formState.isDirty || files.length > 0 || imagesChanged,
-    [formState.isDirty, files.length, imagesChanged]
+    [formState.isDirty, files.length, imagesChanged],
   );
 
   if (loading || !country) return <Loader />;

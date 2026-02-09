@@ -2,9 +2,8 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 // Layouts
-import Layout from "./pages/general/layout"; // ընդհանուր կայքի layout (header + footer)
+import Layout from "./pages/general/layout";
 import AdminLayout from "./pages/admin/admin-layout";
-// import TripLayout from "./pages/trip/trip-layout";
 import TripDashboard from "./pages/trip/trip-layout";
 import { CountryView } from "./pages/country/country-view";
 import SettingsLayout from "./pages/settings/layout";
@@ -12,9 +11,12 @@ import ProfileTrips from "./pages/profile/trips";
 import ProfilePosts from "./pages/profile/posts";
 import ProfileLayout from "./pages/profile/layout";
 import EditProfileForm from "./pages/settings/sections/edit-profile-form";
+import AppearanceSettings from "./pages/settings/sections/appearance";
 import PrivacySettings from "./pages/settings/sections/privacy";
+import Create from "./pages/post/create";
 // Lazy pages
 const Home = lazy(() => import("./pages/general/home"));
+const Explore = lazy(() => import("./pages/general/explore"));
 const Login = lazy(() => import("./pages/general/login"));
 const Signup = lazy(() => import("./pages/general/signup"));
 const AboutPage = lazy(() => import("./pages/general/about"));
@@ -32,22 +34,20 @@ const AddCity = lazy(() => import("./pages/admin/add-city"));
 const EditCity = lazy(() => import("./pages/admin/edit-city"));
 const Users = lazy(() => import("./pages/admin/users"));
 const EditUser = lazy(() => import("./pages/admin/edit-user"));
-// Trip Wizard (միայն նոր trip ստեղծելու համար)
-const Trip = lazy(() => import("./pages/trip/trip")); // wizard-ի layout (sidebar)
+const Trip = lazy(() => import("./pages/trip/trip"));
 const TripCountry = lazy(() => import("./pages/trip/steps/country"));
 const TripPlanning = lazy(() => import("./pages/trip/steps/planning"));
 const TripCity = lazy(() => import("./pages/trip/steps/city"));
 const SelectHotel = lazy(() => import("./pages/trip/steps/hotel"));
 const DayPlanning = lazy(() => import("./pages/trip/steps/day-planning"));
 const TripFinish = lazy(() => import("./pages/trip/steps/finish"));
-// Trip Management (նախկին my-trips, view, edit)
 const MyTrips = lazy(() => import("./pages/trip/my-trips"));
 const TripView = lazy(() => import("./pages/trip/trip-view"));
 const EditTrip = lazy(() => import("./pages/trip/edit-trip"));
 
 const Loader = () => (
-  <div className="min-h-screen flex items-center justify-center">
-    <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+  <div className="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-950">
+    <div className="h-8 w-8 rounded-full border-2 border-neutral-300 dark:border-neutral-700 border-t-neutral-900 dark:border-t-white animate-spin" />
   </div>
 );
 export const router = createBrowserRouter([
@@ -60,6 +60,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<Loader />}>
             <Home />
+          </Suspense>
+        ),
+      },
+      {
+        path: "explore",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Explore />
           </Suspense>
         ),
       },
@@ -102,6 +110,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <EditProfileForm /> }, // profile main page
           { path: "edit-profile", element: <EditProfileForm /> },
+          { path: "appearance", element: <AppearanceSettings /> },
           { path: "privacy", element: <PrivacySettings /> },
           { path: "security", element: <UpdatePassword /> },
           { path: "account", element: <UpdateUsername /> },
@@ -240,7 +249,7 @@ export const router = createBrowserRouter([
       // Trip Dashboard (ընդհանուր trip-ների բաժինը՝ sidebar-ով, բայց Layout-ի ներսում)
       {
         path: "trips",
-        element: <TripDashboard />, // Նոր dashboard layout
+        element: <TripDashboard />,
         children: [
           // Default — My Trips
           { path: "", element: <MyTrips /> },
@@ -253,7 +262,7 @@ export const router = createBrowserRouter([
           // Wizard
           {
             path: "new",
-            element: <Trip />, // քո հին Trip.tsx-ը (wizard-ով)
+            element: <Trip />,
             children: [
               { path: "", element: <Navigate to="country" replace /> },
               { path: "country", element: <TripCountry /> },
@@ -267,6 +276,7 @@ export const router = createBrowserRouter([
           },
         ],
       },
+      { path: "posts/new", element: <Create /> },
       // Catch-all
       { path: "*", element: <Navigate to="/" replace /> },
     ],

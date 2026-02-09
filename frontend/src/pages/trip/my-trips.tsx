@@ -1,4 +1,3 @@
-// src/pages/MyTrips.tsx
 import React, { useEffect, useRef, useState } from "react";
 import { Axios } from "../../lib/axios-config";
 import { useNavigate } from "react-router-dom";
@@ -23,12 +22,13 @@ interface Trip {
 const MyTrips: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
-  if (!isAuthenticated) {
-    navigate("/login");
-  }
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
   const app = useRef(import.meta.env.VITE_APP_DOMAIN);
+
+  useEffect(() => {
+    if (!isAuthenticated) navigate("/login");
+  }, [isAuthenticated, navigate]);
 
   useEffect(() => {
     fetchTrips();
@@ -78,98 +78,97 @@ const MyTrips: React.FC = () => {
   if (loading) return <Loader />;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">
-      <main className="max-w-sm mx-auto pt-4 pb-24">
-        <h1 className="text-lg font-semibold px-4 mb-4">My Trips</h1>
-
-        {trips.length === 0 ? (
-          <p className="text-sm text-zinc-500 text-center">No trips yet</p>
-        ) : (
-          <div className="space-y-8">
-            {trips.map((trip) => (
-              <div
-                key={trip._id}
-                className="border-b border-zinc-200 dark:border-zinc-800"
-              >
-                {/* HEADER */}
-                <div className="flex items-center justify-between px-4 py-3">
-                  <div>
-                    <div className="text-sm font-semibold truncate">
-                      {trip.title}
-                    </div>
-                    <div className="text-xs text-zinc-500">
-                      {dayjs(trip.startDate).format("MMM D")} –{" "}
-                      {dayjs(trip.endDate).format("MMM D")} · {trip.dayCount}{" "}
-                      days
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-zinc-400">
-                    {trip.isPrivate ? <Lock size={16} /> : <Unlock size={16} />}
-                    {trip.isCompleted && (
-                      <CheckCircle size={16} className="text-emerald-500" />
-                    )}
+    <div className="max-w-feed mx-auto px-4 py-6 pb-24 md:pb-8">
+      {trips.length === 0 ? (
+        <p className="text-sm text-neutral-500 text-center py-12">No trips yet</p>
+      ) : (
+        <div className="space-y-6">
+          {trips.map((trip) => (
+            <article
+              key={trip._id}
+              className="border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden"
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-800">
+                <div>
+                  <div className="text-sm font-semibold truncate">{trip.title}</div>
+                  <div className="text-xs text-neutral-500">
+                    {dayjs(trip.startDate).format("MMM D")} –{" "}
+                    {dayjs(trip.endDate).format("MMM D")} · {trip.dayCount} days
                   </div>
                 </div>
-
-                {/* COVER */}
-                {trip.coverImage && (
-                  <div
-                    onClick={() => navigate(`/trips/${trip._id}`)}
-                    className="aspect-[4/5] bg-zinc-100 dark:bg-zinc-900 cursor-pointer"
-                  >
-                    <img
-                      src={app.current + trip.coverImage}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-
-                {/* ACTIONS */}
-                <div className="flex items-center justify-between px-4 py-3">
-                  <div className="flex gap-4">
-                    <button onClick={() => navigate(`/trips/${trip._id}`)}>
-                      <Eye size={20} />
-                    </button>
-                    <button onClick={() => navigate(`/trips/edit/${trip._id}`)}>
-                      <Edit size={20} />
-                    </button>
-                    <button
-                      onClick={() =>
-                        toggleComplete(trip._id, trip.isCompleted || false)
-                      }
-                    >
-                      <CheckCircle size={20} />
-                    </button>
-                  </div>
-
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => togglePrivate(trip._id, trip.isPrivate)}
-                    >
-                      {trip.isPrivate ? (
-                        <Unlock size={20} />
-                      ) : (
-                        <Lock size={20} />
-                      )}
-                    </button>
-                    <button onClick={() => deleteTrip(trip._id)}>
-                      <Trash2 size={20} />
-                    </button>
-                  </div>
+                <div className="flex items-center gap-2 text-neutral-400">
+                  {trip.isPrivate ? <Lock size={16} /> : <Unlock size={16} />}
+                  {trip.isCompleted && (
+                    <CheckCircle size={16} className="text-emerald-500" />
+                  )}
                 </div>
-
-                {/* DESCRIPTION */}
-                {trip.description && (
-                  <p className="px-4 pb-4 text-sm text-zinc-500 line-clamp-2">
-                    {trip.description}
-                  </p>
-                )}
               </div>
-            ))}
-          </div>
-        )}
-      </main>
+
+              {trip.coverImage && (
+                <div
+                  onClick={() => navigate(`/trips/${trip._id}`)}
+                  className="aspect-[4/5] bg-neutral-100 dark:bg-neutral-900 cursor-pointer"
+                >
+                  <img
+                    src={app.current + trip.coverImage}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+
+              <div className="flex items-center justify-between px-4 py-3">
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => navigate(`/trips/${trip._id}`)}
+                    className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                  >
+                    <Eye size={20} strokeWidth={2} />
+                  </button>
+                  <button
+                    onClick={() => navigate(`/trips/edit/${trip._id}`)}
+                    className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                  >
+                    <Edit size={20} strokeWidth={2} />
+                  </button>
+                  <button
+                    onClick={() =>
+                      toggleComplete(trip._id, trip.isCompleted || false)
+                    }
+                    className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                  >
+                    <CheckCircle size={20} strokeWidth={2} />
+                  </button>
+                </div>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => togglePrivate(trip._id, trip.isPrivate)}
+                    className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                  >
+                    {trip.isPrivate ? (
+                      <Unlock size={20} strokeWidth={2} />
+                    ) : (
+                      <Lock size={20} strokeWidth={2} />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => deleteTrip(trip._id)}
+                    className="text-neutral-600 dark:text-neutral-400 hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 size={20} strokeWidth={2} />
+                  </button>
+                </div>
+              </div>
+
+              {trip.description && (
+                <p className="px-4 pb-4 text-sm text-neutral-500 line-clamp-2">
+                  {trip.description}
+                </p>
+              )}
+            </article>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

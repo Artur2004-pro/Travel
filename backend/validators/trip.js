@@ -52,6 +52,15 @@ class TripValidator {
     req.body = { userId, id };
     next();
   }
+  static toggleComplete(req, res, next) {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).send({ message: "Missing id" });
+    }
+    const userId = req.user._id.toString();
+    req.body = { userId, id };
+    next();
+  }
   static getAllTrips(req, res, next) {
     const { id } = req.params;
     const { role, _id: userId } = req.user;
@@ -62,12 +71,13 @@ class TripValidator {
     next();
   }
   static add(req, res, next) {
-    const { startDate, endDate, title, description, countryId } = req.body;
+    const { startDate, endDate, title, description, countryId, isPrivate } = req.body;
     const userId = req.user._id;
     if (!startDate || !endDate || !title || !countryId) {
       return res.status(400).send({ message: "Missing fields" });
     }
     req.body.userId = userId;
+    req.body.isPrivate = isPrivate;
     next();
   }
   static delete(req, res, next) {

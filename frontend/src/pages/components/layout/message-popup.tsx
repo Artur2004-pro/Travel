@@ -7,19 +7,13 @@ type Props = {
 
 export const MessagePopup = ({ type, text }: Props) =>
   createPortal(
-    <div className="fixed inset-x-0 top-4 z-[10000] flex justify-center pointer-events-none">
+    <div className="fixed inset-x-0 top-4 z-[10000] flex justify-center pointer-events-none px-4">
       <div
         className={`
-          px-4 py-2
-          rounded-xl
-          text-xs sm:text-sm font-medium
-          backdrop-blur-md
-          shadow-lg
-          animate-fade-in-down
-          ${
-            type === "success"
-              ? "bg-emerald-500/90 text-white"
-              : "bg-rose-500/90 text-white"
+          px-4 py-2.5 rounded-lg text-sm font-medium shadow-lg animate-fade-in
+          ${type === "success"
+            ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900"
+            : "bg-red-500 text-white"
           }
         `}
       >

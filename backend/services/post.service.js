@@ -28,7 +28,6 @@ class PostService {
         author: data.userId,
         title: data.title,
         content: data.content,
-        city: data.cityId,
         images: data.images,
         hashtags: data.hashtags,
       });

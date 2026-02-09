@@ -23,11 +23,6 @@ const postSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    city: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "City",
-      required: [true, "Missing city id"],
-    },
   },
   { timestamps: true }
 );

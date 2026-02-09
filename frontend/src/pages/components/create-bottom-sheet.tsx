@@ -13,25 +13,19 @@ export default function CreateBottomSheet({ open, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-[100]">
-      {/* backdrop */}
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
-      {/* sheet */}
       <div
-        className="
-          absolute bottom-0 left-0 right-0
-          rounded-t-3xl
-          bg-white dark:bg-zinc-900
-          border-t border-zinc-200 dark:border-zinc-800
-          shadow-2xl
-          p-5 space-y-4
-          animate-slideUp
-        "
+        className="absolute bottom-0 left-0 right-0 rounded-t-2xl bg-white dark:bg-neutral-950 border-t border-neutral-200 dark:border-neutral-800 p-4 pb-[env(safe-area-inset-bottom)]"
+        onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-sm">Create</h3>
-          <button onClick={onClose}>
-            <X className="w-5 h-5 text-zinc-500" />
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          >
+            <X className="w-5 h-5 text-neutral-500" strokeWidth={2} />
           </button>
         </div>
 
@@ -40,11 +34,10 @@ export default function CreateBottomSheet({ open, onClose }: Props) {
             onClose();
             navigate("/posts/new");
           }}
-          className="w-full flex items-center gap-4 px-4 py-3 rounded-xl
-                     hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+          className="w-full flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
         >
-          <ImagePlus className="w-5 h-5" />
-          <span className="font-medium">Create post</span>
+          <ImagePlus className="w-5 h-5" strokeWidth={2} />
+          <span className="font-medium text-sm">Create post</span>
         </button>
 
         <button
@@ -52,11 +45,10 @@ export default function CreateBottomSheet({ open, onClose }: Props) {
             onClose();
             navigate("/trips/new");
           }}
-          className="w-full flex items-center gap-4 px-4 py-3 rounded-xl
-                     hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+          className="w-full flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
         >
-          <Map className="w-5 h-5" />
-          <span className="font-medium">Create trip</span>
+          <Map className="w-5 h-5" strokeWidth={2} />
+          <span className="font-medium text-sm">Create trip</span>
         </button>
       </div>
     </div>

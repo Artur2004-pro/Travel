@@ -18,11 +18,13 @@ export default function UpdatePassword() {
     reset,
     formState: { errors },
   } = useForm<FormValues>();
+
   const [loading, setLoading] = useState(false);
   const [popup, setPopup] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
+
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
 
@@ -50,69 +52,104 @@ export default function UpdatePassword() {
     }
   };
 
-  const inputClass =
-    "w-full rounded-md px-3 py-2 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-black text-sm focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white pr-10";
+  const inputClass = `
+    w-full
+    rounded-xl
+    px-4 py-3
+    border border-zinc-300 dark:border-zinc-700
+    bg-white dark:bg-black
+    text-sm
+    focus:outline-none
+    focus:ring-1 focus:ring-black dark:focus:ring-white
+    pr-11
+  `;
 
   return (
-    <div className="mx-auto w-full max-w-[470px] flex flex-col gap-6 p-4 md:p-6">
+    <div className="w-full max-w-[420px] mx-auto flex flex-col gap-6">
       {popup && <MessagePopup {...popup} />}
-      <h1 className="text-lg font-semibold">Change Password</h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-        <div className="relative">
-          <label className="text-sm text-zinc-500 mb-1 block">
-            Current password
-          </label>
-          <input
-            type={showOld ? "text" : "password"}
-            {...register("oldPassword", { required: true, minLength: 6 })}
-            className={inputClass}
-          />
-          <button
-            type="button"
-            onClick={() => setShowOld(!showOld)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 opacity-50"
-          >
-            {showOld ? (
-              <EyeOff className="w-4 h-4" />
-            ) : (
-              <Eye className="w-4 h-4" />
-            )}
-          </button>
+      {/* Header */}
+      <div className="flex flex-col gap-1">
+        <h1 className="text-lg font-semibold">Change password</h1>
+        <p className="text-sm text-zinc-500">
+          Choose a strong password you don’t use elsewhere.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+        {/* Current password */}
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium">Current password</label>
+
+          <div className="relative">
+            <input
+              type={showOld ? "text" : "password"}
+              {...register("oldPassword", { required: true, minLength: 6 })}
+              className={inputClass}
+            />
+            <button
+              type="button"
+              onClick={() => setShowOld(!showOld)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 opacity-50 hover:opacity-80 transition"
+            >
+              {showOld ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+
           {errors.oldPassword && (
-            <p className="text-xs text-red-500">Current password required</p>
+            <p className="text-xs text-red-500">Current password is required</p>
           )}
         </div>
 
-        <div className="relative">
-          <label className="text-sm text-zinc-500 mb-1 block">
-            New password
-          </label>
-          <input
-            type={showNew ? "text" : "password"}
-            {...register("newPassword", { required: true, minLength: 6 })}
-            className={inputClass}
-          />
-          <button
-            type="button"
-            onClick={() => setShowNew(!showNew)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 opacity-50"
-          >
-            {showNew ? (
-              <EyeOff className="w-4 h-4" />
-            ) : (
-              <Eye className="w-4 h-4" />
-            )}
-          </button>
+        {/* New password */}
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium">New password</label>
+
+          <div className="relative">
+            <input
+              type={showNew ? "text" : "password"}
+              {...register("newPassword", { required: true, minLength: 6 })}
+              className={inputClass}
+            />
+            <button
+              type="button"
+              onClick={() => setShowNew(!showNew)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 opacity-50 hover:opacity-80 transition"
+            >
+              {showNew ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+
           {errors.newPassword && (
-            <p className="text-xs text-red-500">New password required</p>
+            <p className="text-xs text-red-500">New password is required</p>
           )}
         </div>
 
+        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-2 text-sm font-semibold rounded-md bg-black text-white dark:bg-white dark:text-black disabled:opacity-50"
+          className="
+            mt-2
+            w-full
+            py-3
+            rounded-xl
+            text-sm
+            font-semibold
+            bg-black text-white
+            dark:bg-white dark:text-black
+            hover:opacity-90
+            disabled:opacity-50
+            transition
+          "
         >
           {loading ? "Saving..." : "Change password"}
         </button>
