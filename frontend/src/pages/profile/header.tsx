@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import type { IAccount } from "../../types";
 import { useNavigate } from "react-router-dom";
 
@@ -12,10 +12,15 @@ export default function ProfileHeader({
   const baseUrl = useRef(import.meta.env.VITE_APP_DOMAIN || "");
   const navigate = useNavigate();
 
-  if (!account) {
-    navigate("/login");
-    return null;
-  }
+  const redirected = useRef(false);
+  useEffect(() => {
+    if (!account && !redirected.current) {
+      redirected.current = true;
+      navigate("/login");
+    }
+  }, [account, navigate]);
+
+  if (!account) return null;
 
   const avatarSrc = account.avatar
     ? baseUrl.current + account.avatar

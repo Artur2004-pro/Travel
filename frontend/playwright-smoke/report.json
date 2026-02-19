@@ -12,18 +12,6 @@
       {
         "type": "debug",
         "text": "[vite] connected."
-      },
-      {
-        "type": "error",
-        "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
-      },
-      {
-        "type": "error",
-        "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
-      },
-      {
-        "type": "pageerror",
-        "text": "AxiosError$1"
       }
     ],
     "screenshot": "/home/artur/Bardiner/frontend/playwright-smoke/shot_admin.png",
@@ -42,14 +30,6 @@
       {
         "type": "debug",
         "text": "[vite] connected."
-      },
-      {
-        "type": "warning",
-        "text": "You should call navigate() in a React.useEffect(), not when your component is first rendered."
-      },
-      {
-        "type": "warning",
-        "text": "You should call navigate() in a React.useEffect(), not when your component is first rendered."
       }
     ],
     "screenshot": "/home/artur/Bardiner/frontend/playwright-smoke/shot_profile.png",

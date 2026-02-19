@@ -15,7 +15,7 @@ export default function SettingsSidebar() {
   ];
 
   return (
-    <aside className="hidden md:flex fixed left-0 top-0 h-screen w-[244px] flex-col border-r border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 z-40">
+    <aside className="hidden md:flex md:flex-col md:w-60 md:sticky md:top-6 md:h-[calc(100vh-48px)] flex-col border-r border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 z-40">
       <div className="px-4 pt-6 pb-4">
         <h2 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
           Settings
