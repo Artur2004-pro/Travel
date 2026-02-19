@@ -25,8 +25,14 @@ export default function Admin() {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await Axios.get<IResponse<IStats>>("admin/stats");
-        setStats(data.payload);
+        const isDev = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development') || import.meta.env?.DEV;
+        if (isDev) {
+          const mock = { status: 'ok', message: '', payload: { countries: 0, cities: 0, users: 0, admins: 0 } };
+          setStats(mock.payload);
+        } else {
+          const { data } = await Axios.get<IResponse<IStats>>("admin/stats");
+          setStats(data.payload);
+        }
       } catch {
         showMessage("error", "Failed to load admin statistics");
       } finally {

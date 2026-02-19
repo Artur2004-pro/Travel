@@ -12,10 +12,6 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
-  useEffect(() => {
-    getAccount();
-  }, []);
-
   const getAccount = async () => {
     try {
       const { data } = await Axios.get<IResponse<IAccount>>("account/");
@@ -25,6 +21,32 @@ export default function AdminLayout() {
       navigate("/");
     }
   };
+
+  useEffect(() => {
+    const isDev = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development') || import.meta.env?.DEV;
+    if (isDev) {
+      const mock = {
+        status: 'ok',
+        message: '',
+        payload: {
+          _id: 'dev',
+          email: 'dev@local',
+          username: 'dev',
+          avatar: '',
+          role: 'admin',
+          isBlocked: false,
+          emailVerified: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          __v: 0,
+        },
+      };
+      setAccount(mock.payload);
+      return;
+    }
+
+    getAccount();
+  }, []);
 
   const signOut = () => {
     logout();

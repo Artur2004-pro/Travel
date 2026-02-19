@@ -1,0 +1,15 @@
+/* Global app styles to ensure no horizontal scroll and smooth typography */
+html, body, #root {
+	height: 100%;
+}
+
+body {
+	overflow-x: hidden;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility: strong card radius used across components */
+.card-rounded {
+	border-radius: 12px;
+}

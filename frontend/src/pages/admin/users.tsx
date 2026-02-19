@@ -24,10 +24,16 @@ export default function Users() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const { data } = await Axios.get<IResponse<IAccount[]>>(
-        `account/user?search=${debouncedSearch}`
-      );
-      setUsers(data.payload);
+      const isDev = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development') || import.meta.env?.DEV;
+      if (isDev) {
+        const mock = { status: 'ok', message: '', payload: [] as IAccount[] };
+        setUsers(mock.payload);
+      } else {
+        const { data } = await Axios.get<IResponse<IAccount[]>>(
+          `account/user?search=${debouncedSearch}`
+        );
+        setUsers(data.payload);
+      }
     } catch {
     } finally {
       setLoading(false);

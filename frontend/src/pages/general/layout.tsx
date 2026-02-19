@@ -9,7 +9,7 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen flex bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100">
-      <Sidebar />
+      <Sidebar onSheetOpen={() => setSheetOpen(true)} />
 
       <div className="flex-1 flex md:ml-[72px] xl:ml-[244px] min-h-screen">
         <main className="flex-1 flex justify-center min-w-0">

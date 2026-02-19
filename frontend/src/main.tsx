@@ -3,12 +3,15 @@ import { ThemeProvider } from "./hooks/useThem";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./route.config";
 import { AuthProvider } from "./context/auth-context";
+import ErrorBoundary from "./components/ErrorBoundary";
 import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
   <ThemeProvider>
     <AuthProvider>
-      <RouterProvider router={router} />
+      <ErrorBoundary>
+        <RouterProvider router={router} />
+      </ErrorBoundary>
     </AuthProvider>
   </ThemeProvider>
 );

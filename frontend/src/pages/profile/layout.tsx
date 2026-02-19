@@ -1,7 +1,7 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/auth-context";
 import ProfileHeader from "./header";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import useMessage from "../../hooks/useMessage";
 import { MessagePopup } from "../components";
 
@@ -9,18 +9,21 @@ export default function ProfileLayout() {
   const navigate = useNavigate();
   const { isAuthenticated, account } = useAuth();
   const { message, showMessage } = useMessage();
+  const redirected = useRef(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      showMessage("error", "You must be logged in to view profile", 1500, () => {
-        navigate("/login");
-      });
+    if (!isAuthenticated && !redirected.current) {
+      redirected.current = true;
+      // show a message then navigate once — don't include `showMessage` in deps
+      // to avoid re-running if it's not stable; navigate is stable from react-router
+      showMessage("error", "You must be logged in to view profile", 1500);
+      setTimeout(() => navigate("/login"), 1600);
     }
-  }, [isAuthenticated, account, navigate, showMessage]);
+  }, [isAuthenticated, navigate]);
 
   return (
     <main className="flex justify-center w-full bg-white dark:bg-neutral-950 min-h-screen">
-      <div className="w-full max-w-feed min-w-0 px-4">
+      <div className="w-full max-w-feed md:max-w-3xl lg:max-w-4xl min-w-0 px-4">
         {message ? (
           <MessagePopup text={message.text} type={message.type} />
         ) : (

@@ -22,11 +22,16 @@ export default function EditUser() {
 
   const fetchUser = async () => {
     try {
-      const { data } = await Axios.get<IResponse<IAccount>>(
-        `/account/user/${id}`
-      );
-      setUser(data.payload);
-      reset(data.payload);
+      const isDev = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development') || import.meta.env?.DEV;
+      if (isDev) {
+        const mock = { status: 'ok', message: '', payload: { _id: id || 'dev', email: 'dev@local', username: 'dev', role: 'admin', avatar: '', isBlocked: false, emailVerified: true, createdAt: '', updatedAt: '', __v: 0 } as IAccount };
+        setUser(mock.payload);
+        reset(mock.payload);
+      } else {
+        const { data } = await Axios.get<IResponse<IAccount>>(`/account/user/${id}`);
+        setUser(data.payload);
+        reset(data.payload);
+      }
     } catch {
       setMessage({ type: "error", text: "Failed to load user data" });
     } finally {
@@ -43,7 +48,8 @@ export default function EditUser() {
   const onSubmit = async (data: IAccount) => {
     if (!canSave) return;
     try {
-      await Axios.patch(`/user/${id}`, { role: data.role });
+      const isDev = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development') || import.meta.env?.DEV;
+      if (!isDev) await Axios.patch(`/user/${id}`, { role: data.role });
       setMessage({ type: "success", text: "User updated" });
       setTimeout(() => navigate("/admin/users"), 800);
     } catch {

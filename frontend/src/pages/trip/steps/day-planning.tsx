@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Axios } from "../../../lib/axios-config";
 import toast from "react-hot-toast";
 
 import DaySelector from "./day-selector";
 import DayPlanningControls from "./day-planning-control";
-import { Loader } from "../../components";
+// Loader import removed (unused)
 import { DayActions } from "../components/day-action";
 import { ActivityGrid } from "../components/activity-grid";
 import { ActivityTabs } from "../components/activity-tabs";
@@ -119,15 +119,7 @@ const DayPlanning: React.FC = () => {
       .finally(() => setLoading(false));
   }, [selectedDay?.cityId]);
 
-  const filteredHotels = useMemo(() => {
-    return hotels
-      .filter(
-        (h) =>
-          h.name?.toLowerCase().includes(hotelSearch.toLowerCase()) &&
-          (h.stars || 0) >= minStars
-      )
-      .sort((a, b) => (b.stars || 0) - (a.stars || 0));
-  }, [hotels, hotelSearch, minStars]);
+  // filteredHotels removed (unused) — keep hotels state as source of truth
 
   const handleCityChange = (cityId: string) => {
     setTripDays((prev) =>

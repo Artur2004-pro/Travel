@@ -30,7 +30,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
           transition={{ duration: 0.4 }}
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
-          onDragEnd={(e, { offset, velocity }) => {
+          onDragEnd={(_, { offset }) => {
             if (offset.x < -50) next();
             else if (offset.x > 50) prev();
           }}

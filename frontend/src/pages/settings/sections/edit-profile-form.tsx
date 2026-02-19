@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import type { ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import SettingsMobileHeader from "./settings-header-mobile";
 import { useAuth } from "../../../context/auth-context";
@@ -18,14 +19,14 @@ export default function EditProfileForm() {
     setTimeout(() => setMessage(null), 2500);
   };
 
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setLoading(true);
     try {
       const formData = new FormData();
       formData.append("avatar", file);
-      const { data } = await Axios.patch("account/avatar", formData, {
+      await Axios.patch("account/avatar", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       showMessage("success", "Avatar updated");

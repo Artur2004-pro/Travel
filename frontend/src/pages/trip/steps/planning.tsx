@@ -2,26 +2,22 @@
 import React, { useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Axios } from "../../../lib/axios-config";
-import { useAuth } from "../../../context/auth-context";
 import type { ITripItem } from "../../../types";
-import { ChevronLeft, Lock, Globe } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
 export const Planning: React.FC = () => {
   const navigate = useNavigate();
-  const { account } = useAuth();
   const { tripData, setTripData, setCompleted } = useOutletContext<{
-    tripData: { countryId?: string; tripId?: string };
-    setTripData(d: Partial<{ tripId: string; startDate: string; endDate: string }>): void;
+    tripData: any;
+    setTripData(d: Partial<any>): void;
     setCompleted(p: Partial<ITripItem>): void;
   }>();
 
-  const defaultPrivate = account?.defaultTripVisibility === "private";
   const [form, setForm] = useState({
     title: "",
     description: "",
     startDate: "",
     endDate: "",
-    isPrivate: defaultPrivate,
   });
 
   const [loading, setLoading] = useState(false);
@@ -51,7 +47,6 @@ export const Planning: React.FC = () => {
       const { data } = await Axios.post("/trip", {
         ...form,
         countryId: tripData.countryId,
-        isPrivate: form.isPrivate,
       });
 
       if (!data?.payload?._id) throw new Error();
@@ -72,9 +67,9 @@ export const Planning: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-neutral-950 text-zinc-900 dark:text-zinc-100">
+    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">
       {/* HEADER */}
-      <header className="sticky top-0 z-30 h-12 flex items-center px-3 border-b border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-neutral-950/95 backdrop-blur">
+      <header className="sticky top-0 z-30 h-12 flex items-center px-3 border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 backdrop-blur">
         <button
           onClick={() => navigate(-1)}
           className="p-2 -ml-2 active:opacity-60"
@@ -87,7 +82,7 @@ export const Planning: React.FC = () => {
         <button
           onClick={submit}
           disabled={loading}
-          className="text-sm font-semibold text-neutral-600 dark:text-neutral-400 disabled:opacity-40"
+          className="text-sm font-semibold text-sky-500 disabled:opacity-40"
         >
           Next
         </button>
@@ -125,31 +120,6 @@ export const Planning: React.FC = () => {
           "
         />
 
-        {/* VISIBILITY */}
-        <div className="flex items-center justify-between p-3 rounded-lg border border-neutral-200 dark:border-neutral-800">
-          <span className="text-sm font-medium">Visibility</span>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setForm((p) => ({ ...p, isPrivate: false }))}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium ${
-                !form.isPrivate ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900" : "bg-neutral-100 dark:bg-neutral-800"
-              }`}
-            >
-              <Globe size={14} strokeWidth={2} /> Public
-            </button>
-            <button
-              type="button"
-              onClick={() => setForm((p) => ({ ...p, isPrivate: true }))}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium ${
-                form.isPrivate ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900" : "bg-neutral-100 dark:bg-neutral-800"
-              }`}
-            >
-              <Lock size={14} strokeWidth={2} /> Private
-            </button>
-          </div>
-        </div>
-
         {/* DATES */}
         <div className="grid grid-cols-2 gap-4">
           <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 p-3">
@@ -179,7 +149,7 @@ export const Planning: React.FC = () => {
       </main>
 
       {/* BOTTOM CTA */}
-      <div className="fixed bottom-0 inset-x-0 border-t border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-neutral-950/95 backdrop-blur px-4 py-3">
+      <div className="fixed bottom-0 inset-x-0 border-t border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 backdrop-blur px-4 py-3">
         <button
           onClick={submit}
           disabled={loading}

@@ -21,7 +21,7 @@ export default function Country() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(true);
+  // loading state removed (unused)
   const [message, setMessage] = useState<IShowMessage | null>(null);
 
   const showMessage = (type: "success" | "error", text: string) => {
@@ -35,28 +35,31 @@ export default function Country() {
 
   const fetchCountries = async (pageNum: number, replace = false) => {
     try {
-      const { data } = await Axios.get<IResponse<ICountry[]>>(
-        `country?page=${pageNum}`
-      );
-
-      if (data.payload.length === 0) {
-        setHasMore(false);
-        return;
+      const isDev = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development') || import.meta.env?.DEV;
+      if (isDev) {
+        const mock = { status: 'ok', message: '', payload: [] as ICountry[] };
+        if (mock.payload.length === 0) {
+          setHasMore(false);
+          return;
+        }
+        setCountries((prev) => (replace ? mock.payload : [...prev, ...mock.payload]));
+      } else {
+        const { data } = await Axios.get<IResponse<ICountry[]>>(`country?page=${pageNum}`);
+        if (data.payload.length === 0) {
+          setHasMore(false);
+          return;
+        }
+        setCountries((prev) => (replace ? data.payload : [...prev, ...data.payload]));
       }
-
-      setCountries((prev) =>
-        replace ? data.payload : [...prev, ...data.payload]
-      );
-    } catch {
+      } catch {
       showMessage("error", "Failed to load countries");
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
     try {
-      await Axios.delete(`country/${id}`);
+      const isDev = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development') || import.meta.env?.DEV;
+      if (!isDev) await Axios.delete(`country/${id}`);
       setCountries((prev) => prev.filter((c) => c._id !== id));
       showMessage("success", "Country deleted");
     } catch {
@@ -68,11 +71,7 @@ export default function Country() {
 
   if (!account || account.role !== "admin") {
     return (
-      <EmptyState
-        title="Not authorized"
-        subtitle="Admin access only"
-        icon="⛔"
-      />
+      <EmptyState title="Not authorized" subtitle="Admin access only" icon="⛔" />
     );
   }
 

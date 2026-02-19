@@ -7,7 +7,7 @@ module.exports = {
         sans: ["Inter", "system-ui", "sans-serif"],
       },
       maxWidth: {
-        feed: "520px",
+        feed: "820px",
       },
     },
   },

@@ -10,13 +10,12 @@ export default function SettingsSidebar() {
   const items = [
     { label: "Edit profile", to: "edit-profile" },
     { label: "Appearance", to: "appearance" },
-    { label: "Privacy", to: "privacy" },
     { label: "Password", to: "security" },
     { label: "Account", to: "account" },
   ];
 
   return (
-    <aside className="hidden md:flex fixed left-[72px] xl:left-[244px] top-0 h-screen w-[244px] flex-col border-r border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 z-30">
+    <aside className="hidden md:flex fixed left-0 top-0 h-screen w-[244px] flex-col border-r border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 z-40">
       <div className="px-4 pt-6 pb-4">
         <h2 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
           Settings

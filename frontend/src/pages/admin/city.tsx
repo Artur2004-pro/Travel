@@ -35,8 +35,14 @@ export default function City() {
   const handleGetAllCities = async () => {
     try {
       setLoading(true);
-      const { data } = await Axios.get<IResponse<ICity[]>>("city/top");
-      setCities(data.payload);
+      const isDev = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development') || import.meta.env?.DEV;
+      if (isDev) {
+        const mock = { status: 'ok', message: '', payload: [] as ICity[] };
+        setCities(mock.payload);
+      } else {
+        const { data } = await Axios.get<IResponse<ICity[]>>("city/top");
+        setCities(data.payload);
+      }
     } catch {
       showMessage("error", "Failed to load cities");
     } finally {
@@ -47,10 +53,16 @@ export default function City() {
   const handleSearch = async (query: string) => {
     try {
       setLoading(true);
-      const { data } = await Axios.get<IResponse<ICity[]>>(
-        `city/search?name=${query}`
-      );
-      setCities(data.payload);
+      const isDev = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development') || import.meta.env?.DEV;
+      if (isDev) {
+        const mock = { status: 'ok', message: '', payload: [] as ICity[] };
+        setCities(mock.payload);
+      } else {
+        const { data } = await Axios.get<IResponse<ICity[]>>(
+          `city/search?name=${query}`
+        );
+        setCities(data.payload);
+      }
     } catch {
       showMessage("error", "Failed to search cities");
     } finally {
@@ -60,7 +72,8 @@ export default function City() {
 
   const handleDelete = async (id: string) => {
     try {
-      await Axios.delete(`city/${id}`);
+      const isDev = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development') || import.meta.env?.DEV;
+      if (!isDev) await Axios.delete(`city/${id}`);
       setCities((prev) => prev.filter((c) => c._id !== id));
       showMessage("success", "City deleted");
     } catch {

@@ -1,6 +1,6 @@
 import type { ICityProps } from "../../types";
 import { EditButton, DeleteButton, ImageSection } from "../components";
-import { MoreHorizontal } from "lucide-react";
+// removed unused MoreHorizontal import
 
 export const CityItem = ({ city, onDelete }: ICityProps) => {
   return (

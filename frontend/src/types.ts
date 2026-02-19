@@ -19,10 +19,13 @@ export interface IAccount {
   role: "user" | "admin";
   isBlocked: boolean;
   emailVerified: boolean;
-  defaultTripVisibility?: "public" | "private";
   createdAt: string;
   updatedAt: string;
   __v: number;
+  bio?: string;
+  trips?: number;
+  followers?: number;
+  following?: number;
 }
 export interface IShowMessage {
   type: "success" | "error";
@@ -152,8 +155,16 @@ export interface Country {
 export interface ITripItem {
   country: boolean;
   planning: boolean;
+  tripDay: boolean;
+  hotel: boolean;
   dayPlanning: boolean;
   finish: boolean;
+}
+
+export interface IPost {
+  _id: string;
+  title?: string;
+  thumbnail?: string;
 }
 
 export interface TripItem {

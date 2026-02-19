@@ -12,9 +12,12 @@ export const ImageSection: React.FC<ImageSectionProps> = ({ images }) => {
     );
   }
 
-  const imgUrls = images.map(
-    (img) => import.meta.env.VITE_APP_DOMAIN.toString() + img
-  );
+  const imgUrls = images.map((img) => {
+    const base = String(import.meta.env.VITE_APP_DOMAIN || "");
+    if (!img) return "";
+    if (img.startsWith("http") || img.startsWith("data:")) return img;
+    return base + img;
+  });
 
   const nextImage = () => setCurrent((prev) => (prev + 1) % imgUrls.length);
   const prevImage = () =>
@@ -26,6 +29,7 @@ export const ImageSection: React.FC<ImageSectionProps> = ({ images }) => {
         key={imgUrls[current]}
         src={imgUrls[current]}
         alt={`Preview ${current + 1}`}
+        loading="lazy"
         className="w-full h-full object-cover"
       />
 

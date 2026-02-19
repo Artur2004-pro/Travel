@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, Search, PlusCircle, Map, User } from "lucide-react";
+import { Home, Search, PlusSquare, Map, User } from "lucide-react";
 
 type Props = {
   onCreateClick?: () => void;
@@ -8,7 +8,7 @@ type Props = {
 const items = [
   { to: "/", icon: Home },
   { to: "/explore", icon: Search },
-  { to: "create", icon: PlusCircle },
+  { to: "create", icon: PlusSquare },
   { to: "/trips", icon: Map },
   { to: "/profile", icon: User },
 ];
@@ -28,7 +28,6 @@ export default function MobileBottomNav({ onCreateClick }: Props) {
           <NavLink
             key={to}
             to={to === "create" ? "#" : to}
-            end={to === "/"}
             onClick={(e) => {
               if (to === "create" && onCreateClick) {
                 e.preventDefault();

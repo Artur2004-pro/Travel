@@ -1,4 +1,4 @@
-import type { ISearchInputProps } from "../../types";
+import type { ISearchInputProps } from "../../../types";
 
 export const SearchInput: React.FC<ISearchInputProps> = ({
   value,

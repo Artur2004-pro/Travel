@@ -1,0 +1,94 @@
+{
+  "/admin": {
+    "logs": [
+      {
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "type": "info",
+        "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+      },
+      {
+        "type": "debug",
+        "text": "[vite] connected."
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+      },
+      {
+        "type": "error",
+        "text": "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+      },
+      {
+        "type": "pageerror",
+        "text": "AxiosError$1"
+      }
+    ],
+    "screenshot": "/home/artur/Bardiner/frontend/playwright-smoke/shot_admin.png",
+    "success": true
+  },
+  "/profile": {
+    "logs": [
+      {
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "type": "info",
+        "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+      },
+      {
+        "type": "debug",
+        "text": "[vite] connected."
+      },
+      {
+        "type": "warning",
+        "text": "You should call navigate() in a React.useEffect(), not when your component is first rendered."
+      },
+      {
+        "type": "warning",
+        "text": "You should call navigate() in a React.useEffect(), not when your component is first rendered."
+      }
+    ],
+    "screenshot": "/home/artur/Bardiner/frontend/playwright-smoke/shot_profile.png",
+    "success": true
+  },
+  "/settings": {
+    "logs": [
+      {
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "type": "info",
+        "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+      },
+      {
+        "type": "debug",
+        "text": "[vite] connected."
+      }
+    ],
+    "screenshot": "/home/artur/Bardiner/frontend/playwright-smoke/shot_settings.png",
+    "success": true
+  },
+  "/trips/new": {
+    "logs": [
+      {
+        "type": "debug",
+        "text": "[vite] connecting..."
+      },
+      {
+        "type": "info",
+        "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"
+      },
+      {
+        "type": "debug",
+        "text": "[vite] connected."
+      }
+    ],
+    "screenshot": "/home/artur/Bardiner/frontend/playwright-smoke/shot_trips_new.png",
+    "success": true
+  }
+}

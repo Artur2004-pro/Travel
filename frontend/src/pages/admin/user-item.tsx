@@ -1,6 +1,6 @@
 import type { IAccountProps } from "../../types";
 import { EditButton } from "../components";
-import { UserCircle2, MoreHorizontal } from "lucide-react";
+import { UserCircle2 } from "lucide-react";
 
 export const UserItem = ({ account }: IAccountProps) => {
   return (

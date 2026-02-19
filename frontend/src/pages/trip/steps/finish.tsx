@@ -23,9 +23,9 @@ export const Finish: React.FC = () => {
     setError(null);
 
     try {
-      await Axios.post(`trip/${tripData.tripId}/cover`, form);
+      await Axios.post(`/trip/${tripData.tripId}/cover`, form);
       setCompleted({ finish: true });
-      navigate(`/trips/${tripData.tripId}`);
+      navigate(`/trip/${tripData.tripId}`);
     } catch {
       setError("Failed to upload cover");
     } finally {
@@ -33,15 +33,25 @@ export const Finish: React.FC = () => {
     }
   };
 
-  const skipCover = () => {
-    setCompleted({ finish: true });
-    navigate(`/trips/${tripData.tripId}`);
+  const useDefault = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await Axios.post(`/trip/${tripData.tripId}/cover`, { useDefault: true });
+      setCompleted({ finish: true });
+      navigate(`/trip/${tripData.tripId}`);
+    } catch {
+      setError("Failed to set default cover");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-neutral-950 text-zinc-900 dark:text-zinc-100">
+    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">
       {/* HEADER */}
-      <header className="sticky top-0 z-30 h-12 flex items-center px-3 border-b border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-neutral-950/95 backdrop-blur">
+      <header className="sticky top-0 z-30 h-12 flex items-center px-3 border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 backdrop-blur">
         <button
           onClick={() => navigate(-1)}
           className="p-2 -ml-2 active:opacity-60"
@@ -52,9 +62,9 @@ export const Finish: React.FC = () => {
         <h1 className="flex-1 text-center text-sm font-semibold">Add cover</h1>
 
         <button
-          onClick={skipCover}
+          onClick={useDefault}
           disabled={loading}
-          className="text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white disabled:opacity-40"
+          className="text-sm font-medium text-sky-500 disabled:opacity-40"
         >
           Skip
         </button>
@@ -105,11 +115,16 @@ export const Finish: React.FC = () => {
       </main>
 
       {/* BOTTOM CTA */}
-      <div className="fixed bottom-0 inset-x-0 border-t border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-neutral-950/95 backdrop-blur px-4 py-3">
+      <div className="fixed bottom-0 inset-x-0 border-t border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 backdrop-blur px-4 py-3">
         <button
           onClick={upload}
           disabled={loading || !file}
-          className="w-full h-11 rounded-md bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-semibold disabled:opacity-40"
+          className="
+            w-full h-11 rounded-md
+            bg-sky-500 text-white
+            text-sm font-semibold
+            disabled:opacity-40
+          "
         >
           {loading ? "Saving…" : "Finish"}
         </button>

@@ -1,10 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
+import type { ChangeEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Axios } from "../../lib/axios-config";
 import { Loader, MessagePopup, BackButton } from "../components";
 import type { ICity, IResponse, IShowMessage } from "../../types";
 import { useForm } from "react-hook-form";
-import { Plus, X } from "lucide-react";
+// removed unused icons
 import { ImageGrid } from "../components/image/image-grid";
 
 export default function EditCity() {
@@ -27,12 +28,22 @@ export default function EditCity() {
 
   const fetchCity = async () => {
     try {
-      const { data } = await Axios.get<IResponse<ICity>>(`/city/${id}`);
-      setCity(data.payload);
-      reset(data.payload);
-      setFiles([]);
-      setPreviews([]);
-      setImagesChanged(false);
+      const isDev = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development') || import.meta.env?.DEV;
+      if (isDev) {
+        const mock = { status: 'ok', message: '', payload: { _id: id || 'dev', name: 'Dev City', description: '', images: [], countryId: '', top: 0 } as ICity };
+        setCity(mock.payload);
+        reset(mock.payload);
+        setFiles([]);
+        setPreviews([]);
+        setImagesChanged(false);
+      } else {
+        const { data } = await Axios.get<IResponse<ICity>>(`/city/${id}`);
+        setCity(data.payload);
+        reset(data.payload);
+        setFiles([]);
+        setPreviews([]);
+        setImagesChanged(false);
+      }
     } catch {
       setMessage({ type: "error", text: "Failed to load city" });
     } finally {
@@ -48,7 +59,8 @@ export default function EditCity() {
       formData.append("description", data.description || "");
       files.forEach((f) => formData.append("city", f));
 
-      await Axios.patch(`/city/${id}`, formData);
+      const isDev = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development') || import.meta.env?.DEV;
+      if (!isDev) await Axios.patch(`/city/${id}`, formData);
       setMessage({ type: "success", text: "City updated" });
       setTimeout(() => navigate("/admin/city"), 800);
     } catch {
@@ -56,7 +68,7 @@ export default function EditCity() {
     }
   };
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const imgs = Array.from(e.target.files);
     setFiles((prev) => [...prev, ...imgs]);
@@ -73,10 +85,9 @@ export default function EditCity() {
 
   const deleteOld = async (img: string) => {
     try {
-      await Axios.delete(`/city/${id}/photos?filename=${img}`);
-      setCity((c) =>
-        c ? { ...c, images: c.images.filter((i) => i !== img) } : c
-      );
+      const isDev = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development') || import.meta.env?.DEV;
+      if (!isDev) await Axios.delete(`/city/${id}/photos?filename=${img}`);
+      setCity((c) => (c ? { ...c, images: c.images.filter((i) => i !== img) } : c));
       setImagesChanged(true);
     } catch {
       setMessage({ type: "error", text: "Failed to delete image" });

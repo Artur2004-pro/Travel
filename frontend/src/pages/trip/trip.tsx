@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useAuth } from "../../context/auth-context";
@@ -90,12 +90,16 @@ export const Trip: React.FC = () => {
     () => ({ tripData, setTripData, completed, setCompleted }),
     [tripData, completed]
   );
-  if (!account) {
-    navigate("/login");
-    return null;
-  }
+  const redirected = useRef(false);
+  useEffect(() => {
+    if (!account && !redirected.current) {
+      redirected.current = true;
+      setTimeout(() => navigate("/login"), 0);
+    }
+  }, [account, navigate]);
+  if (!account) return null;
   return (
-    <div className="min-h-screen bg-white dark:bg-neutral-950 flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-black flex flex-col">
       {/* Header */}
       <div className="sticky top-0 z-20 bg-white dark:bg-black border-b border-zinc-200 dark:border-zinc-800">
         {/* Horizontal scroll progress */}

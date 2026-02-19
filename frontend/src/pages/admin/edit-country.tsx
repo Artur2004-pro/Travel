@@ -26,12 +26,22 @@ export default function EditCountry() {
 
   const fetchCountry = async () => {
     try {
-      const { data } = await Axios.get<IResponse<ICountry>>(`/country/${id}`);
-      setCountry(data.payload);
-      reset(data.payload);
-      setFiles([]);
-      setPreviews([]);
-      setImagesChanged(false);
+      const isDev = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development') || import.meta.env?.DEV;
+      if (isDev) {
+        const mock = { status: 'ok', message: '', payload: { _id: id || 'dev', name: 'Dev Country', description: '', images: [], } as ICountry };
+        setCountry(mock.payload);
+        reset(mock.payload);
+        setFiles([]);
+        setPreviews([]);
+        setImagesChanged(false);
+      } else {
+        const { data } = await Axios.get<IResponse<ICountry>>(`/country/${id}`);
+        setCountry(data.payload);
+        reset(data.payload);
+        setFiles([]);
+        setPreviews([]);
+        setImagesChanged(false);
+      }
     } catch {
       setMessage({ type: "error", text: "Failed to load country" });
     } finally {
@@ -47,7 +57,8 @@ export default function EditCountry() {
       formData.append("description", data.description || "");
       files.forEach((f) => formData.append("country", f));
 
-      await Axios.patch(`/country/${id}`, formData);
+      const isDev = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development') || import.meta.env?.DEV;
+      if (!isDev) await Axios.patch(`/country/${id}`, formData);
       setMessage({ type: "success", text: "Country updated" });
       setTimeout(() => navigate("/admin/country"), 800);
     } catch {
@@ -69,10 +80,9 @@ export default function EditCountry() {
 
   const deleteOld = async (img: string) => {
     try {
-      await Axios.delete(`/country/${id}/photos?filename=${img}`);
-      setCountry((c) =>
-        c ? { ...c, images: c.images.filter((i) => i !== img) } : c,
-      );
+      const isDev = (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development') || import.meta.env?.DEV;
+      if (!isDev) await Axios.delete(`/country/${id}/photos?filename=${img}`);
+      setCountry((c) => (c ? { ...c, images: c.images.filter((i) => i !== img) } : c));
       setImagesChanged(true);
     } catch {
       setMessage({ type: "error", text: "Failed to delete image" });

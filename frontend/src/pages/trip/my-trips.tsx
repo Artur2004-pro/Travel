@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Axios } from "../../lib/axios-config";
 import { useNavigate } from "react-router-dom";
-import { Loader } from "../components";
+import { Card } from "../components";
+import SkeletonGrid from "../components/layout/skeleton-grid";
 import { Edit, Trash2, CheckCircle, Eye, Lock, Unlock } from "lucide-react";
 import toast from "react-hot-toast";
 import dayjs from "dayjs";
@@ -32,6 +33,7 @@ const MyTrips: React.FC = () => {
 
   useEffect(() => {
     fetchTrips();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchTrips = async () => {
@@ -75,96 +77,70 @@ const MyTrips: React.FC = () => {
     }
   };
 
-  if (loading) return <Loader />;
+  if (loading) return <SkeletonGrid count={6} />;
 
   return (
-    <div className="max-w-feed mx-auto px-4 py-6 pb-24 md:pb-8">
+    <div className="max-w-feed md:max-w-3xl mx-auto px-4 py-6 pb-24 md:pb-8">
       {trips.length === 0 ? (
         <p className="text-sm text-neutral-500 text-center py-12">No trips yet</p>
       ) : (
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {trips.map((trip) => (
-            <article
-              key={trip._id}
-              className="border border-neutral-200 dark:border-neutral-800 rounded-lg overflow-hidden"
-            >
-              <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200 dark:border-neutral-800">
-                <div>
-                  <div className="text-sm font-semibold truncate">{trip.title}</div>
-                  <div className="text-xs text-neutral-500">
-                    {dayjs(trip.startDate).format("MMM D")} –{" "}
-                    {dayjs(trip.endDate).format("MMM D")} · {trip.dayCount} days
+            <article key={trip._id}>
+              <Card>
+                <div className="relative">
+                  {trip.coverImage ? (
+                    <div
+                      onClick={() => navigate(`/trips/${trip._id}`)}
+                      className="aspect-[4/3] bg-neutral-100 dark:bg-neutral-900 cursor-pointer overflow-hidden"
+                    >
+                      <img src={(app.current || "") + trip.coverImage} alt={trip.title} className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="aspect-[4/3] bg-neutral-100 dark:bg-neutral-900" />
+                  )}
+
+                  <div className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm font-semibold truncate">{trip.title}</div>
+                        <div className="text-xs text-neutral-500">
+                          {dayjs(trip.startDate).format("MMM D")} – {dayjs(trip.endDate).format("MMM D")} · {trip.dayCount} days
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-neutral-400">
+                        {trip.isPrivate ? <Lock size={16} /> : <Unlock size={16} />}
+                      </div>
+                    </div>
+
+                    {trip.description && (
+                      <p className="mt-3 text-sm text-neutral-500 line-clamp-3">{trip.description}</p>
+                    )}
+
+                    <div className="mt-4 flex items-center justify-between">
+                      <div className="flex gap-3 text-neutral-600 dark:text-neutral-400">
+                        <button onClick={() => navigate(`/trips/${trip._id}`)} aria-label="View trip">
+                          <Eye size={18} />
+                        </button>
+                        <button onClick={() => navigate(`/trips/edit/${trip._id}`)} aria-label="Edit trip">
+                          <Edit size={18} />
+                        </button>
+                        <button onClick={() => toggleComplete(trip._id, trip.isCompleted || false)} aria-label="Toggle complete">
+                          <CheckCircle size={18} />
+                        </button>
+                      </div>
+                      <div className="flex gap-3">
+                        <button onClick={() => togglePrivate(trip._id, trip.isPrivate)} aria-label="Toggle private" className="text-neutral-600 dark:text-neutral-400">
+                          {trip.isPrivate ? <Unlock size={18} /> : <Lock size={18} />}
+                        </button>
+                        <button onClick={() => deleteTrip(trip._id)} aria-label="Delete trip" className="text-neutral-600 dark:text-neutral-400 hover:text-red-500">
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-neutral-400">
-                  {trip.isPrivate ? <Lock size={16} /> : <Unlock size={16} />}
-                  {trip.isCompleted && (
-                    <CheckCircle size={16} className="text-emerald-500" />
-                  )}
-                </div>
-              </div>
-
-              {trip.coverImage && (
-                <div
-                  onClick={() => navigate(`/trips/${trip._id}`)}
-                  className="aspect-[4/5] bg-neutral-100 dark:bg-neutral-900 cursor-pointer"
-                >
-                  <img
-                    src={app.current + trip.coverImage}
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-
-              <div className="flex items-center justify-between px-4 py-3">
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => navigate(`/trips/${trip._id}`)}
-                    className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
-                  >
-                    <Eye size={20} strokeWidth={2} />
-                  </button>
-                  <button
-                    onClick={() => navigate(`/trips/edit/${trip._id}`)}
-                    className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
-                  >
-                    <Edit size={20} strokeWidth={2} />
-                  </button>
-                  <button
-                    onClick={() =>
-                      toggleComplete(trip._id, trip.isCompleted || false)
-                    }
-                    className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
-                  >
-                    <CheckCircle size={20} strokeWidth={2} />
-                  </button>
-                </div>
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => togglePrivate(trip._id, trip.isPrivate)}
-                    className="text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
-                  >
-                    {trip.isPrivate ? (
-                      <Unlock size={20} strokeWidth={2} />
-                    ) : (
-                      <Lock size={20} strokeWidth={2} />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => deleteTrip(trip._id)}
-                    className="text-neutral-600 dark:text-neutral-400 hover:text-red-500 transition-colors"
-                  >
-                    <Trash2 size={20} strokeWidth={2} />
-                  </button>
-                </div>
-              </div>
-
-              {trip.description && (
-                <p className="px-4 pb-4 text-sm text-neutral-500 line-clamp-2">
-                  {trip.description}
-                </p>
-              )}
+              </Card>
             </article>
           ))}
         </div>

@@ -1,0 +1,18 @@
+{
+  "/admin": {
+    "foundEarly": true,
+    "foundLate": false
+  },
+  "/profile": {
+    "foundEarly": true,
+    "foundLate": false
+  },
+  "/settings": {
+    "foundEarly": true,
+    "foundLate": false
+  },
+  "/trips/new": {
+    "foundEarly": true,
+    "foundLate": false
+  }
+}

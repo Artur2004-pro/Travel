@@ -1,12 +1,5 @@
 import type { Item } from "../../../types";
-import {
-  LayoutDashboard,
-  Globe2,
-  MapPin,
-  Users,
-  Globe,
-  MapPinPlus,
-} from "lucide-react";
+import { LayoutDashboard, Globe2, MapPin, Users } from "lucide-react";
 
 export const navItems: Item[] = [
   {
