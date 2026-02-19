@@ -23,6 +23,7 @@ app.use(
       "http://172.20.10.2:5173",
       "http://192.168.65.106:5173",
       "http://192.168.34.151:5173",
+      "http://192.168.65.123:5173",
     ],
     credentials: true,
   }),
@@ -42,7 +43,7 @@ app.use("/country", router.country);
 app.use("/admin", router.admin);
 app.use("/city", router.city);
 app.use("/posts", router.post);
-app.use("/commetns", router.comment);
+app.use("/comments", router.comment);
 app.use("/metadata", router.metadata);
 app.use("/trip", router.trip);
 app.use("/trip-day", router.tripDay);

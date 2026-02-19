@@ -11,13 +11,13 @@ class CountryService {
       if (!geolocation) {
         throw new ServiceError("Country coordinates not found", 404);
       }
-      const { name, description, images } = data;
+      const { name, description, files } = data;
       const { latitude, longitude } = geolocation;
 
       const country = await Country.create({
         name,
         description,
-        images,
+        images: files?.map((file) => file.path) || [],
         lat: latitude,
         lon: longitude,
       });
@@ -44,8 +44,8 @@ class CountryService {
       if (!country) {
         throw new ServiceError("Country not found", 404);
       }
-      if (data.images?.length) {
-        country.images.push(...data.images);
+      if (data.files?.length) {
+        country.images.push(...data.files.map((file) => file.path));
       }
       if (data.description) {
         country.description = data.description;
@@ -61,7 +61,7 @@ class CountryService {
       const { filename, id } = data;
       const { modifiedCount, matchedCount } = await Country.updateOne(
         { _id: id },
-        { $pull: { images: filename } }
+        { $pull: { images: filename } },
       );
       if (!matchedCount) {
         throw new ServiceError("Country not found", 404);

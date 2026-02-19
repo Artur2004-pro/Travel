@@ -1,43 +1,48 @@
 const router = require("express").Router();
 const { tripActivity } = require("../controllers/");
-const { TripActivityValidator } = require("../validators/");
 const { isAuth } = require("../middlewares/");
-
+const validate = require("../middlewares/validator");
+const { id } = require("../schemas/common.schema");
+const {
+  addSchema,
+  addNightSchema,
+  updateSchema,
+} = require("../schemas/trip-activity.schema");
 router.get(
   "/:id",
   isAuth,
-  TripActivityValidator.activitiesByTripDayId,
-  tripActivity.activitiesByTripDayId.bind(tripActivity)
+  validate({ params: id }, { withUserId: true, withUserRole: true }),
+  tripActivity.activitiesByTripDayId.bind(tripActivity),
 );
 router.get(
   "/all/:id",
   isAuth,
-  TripActivityValidator.activityById,
-  tripActivity.activityById.bind(tripActivity)
+  validate({ params: id }, { withUserId: true, withUserRole: true }),
+  tripActivity.activityById.bind(tripActivity),
 );
 router.post(
   "/",
   isAuth,
-  TripActivityValidator.addActivity,
-  tripActivity.addActivity.bind(tripActivity)
+  validate({ body: addSchema }, { withUserId: true }),
+  tripActivity.addActivity.bind(tripActivity),
 );
 router.post(
   "/night",
   isAuth,
-  TripActivityValidator.addNightActivity,
-  tripActivity.addNightActivity.bind(tripActivity)
+  validate({ body: addNightSchema }, { withUserId: true }),
+  tripActivity.addNightActivity.bind(tripActivity),
 );
 router.patch(
   "/:id",
   isAuth,
-  TripActivityValidator.updateActivity,
-  tripActivity.updateActivity.bind(tripActivity)
+  validate({ params: id, body: updateSchema }, { withUserId: true }),
+  tripActivity.updateActivity.bind(tripActivity),
 );
 router.delete(
   "/:id",
   isAuth,
-  TripActivityValidator.deleteActivity,
-  tripActivity.deleteActivity.bind(tripActivity)
+  validate({ params: id }, { withUserId: true }),
+  tripActivity.deleteActivity.bind(tripActivity),
 );
 
 module.exports = router;

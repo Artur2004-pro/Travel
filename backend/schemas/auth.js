@@ -5,7 +5,7 @@ const {
   emailSchema,
   codeSchema,
 } = require("./common.schema");
-const isEmail = require("../validators/isEmail");
+const { isEmail } = require("../helpers/");
 
 const signupSchema = z.object({
   username: usernameSchema,

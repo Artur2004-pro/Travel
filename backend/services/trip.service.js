@@ -7,6 +7,7 @@ const {
 const generateTripPdf = require("../helpers/trip/trip-pdf.js");
 const { Trip, Country } = require("../models");
 const { ServiceError, ErrorHandler } = require("./error-handler.js");
+const { env } = require("../helpers/");
 
 class TripService {
   async getTrip(data) {
@@ -29,7 +30,7 @@ class TripService {
   }
   async addCoverImage(data) {
     try {
-      const { id, image, userId } = data;
+      const { id, file, userId } = data;
       const trip = await Trip.findById(id);
       if (!trip) {
         throw new ServiceError("Trip not found", 404);
@@ -38,7 +39,7 @@ class TripService {
         throw new ServiceError("Cannot access or modify this trip", 409);
       }
       await deleteImage(trip.coverImage || []);
-      trip.coverImage = image;
+      trip.coverImage = file.path;
       await trip.save();
       return trip;
     } catch (err) {
@@ -66,7 +67,7 @@ class TripService {
   async getMyTrips(data) {
     try {
       const { id } = data;
-      const trips = await Trip.find({ user: id }).populate("days");
+      const trips = await Trip.find({ user: id }).populate("days").limit(env.DATA_LIMIT);
       return trips || [];
     } catch (err) {
       throw ErrorHandler.normalize(err);
@@ -138,7 +139,7 @@ class TripService {
   async getAllTrips(data) {
     try {
       const { role, id, userId } = data;
-      const trips = await Trip.find({ user: id });
+      const trips = await Trip.find({ user: id }).limit(env.DATA_LIMIT || 100);
       if (!trips || !trips.length) {
         throw new ServiceError("Not trips found", 404);
       }
@@ -154,7 +155,7 @@ class TripService {
   }
   async add(data) {
     try {
-      const { startDate, endDate, description, countryId, userId, title, isPrivate } =
+      const { startDate, endDate, description, countryId, userId, title } =
         data;
       const isValid = dateValidaton(startDate, endDate);
       if (isValid.message != "ok") {
@@ -165,9 +166,6 @@ class TripService {
       if (!countryExists) {
         throw new ServiceError("Country not found", 404);
       }
-      const User = require("../models/user");
-      const user = await User.findById(userId).select("defaultTripVisibility");
-      const visibility = isPrivate ?? (user?.defaultTripVisibility === "private");
       const trip = await Trip.create({
         country: countryExists._id,
         user: userId,
@@ -177,7 +175,6 @@ class TripService {
         description,
         days: [],
         dayCount,
-        isPrivate: visibility,
       });
       return trip;
     } catch (err) {

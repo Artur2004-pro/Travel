@@ -1,12 +1,13 @@
 const { ServiceError, ErrorHandler } = require("./error-handler.js");
 const { Post } = require("../models/index.js");
 const { deleteImage } = require("../helpers/index.js");
+const { env } = require("../helpers/");
 
 class PostService {
   async getAll(id) {
     try {
-      const posts = await Post.find({ author: id });
-      return posts;
+      const posts = await Post.find({ author: id }).limit(env.DATA_LIMIT || 50);
+      return posts || [];
     } catch (err) {
       throw ErrorHandler.normalize(err);
     }
@@ -28,7 +29,7 @@ class PostService {
         author: data.userId,
         title: data.title,
         content: data.content,
-        images: data.images,
+        images: data?.files?.map((file) => file.path) || [],
         hashtags: data.hashtags,
       });
       return post;
@@ -39,13 +40,13 @@ class PostService {
   async delete(data) {
     try {
       const { userId, role } = data;
-      const found = await Post.findById(id);
+      const found = await Post.findById(data.id);
       if (!found) {
         throw new ServiceError("Post not found", 404);
       }
       const author = found.author;
       if (userId != author && role != "admin") {
-        throw ("Cannot access or modify this post", 409);
+        throw new ServiceError("Cannot access or modify this post", 409);
       }
       await found.deleteOne();
       return author;
@@ -63,7 +64,7 @@ class PostService {
   }
   async update(data) {
     try {
-      const { id, userId, images, description, title } = data;
+      const { id, userId, files, description, title } = data;
       const post = await Post.findById(id);
       if (!post) {
         throw new ServiceError("Post not found", 404);
@@ -71,8 +72,8 @@ class PostService {
       if (post.author != userId) {
         throw new ServiceError("Cannot access or modify this post", 409);
       }
-      if (images.length) {
-        post.images.push(...images);
+      if (files?.length) {
+        post.images.push(...files.map((file) => file.path));
       }
       if (description) {
         post.description = description;

@@ -4,6 +4,7 @@ const {
   verifyRefresh,
   createRefreshToken,
   createToken,
+  env,
 } = require("../helpers/");
 
 async function isAuth(req, res, next) {
@@ -21,22 +22,23 @@ async function isAuth(req, res, next) {
       return res.status(401).send({ message: "Refresh token missing" });
     }
 
-    const refreshPayload = verifyRefresh(refreshToken);
-    if (!refreshPayload) {
+    const { id, role } = verifyRefresh(refreshToken);
+    if (!id) {
       return res.status(401).send({ message: "Session expired, login again" });
     }
 
-    const newRefresh = createRefreshToken({ id: refreshPayload.id });
+    // Preserve any existing JWT fields (role, id) when rotating refresh token
+    const newRefresh = createRefreshToken({ id, role });
 
     res.cookie("refresh_token", newRefresh, {
       httpOnly: true,
-      secure: false,
+      secure: env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    payload = refreshPayload;
+    payload = { id, role };
   }
 
   const { id } = payload;

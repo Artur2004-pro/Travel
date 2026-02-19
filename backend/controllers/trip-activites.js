@@ -1,3 +1,4 @@
+const { sendSuccess } = require("../helpers/utilities/api-response.js");
 const tripAcitivtyService = require("../services/trip-acitivty.service.js");
 
 class TripActivityController {
@@ -5,70 +6,34 @@ class TripActivityController {
     this.service = tripAcitivtyService;
   }
   async activitiesByTripDayId(req, res) {
-    try {
-      const activities = await this.service.activitiesByTripDayId(req.body);
-      return res.status(200).send({
-        message: "Success",
-        payload: activities,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.params || req.query || {};
+    const activities = await this.service.activitiesByTripDayId(data);
+    return sendSuccess(res, activities);
   }
   async activityById(req, res) {
-    try {
-      const activity = await this.service.activityById(req.body);
-      return res.status(200).send({
-        message: "Success",
-        payload: activity,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.params || {};
+    const activity = await this.service.activityById(data);
+    return sendSuccess(res, activity);
   }
   async addActivity(req, res) {
-    try {
-      const acitivty = await this.service.addActivity(req.body);
-      return res.status(201).send({
-        message: "Activity added successfully",
-        payload: acitivty,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const acitivty = await this.service.addActivity(data);
+    return sendSuccess(res, acitivty);
   }
   async deleteActivity(req, res) {
-    try {
-      const deleted = await this.service.deleteActivity(req.body);
-      return res.status(200).send({
-        message: "Activity deleted successfully",
-        payload: deleted,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.params || {};
+    const deleted = await this.service.deleteActivity(data);
+    return sendSuccess(res, deleted);
   }
   async updateActivity(req, res) {
-    try {
-      const activity = await this.service.updateActivity(req.body);
-      return res.status(200).send({
-        message: "Activity updated successfully",
-        payload: activity,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const activity = await this.service.updateActivity(data);
+    return sendSuccess(res, activity);
   }
   async addNightActivity(req, res) {
-    try {
-      const activity = await this.service.addNightActivity(req.body);
-      return res.status(201).send({
-        message: "Night activity added successfully",
-        payload: activity,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const activity = await this.service.addNightActivity(data);
+    return sendSuccess(res, activity);
   }
 }
 

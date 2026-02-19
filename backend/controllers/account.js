@@ -1,92 +1,56 @@
 const { userService } = require("../services/");
-
+const { sendSuccess } = require("../helpers/utilities/api-response");
 class AccountController {
   constructor() {
     this.service = userService;
   }
   // admin
   async configureAccount(req, res) {
-    try {
-      const account = await this.service.configureAccount(req.body);
-      const message = account.isBlocked ? "blocked" : "unblocked";
-      return res.status(200).send({ message: `User ${message}` });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const account = await this.service.configureAccount(data);
+    const message = account.isBlocked ? "blocked" : "unblocked";
+    return sendSuccess(res, { message: `User ${message}`, payload: account });
   }
   async search(req, res) {
-    try {
-      const users = await this.service.search(req.query);
-      return res.status(200).send({ message: "Success", payload: users });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.query || {};
+    const users = await this.service.search(data);
+    return sendSuccess(res, { message: "Success", payload: users });
   }
   async getSpecAccount(req, res) {
-    try {
-      const account = await this.service.getSpecAccount(req.params);
-      return res.status(200).send({ message: "Success", payload: account });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.params || {};
+    const account = await this.service.getSpecAccount(data);
+    return sendSuccess(res, { message: "Success", payload: account });
   }
   async role(req, res) {
-    try {
-      const user = await this.service.role(req.params);
-      return res.status(200).send({
-        message: "User role changed successfully",
-        payload: user.role,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const user = await this.service.role(data);
+    return sendSuccess(res, {
+      message: "User role changed successfully",
+      payload: user.role,
+    });
   }
   // user
   async updatePassword(req, res) {
-    try {
-      await this.service.updatePassword(req.body);
-      return res.status(200).send({ message: "Password updated" });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    await this.service.updatePassword(data);
+    return sendSuccess(res, { message: "Password updated" });
   }
   async updateUsername(req, res) {
-    try {
-      const account = await this.service.updateUsername(req.body);
-      return res
-        .status(200)
-        .send({ message: "Username updated", payload: account.username });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const account = await this.service.updateUsername(data);
+    return sendSuccess(res, {
+      message: "Username updated",
+      payload: account.username,
+    });
   }
   async getAccount(req, res) {
-    try {
-      const found = await this.service.getAccount({ id: req.user._id });
-      return res.status(200).send({ message: "ok", payload: found });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
-  }
-  async updateDefaultTripVisibility(req, res) {
-    try {
-      const account = await this.service.updateDefaultTripVisibility(req.body);
-      return res
-        .status(200)
-        .send({ message: "Preferences updated", payload: account });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const found = await this.service.getAccount({ id: req.user._id });
+    return sendSuccess(res, { message: "ok", payload: found });
   }
   async updateAvatar(req, res) {
-    try {
-      const updated = await this.service.updateAvatar(req.body);
-      return res
-        .status(200)
-        .send({ message: "Avatar updated", payload: updated });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || { userId: req.user._id, file: req.file };
+    const updated = await this.service.updateAvatar(data);
+    return sendSuccess(res, { message: "Avatar updated", payload: updated });
   }
 }
 

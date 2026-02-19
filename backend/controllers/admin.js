@@ -1,3 +1,4 @@
+const { sendSuccess } = require("../helpers/utilities/api-response");
 const { userService } = require("../services/");
 
 class AdminController {
@@ -5,27 +6,14 @@ class AdminController {
     this.service = userService;
   }
   async beAdmin(req, res) {
-    try {
-      const user = await this.service.beAdmin({ id: req.user._id });
-      return res
-        .status(200)
-        .send({ message: "User role changed successfully", payload: user });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const user = await this.service.beAdmin(data);
+    return sendSuccess(res, user);
   }
   async getStatistics(_, res) {
-    try {
-      const { countries, cities, admins, users } =
-        await this.service.getStatistics();
-
-      return res.status(200).send({
-        message: "Success",
-        payload: { countries, cities, admins, users },
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const { countries, cities, admins, users } =
+      await this.service.getStatistics();
+    return sendSuccess(res, { countries, cities, admins, users });
   }
 }
 

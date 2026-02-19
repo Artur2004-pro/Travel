@@ -1,3 +1,4 @@
+const { sendSuccess } = require("../helpers/utilities/api-response");
 const { commentService } = require("../services");
 
 class CommentController {
@@ -5,32 +6,19 @@ class CommentController {
     this.service = commentService;
   }
   async add(req, res) {
-    try {
-      const comment = await this.service.add(req.body);
-      return res
-        .status(200)
-        .send({ message: "Comment added successfully", payload: comment });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const comment = await this.service.add(data);
+    return sendSuccess(res, comment);
   }
   async delete(req, res) {
-    try {
-      const comment = await this.service.delete(req.body);
-      return res
-        .status(200)
-        .send({ message: "Comment deleted successfully", payload: comment });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.params || {};
+    const comment = await this.service.delete(data);
+    return sendSuccess(res, comment);
   }
   async like(req, res) {
-    try {
-      const message = await this.service.toggleLike(req.body);
-      return res.status(200).send({ message });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const message = await this.service.toggleLike(data);
+    return sendSuccess(res, message);
   }
 }
 

@@ -1,3 +1,4 @@
+const { sendSuccess } = require("../helpers/utilities/api-response.js");
 const metadataService = require("../services/metadata.service.js");
 
 class MetaDataController {
@@ -5,34 +6,19 @@ class MetaDataController {
     this.service = metadataService;
   }
   async hotels(req, res) {
-    try {
-      const data = await this.service.hotels(req.query);
-      return res
-        .status(200)
-        .send({ message: "sucess", payload: data, cache: true });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.query || req.body || {};
+    const out = await this.service.hotels(data);
+    return sendSuccess(res, out);
   }
   async activities(req, res) {
-    try {
-      const activities = await this.service.activities(req.query);
-      return res
-        .status(200)
-        .send({ message: "Success", payload: activities, cache: true });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.query || req.body || {};
+    const activities = await this.service.activities(data);
+    return sendSuccess(res, activities);
   }
   async nightLife(req, res) {
-    try {
-      const nightActivity = await this.service.nightLife(req.query);
-      return res
-        .status(200)
-        .send({ message: "Success", payload: nightActivity });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.query || req.body || {};
+    const nightActivity = await this.service.nightLife(data);
+    return sendSuccess(res, nightActivity);
   }
 }
 

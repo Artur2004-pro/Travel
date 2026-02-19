@@ -1,25 +1,30 @@
 const router = require("express").Router();
 const { comment } = require("../controllers/");
 const { isAuth } = require("../middlewares/");
-const { CommentValidator } = require("../validators/");
+const validate = require("../middlewares/validator");
+const { addSchemaParams, addSchemaBody } = require("../schemas/comment.schema");
+const { id } = require("../schemas/common.schema");
 
 router.post(
   "/:postId",
   isAuth,
-  CommentValidator.add,
-  comment.add.bind(comment)
+  validate(
+    { params: addSchemaParams, body: addSchemaBody },
+    { withUserId: true },
+  ),
+  comment.add.bind(comment),
 );
 router.patch(
   "/like/:id",
   isAuth,
-  CommentValidator.like,
-  comment.like.bind(comment)
+  validate({ params: id }, { withUserId: true }),
+  comment.like.bind(comment),
 );
 router.delete(
   "/:id",
   isAuth,
-  CommentValidator.delete,
-  comment.delete.bind(comment)
+  validate({ params: id }, { withUserRole: true, withUserId: true }),
+  comment.delete.bind(comment),
 );
 
 module.exports = router;

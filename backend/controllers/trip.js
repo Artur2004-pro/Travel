@@ -1,3 +1,4 @@
+const { sendSuccess } = require("../helpers/utilities/api-response");
 const { tripService } = require("../services/");
 
 class TripController {
@@ -5,115 +6,63 @@ class TripController {
     this.service = tripService;
   }
   async getTrip(req, res) {
-    try {
-      const trip = await this.service.getTrip(req.body);
-      return res.status(200).send({ message: "Ok", payload: trip });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.params || {};
+    const trip = await this.service.getTrip(data);
+    return sendSuccess(res, trip);
   }
   async addCoverImage(req, res) {
-    try {
-      const trip = await this.service.addCoverImage(req.body);
-      return res.status(200).send({
-        message: "Cover image added",
-        payload: trip,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const trip = await this.service.addCoverImage(data);
+    return sendSuccess(res, trip);
   }
   async removeCoverImage(req, res) {
-    try {
-      const trip = await this.service.removeCoverImage(req.body);
-      return res
-        .status(200)
-        .send({ message: "Cover image deleted successfully", payload: trip });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const trip = await this.service.removeCoverImage(data);
+    return sendSuccess(res, trip);
   }
   async getMyTrips(req, res) {
-    try {
-      const trips = await this.service.getMyTrips({ id: req.user._id });
-      return res.status(200).send({
-        message: "Success",
-        payload: trips,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const trips = await this.service.getMyTrips({ id: req.user._id });
+    return sendSuccess(res, trips);
   }
   async update(req, res) {
-    try {
-      const updatedTrip = await this.service.update(req.body);
-      return res.status(200).send({
-        message: "Trip updated",
-        payload: updatedTrip,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const updatedTrip = await this.service.update(data);
+    return sendSuccess(res, updatedTrip);
   }
   async togglePrivate(req, res) {
-    try {
-      const trip = await this.service.togglePrivate(req.body);
-      return res
-        .status(200)
-        .send({ message: "Successfully updated", payload: trip });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const trip = await this.service.togglePrivate(data);
+    return sendSuccess(res, trip);
   }
   async toggleComplete(req, res) {
-    try {
-      const trip = await this.service.toggleComplete(req.body);
-      return res
-        .status(200)
-        .send({ message: "Successfully updated", payload: trip });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const trip = await this.service.toggleComplete(data);
+    return sendSuccess(res, trip);
   }
   async getAllTrips(req, res) {
-    try {
-      const trips = await this.service.getAllTrips(req.body);
-      return res.status(200).send({ message: "Sucess", payload: trips });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.query || {};
+    const trips = await this.service.getAllTrips(data);
+    return sendSuccess(res, trips);
   }
   async add(req, res) {
-    try {
-      const trip = await this.service.add(req.body);
-      return res.status(201).send({
-        message: "Trip created",
-        payload: trip,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const trip = await this.service.add(data);
+    return sendSuccess(res, trip);
   }
   async delete(req, res) {
-    try {
-      const trip = await this.service.delete(req.body);
-      return res.status(200).send({ message: "Trip deleted", payload: trip });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.params || {};
+    const trip = await this.service.delete(data);
+    return sendSuccess(res, trip);
   }
   async getPdf(req, res) {
-    try {
-      const pdf = await this.service.getPdf(req.body);
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="trip-${req.params.id}.pdf"`
-      );
-      return res.send(pdf);
-    } catch (err) {
-      return res.status(err.statusCode || 500).send({ message: err.message });
-    }
+    const data = req.validated || req.params || {};
+    const pdf = await this.service.getPdf(data);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="trip-${req.params.id}.pdf"`,
+    );
+    return res.send(pdf);
   }
 }
 

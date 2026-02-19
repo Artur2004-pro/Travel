@@ -1,3 +1,4 @@
+const { sendSuccess } = require("../helpers/utilities/api-response.js");
 const tripDayService = require("../services/trip-day.service.js");
 
 class TripDayController {
@@ -5,59 +6,29 @@ class TripDayController {
     this.service = tripDayService;
   }
   async tripDayById(req, res) {
-    try {
-      const tripDay = await this.service.tripDayById(req.body);
-      return res.status(200).send({
-        message: "Success",
-        payload: tripDay,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.params || {};
+    const tripDay = await this.service.tripDayById(data);
+    return sendSuccess(res, tripDay);
   }
   async tripDaysByTripId(req, res) {
-    try {
-      const tripDays = await this.service.tripDaysByTripId(req.body);
-      return res.status(200).send({
-        message: "Success",
-        payload: tripDays,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.params || {};
+    const tripDays = await this.service.tripDaysByTripId(data);
+    return sendSuccess(res, tripDays);
   }
   async deleteTripDay(req, res) {
-    try {
-      const deleted = await this.service.deleteTripDay(req.body);
-      return res.status(200).send({
-        message: "Trip day deleted successfully",
-        payload: deleted,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.params || {};
+    const deleted = await this.service.deleteTripDay(data);
+    return sendSuccess(res, deleted);
   }
   async updateTripDay(req, res) {
-    try {
-      const tripDay = this.service.updateTripDay(req.body);
-      return res.status(200).send({
-        message: "Trip day updated successfully",
-        payload: tripDay,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const tripDay = this.service.updateTripDay(data);
+    return sendSuccess(res, tripDay);
   }
   async createTripDay(req, res) {
-    try {
-      const tripDay = await this.service.createTripDay(req.body);
-      return res.status(201).send({
-        message: "Trip day created successfully",
-        payload: tripDay,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const tripDay = await this.service.createTripDay(data);
+    return sendSuccess(res, tripDay, 201);
   }
 }
 

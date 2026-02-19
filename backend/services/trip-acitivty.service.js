@@ -1,12 +1,13 @@
 const { activityById, nightActivityById } = require("../helpers/index.js");
 const { TripActivity, Trip, TripDay, City } = require("../models");
 const { ServiceError, ErrorHandler } = require("./error-handler.js");
+const { env } = require("../helpers/");
 
 class TripActivityService {
   async activitiesByTripDayId(data) {
     try {
       const { id, userId, role } = data;
-      const activities = await TripActivity.find({ tripDay: id });
+      const activities = await TripActivity.find({ tripDay: id }).limit(env.DATA_LIMIT || 100);
       if (!activities || !activities.length) {
         throw new ServiceError("Activities not found", 404);
       }
@@ -106,7 +107,7 @@ class TripActivityService {
       const { notes, cost, userId, id } = data;
       const activity = await TripActivity.findById(id);
       if (!activity) {
-        return res.status(404).send({ message: "Activity not found" });
+        throw new ServiceError("Activity not found", 404);
       }
       if (activity.user != userId) {
         throw new ServiceError("Cannot access or modify this trip activity");

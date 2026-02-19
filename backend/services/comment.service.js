@@ -4,10 +4,10 @@ const { ServiceError, ErrorHandler } = require("./error-handler.js");
 class CommentService {
   async add(data) {
     try {
-      const { id, userId, content } = data;
+      const { postId, userId, content } = data;
       const comment = await Comment.create({
         user: userId,
-        post: id,
+        post: postId,
         content: content,
       });
       return comment;

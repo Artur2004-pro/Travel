@@ -1,5 +1,6 @@
 const { hotelById } = require("../helpers/index.js");
 const { TripDay, Trip, City } = require("../models");
+const { env } = require("../helpers/");
 const { ServiceError, ErrorHandler } = require("./error-handler.js");
 
 class TripDayService {
@@ -25,9 +26,9 @@ class TripDayService {
   async tripDaysByTripId(data) {
     try {
       const { tripId, userId } = data;
-      const tripDays = await TripDay.find({ trip: tripId }).populate(
-        "activities"
-      );
+      const tripDays = await TripDay.find({ trip: tripId })
+        .populate("activities")
+        .limit(env.DATA_LIMIT || 100);
       if (!tripDays || !tripDays.length) {
         throw new ServiceError("Trip days not found");
       }

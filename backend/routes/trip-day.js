@@ -1,37 +1,43 @@
 const router = require("express").Router();
 const { tripDay } = require("../controllers/");
 const { isAuth } = require("../middlewares/");
-const { TripDayValidator } = require("../validators");
+const { id } = require("../schemas/common.schema");
+const {
+  tripDaysByTripIdSchema,
+  createTripDaySchema,
+  updateTripDaySchema,
+} = require("../schemas/trip-day.schema");
+const validate = require("../middlewares/validator");
 
 router.get(
   "/all/:tripId",
   isAuth,
-  TripDayValidator.tripDaysByTripId,
-  tripDay.tripDaysByTripId.bind(tripDay)
+  validate({ params: tripDaysByTripIdSchema }, { withUserId: true }),
+  tripDay.tripDaysByTripId.bind(tripDay),
 );
 router.get(
   "/:id",
   isAuth,
-  TripDayValidator.tripDayById,
-  tripDay.tripDayById.bind(tripDay)
+  validate({ params: id }, { withUserId: true }),
+  tripDay.tripDayById.bind(tripDay),
 );
 router.post(
   "/",
   isAuth,
-  TripDayValidator.createTripDay,
-  tripDay.createTripDay.bind(tripDay)
+  validate({ body: createTripDaySchema }, { withUserId: true }),
+  tripDay.createTripDay.bind(tripDay),
 );
 router.patch(
   "/:id",
   isAuth,
-  TripDayValidator.updateTripDay,
-  tripDay.updateTripDay.bind(tripDay)
+  validate({ body: updateTripDaySchema, params: id }, { withUserId: true }),
+  tripDay.updateTripDay.bind(tripDay),
 );
 router.delete(
   "/:id",
   isAuth,
-  TripDayValidator.deleteTripDay,
-  tripDay.deleteTripDay.bind(tripDay)
+  validate({ params: id }, { withUserId: true }),
+  tripDay.deleteTripDay.bind(tripDay),
 );
 
 module.exports = router;

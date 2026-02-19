@@ -11,7 +11,7 @@ const { ZodError } = require("zod");
  *   mergeTo: "body" | "query" | "params"
  */
 const validate = (schemas, options = {}) => {
-  const mergeTo = options.mergeTo || "body";
+  const mergeTo = options.mergeTo || "validated";
 
   return (req, res, next) => {
     try {
@@ -34,7 +34,9 @@ const validate = (schemas, options = {}) => {
       if (options.withUserId) {
         collected.userId = req.user?._id.toString();
       }
-      // վերջում՝ բոլորը մի տեղ
+      if (options.withUserRole) {
+        collected.userRole = req.user?.role;
+      }
       req[mergeTo] = collected;
 
       next();

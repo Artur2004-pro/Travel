@@ -27,6 +27,7 @@ const getTripDayCount = require("./trip/trip-day-count.js");
 const hotelById = require("./meta/hotel-by-id.js");
 const activityById = require("./meta/activity-by-id.js");
 const nightActivityById = require("./meta/night-activity-by-id.js");
+const isEmail = require("./utilities/isEmail.js");
 
 module.exports = {
   deleteImage,
@@ -55,4 +56,5 @@ module.exports = {
   hotelById,
   activityById,
   nightActivityById,
+  isEmail,
 };

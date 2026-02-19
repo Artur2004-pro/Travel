@@ -1,3 +1,4 @@
+const { sendSuccess } = require("../helpers/utilities/api-response");
 const { cityService } = require("../services/");
 
 class CityController {
@@ -6,77 +7,48 @@ class CityController {
   }
   // admin
   async add(req, res) {
-    try {
-      const city = await this.service.add(req.body);
-      return res.status(201).send({
-        message: "City added successfully",
-        payload: city,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const city = await this.service.add(data);
+    return sendSuccess(res, city);
   }
   async delete(req, res) {
-    try {
-      const deletedCity = this.service.delete(req.params);
-      return res
-        .status(200)
-        .send({ message: "City deleted successfully", payload: deletedCity });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.params || {};
+    const deletedCity = await this.service.delete(data);
+    return sendSuccess(res, deletedCity);
+  }
+  async toggleLike(req, res) {
+    const { sendError } = require("../helpers/utilities/api-response");
+    return sendError(res, "NOT_IMPLEMENTED", "Not implemented", 501);
   }
   async update(req, res) {
-    try {
-      const city = await this.service(req.body);
-      return res.status(200).send({
-        message: "City updated successfully",
-        payload: city,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const city = await this.service.update(data);
+    return sendSuccess(res, city);
   }
   async deletePhoto(req, res) {
-    try {
-      await this.service.deletePhoto(req.body);
-      return res.status(200).send({ message: "Image deleted" });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    await this.service.deletePhoto(data);
+    return sendSuccess(res, "Image deleted");
   }
   async getTop(_, res) {
-    try {
-      const cities = await this.service.getTop();
-      return res.status(200).send({ message: "Success", payload: cities });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const cities = await this.service.getTop();
+    return sendSuccess(res, cities);
   }
   // user
   async search(req, res) {
-    try {
-      const cities = await this.service.search(req.query);
-      return res.status(200).send({ message: "Success", payload: cities });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.query || {};
+    const cities = await this.service.search(data);
+    return sendSuccess(res, cities);
   }
   async getCity(req, res) {
-    try {
-      const city = await this.service.getCity(req.params);
-      return res.status(200).send({ message: "success", payload: city });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.params || {};
+    const city = await this.service.getCity(data);
+    return sendSuccess(res, city);
   }
   async byCountryId(req, res) {
-    try {
-      const cities = await this.service.byCountryId(req.params);
-      return res.status(200).send({ message: "Success", payload: cities });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.params || {};
+    const cities = await this.service.byCountryId(data);
+    return sendSuccess(res, cities);
   }
 }
 

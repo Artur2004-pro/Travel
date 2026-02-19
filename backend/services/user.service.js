@@ -66,7 +66,7 @@ class UserService {
       user.emailVerifyToken = null;
       user.emailVerified = true;
       await user.save();
-      const jwtPayload = { id: user._id, rolde: user.role };
+      const jwtPayload = { id: user._id, role: user.role };
       const token = createToken(jwtPayload);
       const refreshToken = createRefreshToken(jwtPayload);
       return { token: token, refreshToken: refreshToken };
@@ -94,7 +94,7 @@ class UserService {
       await user.save();
       const emailResult = await emailApi.verifyEmail(
         user.email,
-        emailVerifyToken
+        emailVerifyToken,
       );
       if (!emailResult) {
         throw new ServiceError("Verification email is failed", 500);
@@ -148,7 +148,7 @@ class UserService {
 
       const emailResult = await emailApi.forgotPassword(email, code);
       if (!emailResult) {
-        throw new UserService("Verification email failed", 500);
+        throw new ServiceError("Verification email failed", 500);
       }
       return user;
     } catch (err) {
@@ -198,14 +198,18 @@ class UserService {
   }
   async search(data) {
     try {
-      const { search } = data;
+      const { search, page = 1, limit = 20 } = data || {};
+      if (!search || typeof search !== "string") return [];
+      const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const l = Math.min(limit, 100);
+      const skip = (Math.max(1, page) - 1) * l;
       const users = await User.find({
-        username: { $regex: search, $options: "i" },
-      }).select(UserService.ignoreFields);
-      if (!users || !users.length) {
-        throw new ServiceError("Users not found", 404);
-      }
-      return users;
+        username: { $regex: escaped, $options: "i" },
+      })
+        .select(UserService.ignoreFields)
+        .limit(l)
+        .skip(skip);
+      return users || [];
     } catch (err) {
       throw ErrorHandler.normalize(err);
     }
@@ -213,7 +217,7 @@ class UserService {
   async getSpecAccount(data) {
     try {
       const account = await User.findById(data.id).select(
-        UserService.ignoreFields
+        UserService.ignoreFields,
       );
       if (!account) {
         throw new ServiceError("Account not found", 404);
@@ -279,7 +283,7 @@ class UserService {
   async getAccount(data) {
     try {
       const account = await User.findById(data.id).select(
-        UserService.ignoreFields
+        UserService.ignoreFields,
       );
       if (!account) {
         throw new ServiceError("Account not found", 404);
@@ -289,32 +293,17 @@ class UserService {
       throw ErrorHandler.normalize(err);
     }
   }
-  async updateDefaultTripVisibility(data) {
-    try {
-      const { userId, defaultTripVisibility } = data;
-      const user = await User.findById(userId);
-      if (!user) {
-        throw new ServiceError("User not found", 404);
-      }
-      user.defaultTripVisibility = defaultTripVisibility;
-      await user.save();
-      const account = await User.findById(userId).select(UserService.ignoreFields);
-      return account;
-    } catch (err) {
-      throw ErrorHandler.normalize(err);
-    }
-  }
   async updateAvatar(data) {
     try {
-      const { userId, filePath } = data;
+      const { userId, file } = data;
       const found = await User.findById(userId).select(
-        UserService.ignoreFields
+        UserService.ignoreFields,
       );
       if (!found) {
         throw new ServiceError("User not found", 404);
       }
       await deleteImage(found.avatar || []);
-      found.avatar = filePath;
+      found.avatar = file.path;
       await found.save();
       return found;
     } catch (err) {
@@ -325,7 +314,7 @@ class UserService {
   async beAdmin(data) {
     try {
       const user = await User.findById(data.id).select(
-        UserService.ignoreFields
+        UserService.ignoreFields,
       );
       if (!user) {
         throw new ServiceError("User not found", 404);
@@ -334,7 +323,7 @@ class UserService {
       await user.save();
       return user;
     } catch (err) {
-      throw handleError.normalize(err);
+      throw ErrorHandler.normalize(err);
     }
   }
   async getStatistics() {

@@ -1,8 +1,8 @@
 const router = require("express").Router();
 const { auth } = require("../controllers/");
-const { AuthValidator } = require("../validators/");
 // const { forgotPassword } = require("../middlewares/");
 const validate = require("../middlewares/validator");
+
 const {
   signupSchema,
   verifyCodeSchema,
@@ -14,37 +14,29 @@ const {
 
 router.post(
   "/signup",
-  validate({ body: signupSchema }, { mergeTo: "body" }),
+  validate({ body: signupSchema }),
   auth.signup.bind(auth),
 );
 router.post(
   "/verify-signup",
-  validate({ body: verifyCodeSchema }, { mergeTo: "body" }),
+  validate({ body: verifyCodeSchema }),
   auth.verifyCode.bind(auth),
 );
 router.post(
   "/resend-verification",
-  validate({ body: resendVerificationSchema }, { mergeTo: "body" }),
-  // AuthValidator.resendVerification,
+  validate({ body: resendVerificationSchema }),
   auth.resendVerification.bind(auth),
 );
 router.post(
   "/forgot-password",
-  validate({ body: forgotPasswordSchema }, { mergeTo: "body" }),
-  // AuthValidator.forgotPassword,
+  validate({ body: forgotPasswordSchema }),
   auth.forgotPassword.bind(auth),
 );
 router.post(
   "/forgot-password/update",
-  validate({ body: forgotPasswordUpdateSchema }, { mergeTo: "body" }),
-  // AuthValidator.forgotPasswordUpdate,
+  validate({ body: forgotPasswordUpdateSchema }),
   auth.forgotPasswordUpdate.bind(auth),
 );
-router.post(
-  "/login",
-  validate({ body: loginSchema }, { mergeTo: "body" }),
-  // AuthValidator.login,
-  auth.login.bind(auth),
-);
+router.post("/login", validate({ body: loginSchema }), auth.login.bind(auth));
 
 module.exports = router;

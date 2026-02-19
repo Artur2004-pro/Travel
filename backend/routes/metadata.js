@@ -1,21 +1,22 @@
 const router = require("express").Router();
 const { metaData } = require("../controllers");
-const { MetaDataValidator } = require("../validators/");
+const validate = require("../middlewares/validator");
+const { queryNameSchema } = require("../schemas/metadata.schema");
 
 router.get(
   "/hotels",
-  MetaDataValidator.queryName,
-  metaData.hotels.bind(metaData)
+  validate({ query: queryNameSchema }),
+  metaData.hotels.bind(metaData),
 );
 router.get(
   "/activities",
-  MetaDataValidator.queryName,
-  metaData.activities.bind(metaData)
+  validate({ query: queryNameSchema }),
+  metaData.activities.bind(metaData),
 );
 router.get(
   "/night-life",
-  MetaDataValidator.queryName,
-  metaData.nightLife.bind(metaData)
+  validate({ query: queryNameSchema }),
+  metaData.nightLife.bind(metaData),
 );
 
 module.exports = router;

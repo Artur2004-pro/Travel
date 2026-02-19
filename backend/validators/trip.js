@@ -71,13 +71,12 @@ class TripValidator {
     next();
   }
   static add(req, res, next) {
-    const { startDate, endDate, title, description, countryId, isPrivate } = req.body;
+    const { startDate, endDate, title, description, countryId } = req.body;
     const userId = req.user._id;
     if (!startDate || !endDate || !title || !countryId) {
       return res.status(400).send({ message: "Missing fields" });
     }
     req.body.userId = userId;
-    req.body.isPrivate = isPrivate;
     next();
   }
   static delete(req, res, next) {

@@ -1,3 +1,4 @@
+const { sendSuccess } = require("../helpers/utilities/api-response");
 const { countryService } = require("../services/");
 
 class CountryController {
@@ -6,67 +7,39 @@ class CountryController {
   }
   // admin
   async add(req, res) {
-    try {
-      const country = await this.service.add(req.body);
-      return res.status(201).send({
-        message: "Country added successfully",
-        payload: country,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const country = await this.service.add(data);
+    return sendSuccess(res, country, 201);
   }
   async delete(req, res) {
-    try {
-      await this.service.delete(req.params);
-      return res.status(200).send({ message: "Country deleted successfully" });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.params || {};
+    await this.service.delete(data);
+    return sendSuccess(res, "Country deleted successfully");
   }
   async update(req, res) {
-    try {
-      const country = await this.service.update(req.body);
-      return res.status(200).send({
-        message: "Country updated successfully",
-        payload: country,
-      });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const country = await this.service.update(data);
+    return sendSuccess(res, country);
   }
   async deletePhoto(req, res) {
-    try {
-      await this.service.deletePhoto(req.body);
-      return res.status(200).send({ message: "Image deleted successfully" });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    await this.service.deletePhoto(data);
+    return sendSuccess(res, "Image deleted successfully");
   }
   // user
   async getTop(_, res) {
-    try {
-      const countries = await this.service.getTop();
-      return res.status(200).send({ message: "ok", payload: countries });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const countries = await this.service.getTop();
+    return sendSuccess(res, countries);
   }
   async getById(req, res) {
-    try {
-      const country = await this.service.getById(req.params);
-      return res.status(200).send({ message: "success", payload: country });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.params || {};
+    const country = await this.service.getById(data);
+    return sendSuccess(res, country);
   }
   async search(req, res) {
-    try {
-      const countries = await this.service.search(req.query);
-      return res.status(200).send({ message: "ok", payload: countries });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.query || {};
+    const countries = await this.service.search(data);
+    return sendSuccess(res, countries);
   }
 }
 

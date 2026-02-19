@@ -1,3 +1,4 @@
+const { sendSuccess } = require("../helpers/utilities/api-response");
 const { postService } = require("../services/");
 
 class PostController {
@@ -5,72 +6,38 @@ class PostController {
     this.service = postService;
   }
   async add(req, res) {
-    try {
-      const post = await this.service.add(req.body);
-      return res
-        .status(201)
-        .send({ message: "Post created successfully", payload: post });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const post = await this.service.add(data);
+    return sendSuccess(res, post);
   }
   async delete(req, res) {
-    try {
-      const deleted = await this.service.delete(req.body);
-      return res
-        .status(200)
-        .send({ message: "Post deleted successfully", payload: deleted });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.meesage });
-    }
+    const data = req.validated || req.params || {};
+    const deleted = await this.service.delete(data);
+    return sendSuccess(res, deleted);
   }
   async like(req, res) {
-    try {
-      const message = await this.service.toggleLike(req.body);
-      return res.status(200).send({ message });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.body || {};
+    const message = await this.service.toggleLike(data);
+    return sendSuccess(res, message);
   }
   async update(req, res) {
-    try {
-      const post = await this.service.update(req.body);
-      return res
-        .status(200)
-        .send({ message: "Post Updated successfully", payload: post });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.meesage });
-    }
+    const data = req.validated || req.body || {};
+    const post = await this.service.update(data);
+    return sendSuccess(res, post);
   }
   async deletePhoto(req, res) {
-    try {
-      const post = await this.service.deletePhoto(req.body);
-      return res
-        .status(200)
-        .send({ message: "image deleted successfully", payload: post });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.meesage });
-    }
+    const data = req.validated || req.body || {};
+    const post = await this.service.deletePhoto(data);
+    return sendSuccess(res, post);
   }
   async getAll(req, res) {
-    try {
-      const posts = await this.service.getAll(req.user._id);
-      return res
-        .status(200)
-        .send({ message: "Posts fetched successfully", payload: posts });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const posts = await this.service.getAll(req.user._id);
+    return sendSuccess(res, posts);
   }
   async getById(req, res) {
-    try {
-      const post = await this.service.getById(req.params.id);
-      return res
-        .status(200)
-        .send({ message: "Post fetched successfully", payload: post });
-    } catch (err) {
-      return res.status(err.statusCode).send({ message: err.message });
-    }
+    const data = req.validated || req.params || {};
+    const post = await this.service.getById(data.id);
+    return sendSuccess(res, post);
   }
 }
 
