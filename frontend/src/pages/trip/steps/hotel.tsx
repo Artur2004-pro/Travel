@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Axios } from "../../../lib/axios-config";
 import { Loader } from "../../components";
-import { Star, ExternalLink, ChevronLeft, Check } from "lucide-react";
+import { Star, ExternalLink, Check } from "lucide-react";
+import TripStepLayout from "../TripStepLayout";
 
 export const Hotel: React.FC = () => {
   const navigate = useNavigate();
@@ -41,51 +42,28 @@ export const Hotel: React.FC = () => {
     navigate("/trips/day-planning");
   };
 
-  const skip = () => {
-    setTripData({ hotelId: null });
-    navigate("/trips/day-planning");
-  };
+  // skip intentionally removed — hotel can be skipped by continuing without selection
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-zinc-100">
-      {/* HEADER */}
-      <header className="sticky top-0 z-30 h-12 flex items-center px-3 border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 backdrop-blur">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 -ml-2 active:opacity-60"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-
-        <h1 className="flex-1 text-center text-sm font-semibold">
-          Select hotel
-        </h1>
-
-        <button onClick={skip} className="text-sm font-medium text-zinc-500">
-          Skip
-        </button>
-      </header>
-
-      {/* CONTENT */}
-      <main className="max-w-sm mx-auto px-0 pt-2 pb-28 space-y-6">
+    <TripStepLayout
+      title="Select hotel"
+      subtitle="Pick accommodation or skip"
+      stepIndex={4}
+      totalSteps={6}
+      onNext={next}
+      onBack={() => navigate(-1)}
+    >
+      <div className="max-w-sm mx-auto px-0 pt-2 pb-4 space-y-6">
         {loading && <Loader />}
 
         {hotels.map((hotel) => {
           const active = selectedHotel === hotel.id;
 
           return (
-            <div
-              key={hotel.id}
-              onClick={() => setSelectedHotel(hotel.id)}
-              className="cursor-pointer"
-            >
-              {/* IMAGE */}
+            <div key={hotel.id} onClick={() => setSelectedHotel(hotel.id)} className="cursor-pointer">
               {hotel.images?.[0] && (
                 <div className="relative aspect-[4/5] bg-zinc-100 dark:bg-zinc-900">
-                  <img
-                    src={hotel.images[0]}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={hotel.images[0]} className="w-full h-full object-cover" />
 
                   {active && (
                     <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
@@ -97,7 +75,6 @@ export const Hotel: React.FC = () => {
                 </div>
               )}
 
-              {/* INFO */}
               <div className="px-4 pt-3 pb-1">
                 <div className="flex items-start justify-between gap-2">
                   <div>
@@ -106,13 +83,7 @@ export const Hotel: React.FC = () => {
                   </div>
 
                   {hotel.website && (
-                    <a
-                      href={hotel.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-zinc-400 hover:text-zinc-600"
-                    >
+                    <a href={hotel.website} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-zinc-400 hover:text-zinc-600">
                       <ExternalLink className="w-4 h-4" />
                     </a>
                   )}
@@ -121,10 +92,7 @@ export const Hotel: React.FC = () => {
                 {hotel.stars > 0 && (
                   <div className="flex gap-0.5 mt-1">
                     {Array.from({ length: hotel.stars }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-3.5 h-3.5 text-amber-400 fill-current"
-                      />
+                      <Star key={i} className="w-3.5 h-3.5 text-amber-400 fill-current" />
                     ))}
                   </div>
                 )}
@@ -132,19 +100,8 @@ export const Hotel: React.FC = () => {
             </div>
           );
         })}
-      </main>
-
-      {/* BOTTOM CTA */}
-      <div className="fixed bottom-0 inset-x-0 border-t border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-black/90 backdrop-blur px-4 py-3">
-        <button
-          onClick={next}
-          disabled={!selectedHotel}
-          className="w-full h-11 rounded-md bg-sky-500 text-white font-semibold text-sm disabled:opacity-40"
-        >
-          Continue
-        </button>
       </div>
-    </div>
+    </TripStepLayout>
   );
 };
 

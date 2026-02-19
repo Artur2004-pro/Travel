@@ -16,7 +16,7 @@ export interface IAccount {
   email: string;
   username: string;
   avatar: string;
-  role: "user" | "admin";
+  role: string;
   isBlocked: boolean;
   emailVerified: boolean;
   createdAt: string;

@@ -62,11 +62,11 @@ export const ActivityCard = ({
         )}
 
         {/* DARK OVERLAY */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent rounded-2xl" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent rounded-2xl" />
 
         {/* SELECTED CHECK */}
         {selected && (
-          <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center shadow-md">
+          <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-sky-500 flex items-center justify-center shadow-md">
             <Check className="w-4 h-4 text-white" />
           </div>
         )}

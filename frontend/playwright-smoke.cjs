@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 (async () => {
-  const base = 'http://localhost:5173';
+  const base = 'http://localhost:5174';
   const routes = ['/admin', '/profile', '/settings', '/trips/new'];
   const outDir = path.join(__dirname, 'playwright-smoke');
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir);

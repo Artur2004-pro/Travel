@@ -84,31 +84,31 @@ const MyTrips: React.FC = () => {
       {trips.length === 0 ? (
         <p className="text-sm text-neutral-500 text-center py-12">No trips yet</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {trips.map((trip) => (
             <article key={trip._id}>
               <Card>
-                <div className="relative">
+                <div className="overflow-hidden rounded-xl shadow-sm bg-white dark:bg-neutral-900">
                   {trip.coverImage ? (
                     <div
                       onClick={() => navigate(`/trips/${trip._id}`)}
-                      className="aspect-[4/3] bg-neutral-100 dark:bg-neutral-900 cursor-pointer overflow-hidden"
+                      className="w-full h-48 sm:h-44 md:h-40 bg-neutral-100 dark:bg-neutral-900 cursor-pointer overflow-hidden rounded-t-xl"
                     >
                       <img src={(app.current || "") + trip.coverImage} alt={trip.title} className="w-full h-full object-cover" />
                     </div>
                   ) : (
-                    <div className="aspect-[4/3] bg-neutral-100 dark:bg-neutral-900" />
+                    <div className="w-full h-48 sm:h-44 md:h-40 bg-neutral-100 dark:bg-neutral-900 rounded-t-xl" />
                   )}
 
                   <div className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
                         <div className="text-sm font-semibold truncate">{trip.title}</div>
-                        <div className="text-xs text-neutral-500">
+                        <div className="text-xs text-neutral-500 mt-1">
                           {dayjs(trip.startDate).format("MMM D")} – {dayjs(trip.endDate).format("MMM D")} · {trip.dayCount} days
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 text-neutral-400">
+                      <div className="text-neutral-400 flex-shrink-0">
                         {trip.isPrivate ? <Lock size={16} /> : <Unlock size={16} />}
                       </div>
                     </div>
@@ -119,21 +119,21 @@ const MyTrips: React.FC = () => {
 
                     <div className="mt-4 flex items-center justify-between">
                       <div className="flex gap-3 text-neutral-600 dark:text-neutral-400">
-                        <button onClick={() => navigate(`/trips/${trip._id}`)} aria-label="View trip">
+                        <button onClick={() => navigate(`/trips/${trip._id}`)} aria-label="View trip" className="p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition">
                           <Eye size={18} />
                         </button>
-                        <button onClick={() => navigate(`/trips/edit/${trip._id}`)} aria-label="Edit trip">
+                        <button onClick={() => navigate(`/trips/edit/${trip._id}`)} aria-label="Edit trip" className="p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition">
                           <Edit size={18} />
                         </button>
-                        <button onClick={() => toggleComplete(trip._id, trip.isCompleted || false)} aria-label="Toggle complete">
+                        <button onClick={() => toggleComplete(trip._id, trip.isCompleted || false)} aria-label="Toggle complete" className="p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition">
                           <CheckCircle size={18} />
                         </button>
                       </div>
-                      <div className="flex gap-3">
-                        <button onClick={() => togglePrivate(trip._id, trip.isPrivate)} aria-label="Toggle private" className="text-neutral-600 dark:text-neutral-400">
+                      <div className="flex gap-2 items-center">
+                        <button onClick={() => togglePrivate(trip._id, trip.isPrivate)} aria-label="Toggle private" className="text-neutral-600 dark:text-neutral-400 p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 transition">
                           {trip.isPrivate ? <Unlock size={18} /> : <Lock size={18} />}
                         </button>
-                        <button onClick={() => deleteTrip(trip._id)} aria-label="Delete trip" className="text-neutral-600 dark:text-neutral-400 hover:text-red-500">
+                        <button onClick={() => deleteTrip(trip._id)} aria-label="Delete trip" className="text-neutral-600 dark:text-neutral-400 p-2 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 transition">
                           <Trash2 size={18} />
                         </button>
                       </div>

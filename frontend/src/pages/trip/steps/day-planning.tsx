@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Axios } from "../../../lib/axios-config";
 import toast from "react-hot-toast";
+import TripStepLayout from "../TripStepLayout";
 
 import DaySelector from "./day-selector";
 import DayPlanningControls from "./day-planning-control";
@@ -22,15 +23,9 @@ const DayPlanning: React.FC = () => {
 
   const [tripDays, setTripDays] = useState<ITripDayLocal[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [allCities, setAllCities] = useState<{ _id: string; name: string }[]>(
-    []
-  );
+  const [allCities, setAllCities] = useState<{ _id: string; name: string }[]>([]);
   const [hotels, setHotels] = useState<IActivity[]>([]);
-  const [activities, setActivities] = useState<{
-    day: IActivity[];
-    night: IActivity[];
-    cafe: IActivity[];
-  }>({ day: [], night: [], cafe: [] });
+  const [activities, setActivities] = useState<{ day: IActivity[]; night: IActivity[]; cafe: IActivity[] }>({ day: [], night: [], cafe: [] });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [hotelSearch, setHotelSearch] = useState("");
@@ -249,117 +244,56 @@ const DayPlanning: React.FC = () => {
     toggleActivity(activity, activeTab);
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="max-w-7xl mx-auto px-4 pb-32 sm:pb-12 space-y-8">
+    <TripStepLayout
+      title="Plan your days"
+      subtitle="Add cities, hotels and activities for each day"
+      stepIndex={5}
+      totalSteps={6}
+      onNext={saveCurrentDay}
+      onBack={() => navigate(-1)}
+    >
+      <div className="max-w-7xl mx-auto px-0 pb-8 space-y-6">
         {/* Desktop top controls */}
         <div className="hidden sm:block">
           <DayPlanningControls onSkip={skipAll} onFinish={skipAll} />
         </div>
 
         {/* Day selector */}
-        <DaySelector
-          tripDays={tripDays}
-          selectedIndex={selectedIndex}
-          setSelectedIndex={setSelectedIndex}
-        />
+        <DaySelector tripDays={tripDays} selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex} />
 
         {selectedDay && (
           <div className="space-y-8">
-            {/* Day header */}
             <div className="rounded-2xl bg-white/5 border border-white/10 p-4 sm:p-6">
               <DayHeader day={selectedDay.day} date={selectedDay.date} />
             </div>
 
-            {/* City selector */}
             <div className="rounded-2xl bg-white/5 border border-white/10 p-4 sm:p-6">
-              <CitySelector
-                cities={allCities}
-                selectedCityId={selectedDay.cityId}
-                onChange={handleCityChange}
-              />
+              <CitySelector cities={allCities} selectedCityId={selectedDay.cityId} onChange={handleCityChange} />
             </div>
 
             {selectedDay.cityId && (
               <>
-                {/* Hotel section */}
                 <div className="rounded-2xl bg-white/5 border border-white/10 p-4 sm:p-6">
-                  <HotelSection
-                    hotels={hotels}
-                    selectedHotel={selectedHotel}
-                    hotelSearch={hotelSearch}
-                    minStars={minStars}
-                    onHotelSearch={setHotelSearch}
-                    onMinStarsChange={setMinStars}
-                    onHotelSelect={handleHotelSelect}
-                    loading={loading}
-                  />
+                  <HotelSection hotels={hotels} selectedHotel={selectedHotel} hotelSearch={hotelSearch} minStars={minStars} onHotelSearch={setHotelSearch} onMinStarsChange={setMinStars} onHotelSelect={handleHotelSelect} loading={loading} />
                 </div>
 
-                {/* Activities */}
                 <div className="rounded-2xl bg-white/5 border border-white/10 p-4 sm:p-6 space-y-6">
-                  <ActivityTabs
-                    activeTab={activeTab}
-                    onTabChange={setActiveTab}
-                    counts={counts}
-                  />
-                  <ActivityGrid
-                    activities={currentActivities}
-                    selectedActivities={selectedActivities}
-                    onToggle={toggleCurrentActivity}
-                  />
+                  <ActivityTabs activeTab={activeTab} onTabChange={setActiveTab} counts={counts} />
+                  <ActivityGrid activities={currentActivities} selectedActivities={selectedActivities} onToggle={toggleCurrentActivity} />
                 </div>
 
-                {/* Desktop actions */}
                 <div className="hidden sm:block">
-                  <DayActions
-                    canCopyFromPrevious={
-                      selectedIndex > 0 && !!tripDays[selectedIndex - 1].cityId
-                    }
-                    onCopyFromPrevious={() => {
+                  <DayActions canCopyFromPrevious={selectedIndex > 0 && !!tripDays[selectedIndex - 1].cityId} onCopyFromPrevious={() => {
                       const prev = tripDays[selectedIndex - 1];
-                      setTripDays((d) =>
-                        d.map((x, i) =>
-                          i === selectedIndex
-                            ? {
-                                ...x,
-                                cityId: prev.cityId,
-                                hotelId: prev.hotelId,
-                              }
-                            : x
-                        )
-                      );
-                    }}
-                    saving={saving}
-                    hasCity={!!selectedDay.cityId}
-                    onSave={saveCurrentDay}
-                    onSkipAll={skipAll}
-                  />
+                      setTripDays((d) => d.map((x, i) => i === selectedIndex ? { ...x, cityId: prev.cityId, hotelId: prev.hotelId } : x));
+                    }} saving={saving} hasCity={!!selectedDay.cityId} onSave={saveCurrentDay} onSkipAll={skipAll} />
                 </div>
               </>
             )}
           </div>
         )}
       </div>
-
-      {/* Mobile bottom bar (Instagram-style) */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-xl border-t border-white/10 px-4 py-3">
-        <div className="flex gap-3">
-          <button
-            onClick={skipAll}
-            className="flex-1 py-3 rounded-full bg-white/10 text-white text-sm font-medium"
-          >
-            Skip
-          </button>
-          <button
-            onClick={saveCurrentDay}
-            disabled={saving}
-            className="flex-[1.5] py-3 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-semibold disabled:opacity-50"
-          >
-            {selectedIndex < tripDays.length - 1 ? "Save day" : "Finish trip"}
-          </button>
-        </div>
-      </div>
-    </div>
+    </TripStepLayout>
   );
 };
 
