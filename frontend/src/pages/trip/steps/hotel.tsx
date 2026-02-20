@@ -1,20 +1,20 @@
 // src/pages/Hotel.tsx
 import React, { useEffect, useState } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Axios } from "../../../lib/axios-config";
 import { Loader } from "../../components";
 import { Star, ExternalLink, Check } from "lucide-react";
 import TripStepLayout from "../TripStepLayout";
+import { useTripWizard } from '../../../context/trip-wizard-context';
 
 export const Hotel: React.FC = () => {
   const navigate = useNavigate();
-  const { tripData, setTripData } = useOutletContext<any>();
+  const wizard = useTripWizard();
+  const { tripData, setTripData, registerValidator, unregisterValidator } = wizard;
 
   const [hotels, setHotels] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedHotel, setSelectedHotel] = useState<string | null>(
-    tripData?.hotelId || null
-  );
+  const selectedHotel = tripData?.hotelId || null;
 
   useEffect(() => {
     if (!tripData?.cityId) return;
@@ -37,9 +37,14 @@ export const Hotel: React.FC = () => {
     };
   }, [tripData?.cityId]);
 
+  useEffect(() => {
+    registerValidator('hotel', () => true);
+    return () => unregisterValidator('hotel');
+  }, [registerValidator, unregisterValidator]);
+
   const next = () => {
-    setTripData({ hotelId: selectedHotel });
-    navigate("/trips/day-planning");
+    // hotelId persisted on selection
+    navigate("/trips/new/day-planning");
   };
 
   // skip intentionally removed — hotel can be skipped by continuing without selection
@@ -60,7 +65,7 @@ export const Hotel: React.FC = () => {
           const active = selectedHotel === hotel.id;
 
           return (
-            <div key={hotel.id} onClick={() => setSelectedHotel(hotel.id)} className="cursor-pointer">
+            <div key={hotel.id} onClick={() => setTripData({ hotelId: hotel.id })} className="cursor-pointer">
               {hotel.images?.[0] && (
                 <div className="relative aspect-[4/5] bg-zinc-100 dark:bg-zinc-900">
                   <img src={hotel.images[0]} className="w-full h-full object-cover" />

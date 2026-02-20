@@ -1,13 +1,15 @@
 // src/pages/trip/steps/Finish.tsx
 import React, { useRef, useState } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Axios } from "../../../lib/axios-config";
 import { ImagePlus } from "lucide-react";
 import TripStepLayout from "../TripStepLayout";
+import { useTripWizard } from '../../../context/trip-wizard-context';
 
 export const Finish: React.FC = () => {
   const navigate = useNavigate();
-  const { tripData, setCompleted } = useOutletContext<any>();
+  const wizard = useTripWizard();
+  const { tripData, setCompleted, setTripData } = wizard;
 
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -15,17 +17,18 @@ export const Finish: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const upload = async () => {
-    if (!file) return;
+    const f = file || (tripData && (tripData.coverFile as File));
+    if (!f) return;
 
     const form = new FormData();
-    form.append("cover", file);
+    form.append("cover", f);
 
     setLoading(true);
     setError(null);
 
     try {
       await Axios.post(`/trip/${tripData.tripId}/cover`, form);
-      setCompleted({ finish: true });
+      setCompleted('finish', true);
       navigate(`/trip/${tripData.tripId}`);
     } catch {
       setError("Failed to upload cover");
@@ -40,7 +43,7 @@ export const Finish: React.FC = () => {
 
     try {
       await Axios.post(`/trip/${tripData.tripId}/cover`, { useDefault: true });
-      setCompleted({ finish: true });
+      setCompleted('finish', true);
       navigate(`/trip/${tripData.tripId}`);
     } catch {
       setError("Failed to set default cover");
@@ -67,8 +70,8 @@ export const Finish: React.FC = () => {
           onClick={() => inputRef.current?.click()}
           className="w-full aspect-[4/5] rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center cursor-pointer active:scale-[0.97] transition-transform"
         >
-          {file ? (
-            <img src={URL.createObjectURL(file)} alt="Trip cover preview" className="w-full h-full object-cover" />
+          {file || tripData?.coverFile ? (
+            <img src={URL.createObjectURL(file || tripData?.coverFile)} alt="Trip cover preview" className="w-full h-full object-cover" />
           ) : (
             <div className="flex flex-col items-center gap-2 text-zinc-400">
               <ImagePlus className="w-8 h-8" />
@@ -79,7 +82,11 @@ export const Finish: React.FC = () => {
 
         {error && <p className="text-xs text-red-500 text-center">{error}</p>}
 
-        <input ref={inputRef} type="file" accept="image/*" hidden onChange={(e) => setFile(e.target.files?.[0] || null)} />
+        <input ref={inputRef} type="file" accept="image/*" hidden onChange={(e) => {
+          const f = e.target.files?.[0] || null;
+          setFile(f);
+          setTripData({ coverFile: f });
+        }} />
         <div className="h-4" />
         <div className="flex gap-3 w-full">
           <button onClick={useDefault} disabled={loading} className="flex-1 py-3 rounded-full bg-white/5 text-sm">

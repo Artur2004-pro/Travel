@@ -1,0 +1,10 @@
+{
+  "desktop": {
+    "success": false,
+    "error": "Error: No clickable button found from: Next, Continue, Finish"
+  },
+  "mobile": {
+    "success": false,
+    "error": "Error: No clickable button found from: Next, Continue, Finish"
+  }
+}

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useTripWizard } from '../../../context/trip-wizard-context';
 import { Axios } from "../../../lib/axios-config";
 import toast from "react-hot-toast";
 import TripStepLayout from "../TripStepLayout";
@@ -18,7 +19,8 @@ import type { IActivity, ITripDayLocal } from "../trip.types";
 
 const DayPlanning: React.FC = () => {
   const navigate = useNavigate();
-  const { tripData, setCompleted } = useOutletContext<any>();
+  const wizard = useTripWizard();
+  const { tripData, setTripData, setCompleted, registerValidator, unregisterValidator } = wizard;
   const { tripId, startDate, endDate, countryId } = tripData || {};
 
   const [tripDays, setTripDays] = useState<ITripDayLocal[]>([]);
@@ -61,6 +63,28 @@ const DayPlanning: React.FC = () => {
     }
     setTripDays(days);
   }, [startDate, endDate, tripId]);
+
+  // load persisted tripDays from wizard if present
+  useEffect(() => {
+    if (tripData?.tripDays) {
+      setTripDays(tripData.tripDays);
+    }
+  }, []);
+
+  // persist tripDays to wizard state whenever they change
+  useEffect(() => {
+    setTripData && setTripData({ tripDays });
+  }, [tripDays]);
+
+  useEffect(() => {
+    registerValidator && registerValidator('day-planning', () => {
+      // require at least one day to have a city selected
+      return tripDays.some((d) => !!d.cityId);
+    });
+    return () => {
+      unregisterValidator && unregisterValidator('day-planning');
+    };
+  }, [registerValidator, unregisterValidator, tripDays]);
 
   // === Քաղաքների բեռնում ===
   useEffect(() => {
@@ -210,7 +234,7 @@ const DayPlanning: React.FC = () => {
       if (selectedIndex < tripDays.length - 1) {
         setSelectedIndex((i) => i + 1);
       } else {
-        setCompleted({ dayPlanning: true });
+        setCompleted('dayPlanning', true);
         navigate("/trips/new/finish");
         toast.success("Ամբողջ ճանապարհորդությունը պատրաստ է");
       }
@@ -224,7 +248,7 @@ const DayPlanning: React.FC = () => {
   };
 
   const skipAll = () => {
-    setCompleted({ dayPlanning: true });
+    setCompleted('dayPlanning', true);
     navigate("/trips/new/finish");
   };
 

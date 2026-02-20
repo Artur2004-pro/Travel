@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { MapPin } from "lucide-react";
 import { ImageCarousel } from "../../components";
 import { Axios } from "../../../lib/axios-config";
 import TripStepLayout from "../TripStepLayout";
+import { useTripWizard } from '../../../context/trip-wizard-context';
 
 export const City: React.FC = () => {
   const navigate = useNavigate();
-  const { tripData, setTripData } = useOutletContext<any>();
+  const wizard = useTripWizard();
+  const { tripData, setTripData, registerValidator, unregisterValidator } = wizard;
 
   const [cities, setCities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!tripData?.countryId) {
-      navigate("/trips/country");
+      navigate("/trips/new/country");
       return;
     }
 
@@ -34,9 +36,14 @@ export const City: React.FC = () => {
     };
   }, [tripData?.countryId]);
 
+  useEffect(() => {
+    registerValidator('city', () => Boolean(wizard.tripData.cityId));
+    return () => unregisterValidator('city');
+  }, [registerValidator, unregisterValidator]);
+
   const selectCity = (id: string) => {
     setTripData({ cityId: id });
-    navigate("/trips/hotel");
+    navigate("/trips/new/hotel");
   };
 
   if (loading) {
@@ -52,7 +59,6 @@ export const City: React.FC = () => {
       stepIndex={3}
       totalSteps={6}
       onBack={() => navigate(-1)}
-      onNext={() => {}}
     >
       <div className="max-w-5xl mx-auto px-0 py-4 space-y-6">
         {cities.length === 0 && (

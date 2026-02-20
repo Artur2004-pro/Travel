@@ -1,39 +1,41 @@
-// src/pages/Planning.tsx
-import React, { useState } from "react";
-import { useNavigate, useOutletContext } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Axios } from "../../../lib/axios-config";
-import type { ITripItem } from "../../../types";
 import TripStepLayout from "../TripStepLayout";
+import { useTripWizard } from '../../../context/trip-wizard-context';
 
 export const Planning: React.FC = () => {
   const navigate = useNavigate();
-  const { tripData, setTripData, setCompleted } = useOutletContext<{
-    tripData: any;
-    setTripData(d: Partial<any>): void;
-    setCompleted(p: Partial<ITripItem>): void;
-  }>();
+  const wizard = useTripWizard();
+  const { tripData, setTripData, setCompleted, registerValidator, unregisterValidator } = wizard;
 
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    startDate: "",
-    endDate: "",
-  });
+  const form = {
+    title: tripData?.title || "",
+    description: tripData?.description || "",
+    startDate: tripData?.startDate || "",
+    endDate: tripData?.endDate || "",
+  };
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const onChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setTripData({ [e.target.name]: e.target.value });
+  };
 
   const validate = () => {
     if (!form.title) return "Give your trip a name";
     if (!form.startDate || !form.endDate) return "Select your travel dates";
-    if (new Date(form.startDate) > new Date(form.endDate))
-      return "Dates don’t make sense";
+    if (new Date(form.startDate) > new Date(form.endDate)) return "Dates don’t make sense";
     return null;
   };
+
+  useEffect(() => {
+    registerValidator('planning', () => {
+      return validate() === null;
+    });
+    return () => unregisterValidator('planning');
+  }, [form.title, form.startDate, form.endDate]);
 
   const submit = async () => {
     const err = validate();
@@ -45,7 +47,10 @@ export const Planning: React.FC = () => {
       setError(null);
 
       const { data } = await Axios.post("/trip", {
-        ...form,
+        title: form.title,
+        description: form.description,
+        startDate: form.startDate,
+        endDate: form.endDate,
         countryId: tripData.countryId,
       });
 
@@ -55,9 +60,11 @@ export const Planning: React.FC = () => {
         tripId: data.payload._id,
         startDate: form.startDate,
         endDate: form.endDate,
+        title: form.title,
+        description: form.description,
       });
 
-      setCompleted({ planning: true });
+      setCompleted('planning', true);
       navigate("/trips/new/day-planning");
     } catch {
       setError("Could not create trip");
@@ -128,3 +135,4 @@ export const Planning: React.FC = () => {
 };
 
 export default Planning;
+

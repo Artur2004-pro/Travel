@@ -1,25 +1,21 @@
 import React, { useEffect, useState } from "react";
 import {
   useNavigate,
-  useOutletContext,
   useSearchParams,
 } from "react-router-dom";
 import { Axios } from "../../../lib/axios-config";
-import type { ICountry, IResponse, ITripItem } from "../../../types";
+import type { ICountry, IResponse } from "../../../types";
 import { useDebounce } from "../../../hooks/useDebounce";
 import { ImageCarousel } from "../../components";
 import { Globe2, Search } from "lucide-react";
 import TripStepLayout from "../TripStepLayout";
+import { useTripWizard } from '../../../context/trip-wizard-context';
 
 export const Country: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-
-  const { tripData, setTripData, setCompleted } = useOutletContext<{
-    tripData: any;
-    setTripData(d: Partial<any>): void;
-    setCompleted(p: Partial<ITripItem>): void;
-  }>();
+  const wizard = useTripWizard();
+  const { tripData, setTripData, setCompleted, registerValidator, unregisterValidator } = wizard;
 
   const [q, setQ] = useState("");
   const [countries, setCountries] = useState<ICountry[]>([]);
@@ -59,13 +55,18 @@ export const Country: React.FC = () => {
   useEffect(() => {
     if (!countryFromQuery || tripData?.countryId) return;
     setTripData({ countryId: countryFromQuery });
-    setCompleted({ country: true });
+    setCompleted('country', true);
     navigate("/trips/new/planning", { replace: true });
   }, [countryFromQuery]);
 
+  useEffect(() => {
+    registerValidator('country', () => Boolean(wizard.tripData.countryId));
+    return () => unregisterValidator('country');
+  }, [registerValidator, unregisterValidator]);
+
   const selectCountry = (id: string) => {
     setTripData({ countryId: id });
-    setCompleted({ country: true });
+    setCompleted('country', true);
     navigate("/trips/new/planning");
   };
 
@@ -75,7 +76,6 @@ export const Country: React.FC = () => {
       subtitle="Search and select a country to start your trip"
       stepIndex={1}
       totalSteps={6}
-      onNext={() => {}}
       onBack={() => navigate(-1)}
     >
       <div className="max-w-5xl mx-auto px-0 py-4 space-y-6">
